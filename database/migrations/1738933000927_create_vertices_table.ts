@@ -5,10 +5,11 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').notNullable()
 
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table.decimal('postionX', 6, 2)
+      table.decimal('postionY', 6, 2)
+      table.integer('planId').unsigned().references('id').inTable('plans').onDelete('CASCADE')
     })
   }
 
