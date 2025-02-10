@@ -7,8 +7,8 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').notNullable()
 
-      table.decimal('postionX', 6, 2)
-      table.decimal('postionY', 6, 2)
+      table.decimal('positionX', 6, 2)
+      table.decimal('positionY', 6, 2)
       table.integer('planId').unsigned().references('id').inTable('plans').onDelete('CASCADE')
     })
   }
