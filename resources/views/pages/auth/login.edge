@@ -1,0 +1,12 @@
+@let(title = 'login')
+@include('partials/header')
+
+<form action="" method="POST" class="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2">
+  {{ csrfField() }}
+  @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
+  @!component('components/input', { name : 'password', label : 'Password', type : 'password' })
+
+  <button class="block w-full bg-blue-500 text-white font-bold p-4 rounded-lg" type="submit">{{ title }}</button>
+</form>
+
+@include('partials/footer')

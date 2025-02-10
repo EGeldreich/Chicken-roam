@@ -1,0 +1,39 @@
+<nav class="bg-slate-700 h-15">
+  <div class="container flex justify-between h-full px-10">
+
+    <div class="flex">
+      <a
+        class="text-xl text-slate-300 font-semibold flex self-center hover:text-slate-100 transition duration-200 ease-in-out"
+        href="/"
+      >Home</a>
+    </div>
+
+    <div class="flex gap-5">
+
+      @if(!auth.use('web').isAuthenticated)
+        <a
+          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
+          href="{{ route('auth.login') }}"
+        >Log in</a>
+
+        <a
+          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
+          href="{{ route('auth.register') }}"
+        >Register</a>
+      @else
+        <p class="flex self-center text-slate-300">
+          logged as &nbsp;<strong>{{ auth.use('web').user.username }}</strong>
+        </p>
+        <form action="{{ route('auth.logout') }}?_method=DELETE" method="POST" class="flex">
+          {{ csrfField() }}
+            <button
+            type="submit"
+            class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
+          >Log out</button>
+        </form>
+      @end
+        
+    </div>
+
+  </div>
+</nav>
