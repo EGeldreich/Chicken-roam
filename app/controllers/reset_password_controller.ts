@@ -15,7 +15,7 @@ export default class ResetPasswordController {
   //
   // When submitting the form
   async handleForgotPassword({ request, session, response }: HttpContext) {
-    // Chek the input email using validator
+    // Check the input email using validator
     const { email } = await request.validateUsing(forgotPasswordValidator)
     // Find the user by email
     const user = await User.findBy('email', email)

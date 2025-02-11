@@ -36,5 +36,7 @@ router
   .group(() => {
     router.delete('/login', [AuthController, 'logout']).as('auth.logout')
     router.get('/user-page', [UsersController, 'userPage']).as('user-page')
+    router.get('/edit-email', [UsersController, 'editEmail']).as('edit-email')
+    router.post('/edit-email', [UsersController, 'HandleEditEmail'])
   })
   .use(middleware.auth())
