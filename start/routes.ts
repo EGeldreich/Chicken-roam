@@ -38,5 +38,7 @@ router
     router.get('/user-page', [UsersController, 'userPage']).as('user-page')
     router.get('/edit-email', [UsersController, 'editEmail']).as('edit-email')
     router.post('/edit-email', [UsersController, 'HandleEditEmail'])
+    router.get('/edit-password', [UsersController, 'editPassword']).as('edit-password')
+    router.post('/edit-password', [UsersController, 'handleEditPassword'])
   })
   .use(middleware.auth())

@@ -25,3 +25,11 @@ export const editEmailValidator = vine.compile(
       }),
   })
 )
+//
+//
+export const editPasswordValidator = vine.compile(
+  vine.object({
+    curPassword: vine.string(),
+    newPassword: vine.string().minLength(8).confirmed(),
+  })
+)
