@@ -14,3 +14,19 @@
     <span class="block sm:inline">{{ flashMessages.get('success') }}</span>
   </div>
 @end
+
+@if(flashMessages.has('warning'))
+  <div
+    class="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded relative"
+    role="alert"
+  >
+    <strong class="font-bold">Sorry!</strong>
+    <span class="block sm:inline">{{ flashMessages.get('warning') }}</span>
+  </div>
+@end
+@if(flashMessages.has('error'))
+  <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <strong class="font-bold">Error!</strong>
+    <span class="block sm:inline">{{ flashMessages.get('error') }}</span>
+  </div>
+@end

@@ -11,7 +11,7 @@ export const registerUserValidator = vine.compile(
         const users = await db.from('users').where('email', value).first()
         return !users
       }),
-    password: vine.string().minLength(8),
+    password: vine.string().minLength(8).confirmed(),
   })
 )
 //
@@ -19,5 +19,19 @@ export const loginUserValidator = vine.compile(
   vine.object({
     email: vine.string().email(),
     password: vine.string().minLength(8),
+  })
+)
+//
+export const forgotPasswordValidator = vine.compile(
+  vine.object({
+    email: vine.string().email(),
+  })
+)
+//
+export const resetPasswordValidator = vine.compile(
+  vine.object({
+    token: vine.string(),
+    email: vine.string().email(),
+    password: vine.string().minLength(8).confirmed(),
   })
 )
