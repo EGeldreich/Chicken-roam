@@ -13,6 +13,13 @@ import vine from '@vinejs/vine'
 // unique() ensure uniqueness in DB
 // confirmed() ensure input from this field and the confirmation field are equals
 
+export const editUsernameValidator = vine.compile(
+  vine.object({
+    username: vine.string().trim().maxLength(50).alphaNumeric(),
+  })
+)
+//
+//
 export const editEmailValidator = vine.compile(
   vine.object({
     email: vine
