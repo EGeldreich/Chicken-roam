@@ -21,9 +21,10 @@
           href="{{ route('auth.register') }}"
         >Register</a>
       @else
-        <p class="flex self-center text-slate-300">
-          logged as &nbsp;<strong>{{ auth.use('web').user.username }}</strong>
-        </p>
+        <a
+          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
+          href="{{ route('user-page') }}"
+        >{{ auth.use('web').user.username }}</a>
         <form action="{{ route('auth.logout') }}?_method=DELETE" method="POST" class="flex">
           {{ csrfField() }}
             <button

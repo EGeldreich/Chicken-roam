@@ -15,7 +15,7 @@ export default class AuthController {
     // Get informations from request and validate them
     const { username, email, password } = await request.validateUsing(registerUserValidator)
 
-    // Create new user in DB
+    // Create new user in DB and save
     await User.create({ username, email, password })
     // Add flash message and redirect
     session.flash('success', 'Register Ok')

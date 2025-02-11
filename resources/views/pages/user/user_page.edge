@@ -1,0 +1,27 @@
+@let(title = 'User page')
+@include('partials/header')
+
+<table>
+  <thead>
+    <tr>
+      <th>
+        Username
+      </th>
+      <th>
+        Email
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        {{ auth.user.username }}
+      </td>
+      <td>
+        {{ auth.user.email }}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+@include('partials/footer')
