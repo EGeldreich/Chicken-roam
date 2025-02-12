@@ -10,18 +10,18 @@ export default class extends BaseSchema {
       table.string('type', 50).notNullable()
       table.string('description', 255)
       table
-        .integer('vertexEndId')
+        .integer('vertex_end_id')
         .unsigned()
         .references('id')
         .inTable('vertices')
         .onDelete('CASCADE')
       table
-        .integer('vertexStartId')
+        .integer('vertex_start_id')
         .unsigned()
         .references('id')
         .inTable('vertices')
         .onDelete('CASCADE')
-      table.integer('planId').unsigned().references('id').inTable('plans').onDelete('CASCADE')
+      table.integer('plan_id').unsigned().references('id').inTable('plans').onDelete('CASCADE')
     })
   }
 

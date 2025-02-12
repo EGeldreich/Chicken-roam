@@ -17,37 +17,39 @@ export default class HomeController {
   //
   //
   async handleLanding({ request, response, auth }: HttpContext) {
-    try {
-      // Validate input
-      const { nbChickens } = await request.validateUsing(onboardingValidator)
+    // Validate input
+    const { nbChickens } = await request.validateUsing(onboardingValidator)
 
-      // Create new plan
-      const plan = await Plan.create({
-        name: `Plan ${DateTime.now().toFormat('yyyy-MM-dd HH:mm')}`, // Default name
-        nbChickens,
-        isCompleted: false,
-        userId: auth.user?.id, // If using authentication
-      })
+    // Create new plan
+    const plan = await Plan.create({
+      name: `Plan ${DateTime.now().toFormat('yyyy-MM-dd HH:mm')}`, // Default name
+      nbChickens,
+      isCompleted: false,
+      userId: auth.user?.id, // Inputs userId if a user is logged
+    })
 
-      // Retrieve all objectives
-      const objectives = await Objective.all()
+    // Retrieve all objectives
+    const objectives = await Objective.all()
 
-      // Prepare pivot data for attaching objectives
-      const objectivePivotData: { [key: number]: { completionPercentage: number } } =
-        objectives.reduce((acc: { [key: number]: { completionPercentage: number } }, objective) => {
-          acc[objective.id] = { completionPercentage: 0 }
-          return acc
-        }, {})
+    // Prepare pivot data for attaching objectives
+    const objectivePivotData: {
+      [key: number]: { completion_percentage: number; target_value: number }
+    } = objectives.reduce(
+      (
+        acc: { [key: number]: { completion_percentage: number; target_value: number } },
+        objective
+      ) => {
+        const targetValue = Math.ceil(nbChickens / objective.perNbChicken) * objective.goal
+        acc[objective.id] = { completion_percentage: 0, target_value: targetValue }
+        return acc
+      },
+      {}
+    )
 
-      // Attach objectives to the plan
-      await plan.related('objectives').attach(objectivePivotData)
+    // Attach objectives to the plan
+    await plan.related('objectives').attach(objectivePivotData)
 
-      // Redirect to plan editor
-      return response.redirect().toRoute('plans.edit', { id: plan.id })
-    } catch (error) {
-      // Handle errors appropriately
-      console.error(error)
-      return response.redirect().back()
-    }
+    // Redirect to plan editor
+    return response.redirect().toRoute('plan', { id: plan.id })
   }
 }

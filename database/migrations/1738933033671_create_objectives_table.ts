@@ -11,7 +11,7 @@ export default class extends BaseSchema {
       table.string('description', 255).notNullable()
       table.integer('goal').notNullable()
       table.string('unit', 20).notNullable()
-      table.integer('perNbChicken').notNullable()
+      table.integer('per_nb_chicken').notNullable()
     })
   }
 

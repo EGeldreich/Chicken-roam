@@ -78,21 +78,14 @@ export default class UsersController {
 
     // Get request information and validate them
     const { curPassword, newPassword } = await request.validateUsing(editPasswordValidator)
+    // Verify the current password
+    const user = await User.verifyCredentials(auth.user!.email, curPassword)
 
-    try {
-      // Verify the current password
-      const user = await User.verifyCredentials(auth.user!.email, curPassword)
+    // If verification passed, update with new password
+    await user.merge({ password: newPassword }).save()
 
-      // If verification passed, update with new password
-      await user.merge({ password: newPassword }).save()
-
-      session.flash('success', 'Password successfully updated')
-      return response.redirect().toRoute('user-page')
-    } catch (error) {
-      // Wrong current password
-      session.flash('error', 'Current password is incorrect')
-      return response.redirect().back()
-    }
+    session.flash('success', 'Password successfully updated')
+    return response.redirect().toRoute('user-page')
   }
   //
   //

@@ -1,7 +1,8 @@
 @let(title = 'Chicken Realm')
 @include('partials/header')
 
-<form action="" method="POST">
+<form action="/plan" method="POST">
+  {{ csrfField() }}
   <div>
     <div class="inline">
       I want to create a chicken run for my dear
@@ -16,7 +17,8 @@
   <button type="submit" class="btn btn-primary">Let's start</button>
 </form>
 
-<form action="" method="POST">
+<form action="/plan" method="POST">
+  {{ csrfField() }}
   <input type="hidden" name="nbChickens" value="10" />
   <button type="submit" class="btn btn-primary">I just want to play around</button>
 </form>

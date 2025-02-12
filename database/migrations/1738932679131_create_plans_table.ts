@@ -8,9 +8,9 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
 
       table.string('name', 50).notNullable()
-      table.integer('nbChickens').notNullable()
-      table.boolean('isCompleted').defaultTo(false)
-      table.integer('userId').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.integer('nb_chickens').notNullable()
+      table.boolean('is_completed').defaultTo(false)
+      table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

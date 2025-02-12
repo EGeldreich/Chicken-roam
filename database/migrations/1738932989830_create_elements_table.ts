@@ -8,9 +8,9 @@ export default class extends BaseSchema {
       table.increments('id').notNullable()
 
       table.string('type', 50).notNullable()
-      table.integer('objectiveValue').notNullable()
+      table.integer('objective_value').notNullable()
       table.string('description', 255)
-      table.integer('planId').unsigned().references('id').inTable('plans').onDelete('CASCADE')
+      table.integer('plan_id').unsigned().references('id').inTable('plans').onDelete('CASCADE')
     })
   }
 

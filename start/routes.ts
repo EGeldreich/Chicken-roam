@@ -13,10 +13,12 @@ import { middleware } from '#start/kernel'
 import ResetPasswordController from '#controllers/reset_password_controller'
 import UsersController from '#controllers/users_controller'
 import HomeController from '#controllers/home_controller'
+import PlansController from '#controllers/plans_controller'
 
-router.on('/').render('pages/onboarding/onboarding')
+router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
-router.post('/home', [HomeController, 'handleLanding'])
+router.post('/plan', [HomeController, 'handleLanding'])
+router.get('/plan/:id', [PlansController, 'plan']).as('plan')
 
 router
   .group(() => {

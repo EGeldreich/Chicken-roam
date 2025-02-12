@@ -48,7 +48,7 @@ export default class Plan extends BaseModel {
 
   @manyToMany(() => Objective, {
     pivotTable: 'plan_objectives',
-    pivotColumns: ['completionPercentage'],
+    pivotColumns: ['completionPercentage', 'targetValue'],
   })
   declare objectives: ManyToMany<typeof Objective>
 }
