@@ -35,16 +35,12 @@
   </tbody>
 </table>
 
-<form
-  action="{{ route('user-destroy', {id: auth.user.id}) }}?_method=DELETE"
-  method="POST"
-  class="flex"
->
-  {{ csrfField() }}
-      <button
-    type="submit"
-    class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
-  >Delete account</button>
-</form>
+@component('components/delete_form', {
+  name: 'Delete account',
+  action: route('user-destroy'),
+  sentenceEnd: 'your account'
+})
+
+@end
 
 @include('partials/footer')

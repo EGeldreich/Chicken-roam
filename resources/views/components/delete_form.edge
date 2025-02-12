@@ -1,0 +1,32 @@
+<form
+  x-data="{ showConfirm: false }"
+  @submit.prevent="if (showConfirm) $el.submit()"
+  action="{{ action }}"
+  method="POST"
+>
+  {{ csrfField() }}
+  <input type="hidden" name="_method" value="DELETE" />
+
+  <button type="button" @click="$refs.confirmDialog.showModal()" class="text-red-600">
+    {{ name }}
+  </button>
+
+  {{-- Confirmation Dialog --}}
+  <dialog
+    x-ref="confirmDialog"
+    class="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-lg shadow-xl p-6 backdrop:bg-gray-600/50 max-w-md w-full"
+  >
+    <p class="mb-4">
+      Are you sure you want to delete {{ sentenceEnd }}?
+    </p>
+
+    <div class="flex gap-4">
+      <button type="submit" @click="showConfirm = true" class="bg-red-600 text-white px-4 py-2 rounded">
+        Yes, Delete
+      </button>
+      <button type="button" @click="$refs.confirmDialog.close()" class="bg-gray-200 px-4 py-2 rounded">
+        Cancel
+      </button>
+    </div>
+  </dialog>
+</form>
