@@ -12,8 +12,11 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import ResetPasswordController from '#controllers/reset_password_controller'
 import UsersController from '#controllers/users_controller'
+import HomeController from '#controllers/home_controller'
 
-router.on('/').render('pages/home').as('home')
+router.on('/').render('pages/onboarding/onboarding')
+router.get('/home', [HomeController, 'homePage']).as('home')
+router.post('/home', [HomeController, 'handleLanding'])
 
 router
   .group(() => {

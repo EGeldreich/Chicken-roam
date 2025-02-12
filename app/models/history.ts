@@ -9,6 +9,12 @@ export default class History extends BaseModel {
   declare id: number
 
   @column()
+  declare userId: number
+
+  @column()
+  declare planId: number
+
+  @column()
   declare versionName: string
 
   @column.dateTime({ autoCreate: true })

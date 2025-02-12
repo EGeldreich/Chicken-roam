@@ -9,6 +9,9 @@ export default class Vertex extends BaseModel {
   declare id: number
 
   @column()
+  declare planId: number
+
+  @column()
   declare positionX: number
 
   @column()

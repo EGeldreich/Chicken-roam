@@ -13,6 +13,9 @@ export default class Plan extends BaseModel {
   declare id: number
 
   @column()
+  declare userId: number
+
+  @column()
   declare name: string
 
   @column()

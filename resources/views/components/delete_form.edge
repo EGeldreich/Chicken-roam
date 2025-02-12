@@ -7,7 +7,7 @@
   {{ csrfField() }}
   <input type="hidden" name="_method" value="DELETE" />
 
-  <button type="button" @click="$refs.confirmDialog.showModal()" class="text-red-600">
+  <button type="button" @click="$refs.confirmDialog.showModal()" class="btn btn-danger">
     {{ name }}
   </button>
 
@@ -21,10 +21,10 @@
     </p>
 
     <div class="flex gap-4">
-      <button type="submit" @click="showConfirm = true" class="bg-red-600 text-white px-4 py-2 rounded">
+      <button type="submit" @click="showConfirm = true" class="btn btn-danger">
         Yes, Delete
       </button>
-      <button type="button" @click="$refs.confirmDialog.close()" class="bg-gray-200 px-4 py-2 rounded">
+      <button type="button" @click="$refs.confirmDialog.close()" class="btn btn-primary">
         Cancel
       </button>
     </div>

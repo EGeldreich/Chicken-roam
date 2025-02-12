@@ -4,33 +4,21 @@
     <div class="flex">
       <a
         class="text-xl text-slate-300 font-semibold flex self-center hover:text-slate-100 transition duration-200 ease-in-out"
-        href="/"
+        href="{{ route('home') }}"
       >Home</a>
     </div>
 
     <div class="flex gap-5">
 
       @if(!auth.use('web').isAuthenticated)
-        <a
-          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
-          href="{{ route('auth.login') }}"
-        >Log in</a>
+        <a class="btn btn-primary-reverse" href="{{ route('auth.login') }}">Log in</a>
 
-        <a
-          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
-          href="{{ route('auth.register') }}"
-        >Register</a>
+        <a class="btn btn-primary-reverse" href="{{ route('auth.register') }}">Register</a>
       @else
-        <a
-          class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
-          href="{{ route('user-page') }}"
-        >{{ auth.use('web').user.username }}</a>
+        <a class="btn btn-primary-reverse" href="{{ route('user-page') }}">{{ auth.use('web').user.username }}</a>
         <form action="{{ route('auth.logout') }}?_method=DELETE" method="POST" class="flex">
           {{ csrfField() }}
-            <button
-            type="submit"
-            class="rounded-lg text-5/12 px-3 py-1.5 border-2 h-10 flex self-center border-slate-300 text-slate-300 hover:bg-slate-500 hover:text-slate-100 duration-300"
-          >Log out</button>
+            <button type="submit" class="btn btn-primary-reverse">Log out</button>
         </form>
       @end
         

@@ -8,6 +8,9 @@ export default class Element extends BaseModel {
   declare id: number
 
   @column()
+  declare planId: number
+
+  @column()
   declare type: string
 
   @column()
