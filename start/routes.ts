@@ -21,7 +21,6 @@ router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
 
 router.post('/plan', [HomeController, 'handleLanding'])
-router.get('/plan/:id', [PlansController, 'plan']).as('plan')
 
 router.post('/api/elements', [ElementsController, 'create'])
 // router.patch('/api/elements/:id', [ElementsController, 'update'])
@@ -36,8 +35,10 @@ router
   .group(() => {
     router.get('/register', [AuthController, 'register']).as('auth.register')
     router.post('/register', [AuthController, 'handleRegister'])
+
     router.get('/login', [AuthController, 'login']).as('auth.login')
     router.post('/login', [AuthController, 'handleLogin'])
+
     router
       .get('/forgot-password', [ResetPasswordController, 'forgotPassword'])
       .as('auth.forgot-password')
@@ -46,6 +47,8 @@ router
       .get('/reset-password', [ResetPasswordController, 'resetPassword'])
       .as('auth.reset-password')
     router.post('/reset-password', [ResetPasswordController, 'handleResetPassword'])
+
+    router.get('/plan', [PlansController, 'guestPlan']).as('guest-plan')
   })
   .use(middleware.guest())
 
@@ -60,5 +63,7 @@ router
     router.get('/user/edit-username', [UsersController, 'editUsername']).as('edit-username')
     router.post('/user/edit-username', [UsersController, 'handleEditUsername'])
     router.delete('/user', [UsersController, 'deleteAccount']).as('user-destroy')
+
+    router.get('/plan/:id', [PlansController, 'plan']).as('plan')
   })
   .use(middleware.auth())

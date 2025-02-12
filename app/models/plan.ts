@@ -22,6 +22,9 @@ export default class Plan extends BaseModel {
   declare nbChickens: number
 
   @column()
+  declare isTemporary: boolean
+
+  @column()
   declare isCompleted: boolean
 
   @column.dateTime({ autoCreate: true })
@@ -51,4 +54,25 @@ export default class Plan extends BaseModel {
     pivotColumns: ['completionPercentage', 'targetValue'],
   })
   declare objectives: ManyToMany<typeof Objective>
+
+  // Methods _________________________________________________________________
+  async getUserPlanNumber() {
+    // Find all plans for this user, ordered by creation date
+    const userPlans = await Plan.query().where('userId', this.userId).orderBy('createdAt', 'asc')
+
+    // Find this plan's position in the array (adding 1 since positions start at 1)
+    return userPlans.findIndex((plan) => plan.id === this.id) + 1
+  }
+
+  // Add a method to find a plan by its position for a user
+  static async findByUserPosition(userId: number, position: number) {
+    const plan = await Plan.query()
+      .where('userId', userId)
+      .orderBy('createdAt', 'asc')
+      .offset(position - 1)
+      .limit(1)
+      .firstOrFail()
+
+    return plan
+  }
 }

@@ -11,6 +11,7 @@ export default class extends BaseSchema {
       table.integer('nb_chickens').notNullable()
       table.boolean('is_completed').defaultTo(false)
       table.integer('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE')
+      table.boolean('is_temporary').defaultTo(false)
 
       table.timestamp('created_at')
       table.timestamp('updated_at')

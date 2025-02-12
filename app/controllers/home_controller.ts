@@ -50,6 +50,10 @@ export default class HomeController {
     await plan.related('objectives').attach(objectivePivotData)
 
     // Redirect to plan editor
-    return response.redirect().toRoute('plan', { id: plan.id })
+    if (auth.user) {
+      return response.redirect().toRoute('plan', { id: plan.id })
+    } else {
+      return response.redirect().toRoute('guest-plan')
+    }
   }
 }

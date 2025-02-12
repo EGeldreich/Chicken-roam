@@ -1,6 +1,8 @@
 import { registerUserValidator, loginUserValidator } from '#validators/auth'
 import type { HttpContext } from '@adonisjs/core/http'
 import User from '#models/user'
+import Plan from '#models/plan'
+import db from '@adonisjs/lucid/services/db'
 
 export default class AuthController {
   //
@@ -17,7 +19,33 @@ export default class AuthController {
 
     // Create new user in DB and save
     const user = await User.create({ username, email, password })
+
+    // Check if there's a temporary plan to convert
+    const tempPlanId = session.get('temporaryPlanId')
+    if (tempPlanId) {
+      const temporaryPlan = await Plan.find(tempPlanId)
+
+      if (temporaryPlan) {
+        // Start a transaction to ensure data consistency
+        const trx = await db.transaction()
+
+        // Update the plan using the transaction
+        await temporaryPlan
+          .merge({
+            userId: user.id,
+            isTemporary: false,
+          })
+          .useTransaction(trx)
+          .save()
+
+        await trx.commit()
+        session.forget('temporaryPlanId')
+      }
+    }
+
+    // Log in
     await auth.use('web').login(user)
+
     // Add flash message and redirect
     session.flash('success', 'Register Ok')
     return response.redirect().toRoute('home')
