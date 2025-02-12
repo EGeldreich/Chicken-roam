@@ -5,7 +5,11 @@
   {{ csrfField() }}
   @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
   @!component('components/input', { name : 'password', label : 'Password', type : 'password' })
-  <a href="{{ route('auth.forgot-password') }}">Forgot password?</a>
+  <a href="{{ route('auth.forgot-password') }}" class=" block w-full text-right">Forgot password?</a>
+  <div class="mb-4">
+    <label for="remember_me" class="text-gray-700 text-sm font-bold mb-2">Remember me</label>
+    <input type="checkbox" name="remember_me" id="remember_me" />
+  </div>
 
   <button class="block w-full bg-blue-500 text-white font-bold p-4 rounded-lg" type="submit">{{ title }}</button>
 </form>

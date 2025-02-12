@@ -11,12 +11,13 @@ export default class AuthController {
   }
   //
   // Handle register
-  async handleRegister({ request, session, response }: HttpContext) {
+  async handleRegister({ request, session, response, auth }: HttpContext) {
     // Get informations from request and validate them
     const { username, email, password } = await request.validateUsing(registerUserValidator)
 
     // Create new user in DB and save
-    await User.create({ username, email, password })
+    const user = await User.create({ username, email, password })
+    await auth.use('web').login(user)
     // Add flash message and redirect
     session.flash('success', 'Register Ok')
     return response.redirect().toRoute('home')
@@ -36,7 +37,13 @@ export default class AuthController {
     // Automatically send Invalid Credentials error if no match
     const user = await User.verifyCredentials(email, password)
     // Log in user
-    await auth.use('web').login(user)
+    await auth.use('web').login(
+      user,
+      /**
+       * Generate token when "remember_me" input exists
+       */
+      !!request.input('remember_me')
+    )
     // Add flash message and redirect
     session.flash('success', 'You are logged in')
     return response.redirect().toRoute('home')
