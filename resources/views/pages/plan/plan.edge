@@ -1,7 +1,31 @@
+@vite(['resources/js/pages/plan.js'])
 @let(title = 'Plan')
 @include('partials/header')
 
-<p>
-  I'm in
-</p>
+<script>
+  // Pass server-side data to JavaScript
+  window.PLAN_ID = {{ plan.id }};
+</script>
+
+<div class="flex">
+  {{-- Toolbox Panel --}}
+  <div class="w-64 bg-gray-100 p-4 min-h-screen">
+    <h2 class="text-lg font-bold mb-4">
+      Tools
+    </h2>
+    <div class="space-y-2">
+      <button class="tool-btn bg-blue-500 text-white px-4 py-2 rounded" data-tool="select">Select</button>
+      <button class="tool-btn bg-blue-500 text-white px-4 py-2 rounded" data-tool="fence">Draw Fence</button>
+    </div>
+  </div>
+
+  {{-- Main Canvas Area --}}
+  <div class="flex-1 relative">
+    <div id="planCanvas" class="w-full h-screen bg-white relative border-2 border-gray-300">
+      <div id="currentTool" class="absolute top-4 right-4 bg-gray-100 p-2 rounded">
+        Current Tool: <span id="toolDisplay">select</span>
+      </div>
+    </div>
+  </div>
+</div>
 @include('partials/footer')

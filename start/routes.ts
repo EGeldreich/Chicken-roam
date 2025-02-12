@@ -14,11 +14,23 @@ import ResetPasswordController from '#controllers/reset_password_controller'
 import UsersController from '#controllers/users_controller'
 import HomeController from '#controllers/home_controller'
 import PlansController from '#controllers/plans_controller'
+import ElementsController from '#controllers/elements_controller'
+import FencesController from '#controllers/fences_controller'
 
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
+
 router.post('/plan', [HomeController, 'handleLanding'])
 router.get('/plan/:id', [PlansController, 'plan']).as('plan')
+
+router.post('/api/elements', [ElementsController, 'create'])
+// router.patch('/api/elements/:id', [ElementsController, 'update'])
+// router.delete('/api/elements/:id', [ElementsController, 'delete'])
+
+// Routes for fence operations
+router.post('/api/fences', [FencesController, 'create'])
+router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
+router.delete('/api/fences/:id', [FencesController, 'delete'])
 
 router
   .group(() => {
