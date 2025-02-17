@@ -135,48 +135,32 @@ export default class FenceDrawer {
 
     if (this.drawStartPoint.x !== point.x || this.drawStartPoint.y !== point.y) {
       try {
-        const requestData = {
-          planId: this.planId,
-          startX: this.drawStartPoint.x,
-          startY: this.drawStartPoint.y,
-          endX: point.x,
-          endY: point.y,
-        }
-
-        console.log('Sending fence data:', requestData)
-
         const response = await fetch('/api/fences', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            // ADD CSRF PROTECTION
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
           },
-          body: JSON.stringify(requestData),
+          body: JSON.stringify({
+            planId: this.planId,
+            startX: this.drawStartPoint.x,
+            startY: this.drawStartPoint.y,
+            endX: point.x,
+            endY: point.y,
+          }),
         })
 
-        if (!response.ok) {
-          // Log the actual error response
-          const errorText = await response.text()
-          console.error('Server response:', errorText)
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const fence = await response.json()
-        console.log('Created fence:', fence)
+        const responseData = await response.json() // Read the body once
 
         if (response.ok) {
-          const fence = await response.json() // Get the created fence data
-          this.isFirstFence = false // No longer the first fence
-
-          // Track the new vertices
+          // Use the responseData
+          this.isFirstFence = false
           this.trackVertex({ positionX: this.drawStartPoint.x, positionY: this.drawStartPoint.y })
           this.trackVertex({ positionX: point.x, positionY: point.y })
-
-          // Update connection points
           this.updateConnectionPoints()
-
           this.temporaryFence.classList.remove('temporary-fence')
         } else {
+          console.error('Server error:', responseData)
           this.temporaryFence.remove()
         }
       } catch (error) {
