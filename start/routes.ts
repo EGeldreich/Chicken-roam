@@ -20,8 +20,6 @@ import FencesController from '#controllers/fences_controller'
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
 
-router.post('/plan', [HomeController, 'handleLanding'])
-
 router.post('/api/elements', [ElementsController, 'create'])
 // router.patch('/api/elements/:id', [ElementsController, 'update'])
 // router.delete('/api/elements/:id', [ElementsController, 'delete'])
@@ -48,6 +46,8 @@ router
       .as('auth.reset-password')
     router.post('/reset-password', [ResetPasswordController, 'handleResetPassword'])
 
+    router.post('/plan/guest', [HomeController, 'guestLanding'])
+
     router.get('/plan', [PlansController, 'guestPlan']).as('guest-plan')
   })
   .use(middleware.guest())
@@ -63,6 +63,8 @@ router
     router.get('/user/edit-username', [UsersController, 'editUsername']).as('edit-username')
     router.post('/user/edit-username', [UsersController, 'handleEditUsername'])
     router.delete('/user', [UsersController, 'deleteAccount']).as('user-destroy')
+
+    router.post('/plan', [HomeController, 'handleLanding'])
 
     router.get('/plan/:id', [PlansController, 'plan']).as('plan')
   })

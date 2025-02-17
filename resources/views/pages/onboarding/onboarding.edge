@@ -1,26 +1,35 @@
 @let(title = 'Chicken Realm')
 @include('partials/header')
 
-<form action="/plan" method="POST">
-  {{ csrfField() }}
-  <div>
-    <div class="inline">
-      I want to create a chicken run for my dear
+@if(auth.use('web').isAuthenticated)
+  <form action="/plan" method="POST">
+  @else
+    <form action="/plan/guest" method="POST">
+    @end
+    
+    {{ csrfField() }}
+    <div>
+      <div class="inline">
+        I want to create a chicken run for my dear
+      </div>
+      <div class="inline">
+        <input type="number" name="nbChickens" min="1" max="50" class="underline" placeholder="10" />
+      </div>
+      <div class="inline">
+        chickens.
+      </div>
     </div>
-    <div class="inline">
-      <input type="number" name="nbChickens" min="1" max="50" class="underline" placeholder="10" />
-    </div>
-    <div class="inline">
-      chickens.
-    </div>
-  </div>
-  <button type="submit" class="btn btn-primary">Let's start</button>
-</form>
+    <button type="submit" class="btn btn-primary">Let's start</button>
+  </form>
 
-<form action="/plan" method="POST">
-  {{ csrfField() }}
-  <input type="hidden" name="nbChickens" value="10" />
-  <button type="submit" class="btn btn-primary">I just want to play around</button>
-</form>
+  @if(auth.use('web').isAuthenticated)
+    <form action="/plan" method="POST">
+    @else
+      <form action="/plan/guest" method="POST">
+      @end
+      {{ csrfField() }}
+<input type="hidden" name="nbChickens" value="10" />
+      <button type="submit" class="btn btn-primary">I just want to play around</button>
+    </form>
 
-@include('partials/footer')
+    @include('partials/footer')
