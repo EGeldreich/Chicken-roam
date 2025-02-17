@@ -6,8 +6,10 @@ export default class UsersController {
   //
   //
   // Render user page view
-  userPage({ view }: HttpContext) {
-    return view.render('pages/user/user_page')
+  async userPage({ view, auth }: HttpContext) {
+    const user = await User.query().where('id', auth.user!.id).preload('plans').firstOrFail()
+
+    return view.render('pages/user/user_page', { user })
   }
   //
   //

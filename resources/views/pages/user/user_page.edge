@@ -15,10 +15,10 @@
   <tbody>
     <tr>
       <td>
-        {{ auth.user.username }}
+        {{ user.username }}
       </td>
       <td>
-        {{ auth.user.email }}
+        {{ user.email }}
       </td>
     </tr>
     <tr>
@@ -34,6 +34,13 @@
     </tr>
   </tbody>
 </table>
+<ul>
+  @each(plan in user.plans)
+    <li>
+      <a href="{{ route('plan', { id: plan.id }) }}">{{ plan.name }}</a>
+    </li>
+  @end
+</ul>
 
 @component('components/delete_form', {
   name: 'Delete account',
