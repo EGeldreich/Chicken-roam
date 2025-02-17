@@ -23,10 +23,14 @@ export default class FenceDrawer {
     const response = await fetch(`/api/fences/${this.planId}`)
     if (response.ok) {
       const fences = await response.json()
+      // Set isFirstFence to false if there is at least 1 fence
       this.isFirstFence = fences.length === 0
 
+      // For each fence
       fences.forEach((fence) => {
+        // Create Fence HTML element
         this.renderFence(fence)
+        // Track existing vertices
         this.trackVertex(fence.vertexStart)
         this.trackVertex(fence.vertexEnd)
       })
@@ -34,126 +38,186 @@ export default class FenceDrawer {
       this.updateConnectionPoints()
     }
   }
-
+  //
+  //
+  // Fills up vertices Map() with (key,connections) in the form of ('100,200', 2)
+  // Where '100' is X coords, '200' is Y coords, and '2' is the number of fences using that vertex
   trackVertex(vertex) {
+    // Set key as 'coordX,coordY'
     const key = `${vertex.positionX},${vertex.positionY}`
+    // Check for an already existing vertex with those coords (1), or set connections as (0)
     const connections = this.vertices.get(key) || 0
+    // Increment connection count for this vertex (1) if first, (2) if second
     this.vertices.set(key, connections + 1)
   }
+  //
+  //
+  // Connection points are used as starting point for any fence that isn't the first, and as closure point
   updateConnectionPoints() {
-    // Remove existing connection points
+    // Remove connection points from html (point in an HTML element because that's what is pushed in the array)
     this.connectionPoints.forEach((point) => point.remove())
+    // Set connectionPoints as empty array
     this.connectionPoints = []
 
-    // Add connection points for vertices with less than 2 connections
+    // Check each vertex from the vertices Map()
     this.vertices.forEach((connections, position) => {
+      // If there is less that 2 fences using a vertex
       if (connections < 2) {
+        // Get x and Y coords from the vertex position
         const [x, y] = position.split(',').map(Number)
+        // Call addConnectionPoint function with coordinates
         this.addConnectionPoint(x, y)
       }
     })
   }
-
+  //
+  //
+  // Create connection points HTML elements and style them
   addConnectionPoint(x, y) {
+    // Create div element
     const point = document.createElement('div')
+    // Give it classes
     point.className =
       'h-3 w-3 rounded-full bg-blue-500 absolute transform -translate-x-1/2 -translate-y-1/2'
+    // Set it's position
     point.style.left = `${x}px`
     point.style.top = `${y}px`
+    // Append to canvas
     this.canvas.appendChild(point)
+    // Push into connectionPoints array
     this.connectionPoints.push(point)
   }
+  //
+  //
+  // Seek out nearest connection point to snap to it
   findNearestConnectionPoint(point) {
+    // Set up a snap distance
     const snapDistance = 50 // pixels
+    // Set nearest as null
     let nearest = null
+    // Define minDistance as snapDistance
     let minDistance = snapDistance
 
-    // Check all vertices that have fewer than 2 connections
+    // For each vertex
     this.vertices.forEach((connections, position) => {
+      // If there is less than 2 connections
       if (connections < 2) {
+        // Get x and Y coords from the vertex position
         const [x, y] = position.split(',').map(Number)
+        // Calculate distance to vertex
         const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2))
 
+        // If the distance is lower than the minDistance
         if (distance < minDistance) {
+          // Set minDistance = distance, so for the remaining loops only vertex even closer will go in here
           minDistance = distance
+          // Set nearest coordinates
           nearest = { x, y }
         }
       }
     })
-
+    // Return coordinates of nearest connection point
     return nearest
   }
-
+  //
+  //
+  // Handle mouse down event, mostly check conditions
+  // get point coordinates from PlanEditor
   handleMouseDown(point) {
-    console.log('Mouse down with point:', point) // Log the incoming point
-    console.log('Is first fence:', this.isFirstFence) // Check the flag's current value
-
+    // If no fence has been placed yet
     if (this.isFirstFence) {
-      console.log('Starting first fence')
-
+      // Call startDrawing function at mouse point
       this.startDrawing(point)
+      // If there is already at least one fence
     } else {
-      console.log('Looking for nearest point')
-
+      // Seek nearest connection point via findNearestConnectionPoint method
       const nearestPoint = this.findNearestConnectionPoint(point)
-      console.log('Nearest point found:', nearestPoint)
+      // If there is a connection point close enough
       if (nearestPoint) {
-        console.log(nearestPoint)
+        // Call startDrawing function at connection point
         this.startDrawing(nearestPoint)
       }
     }
   }
-
+  //
+  //
+  // Handle drawing state and creation of temporary fences HTML elements
+  // get point from handleMouseDown (so either mouse point or nearest connection point)
   startDrawing(point) {
+    // Set isDrawing state to true
     this.isDrawing = true
+    // Set drawing start point to mouse point or nearest connection point
     this.drawStartPoint = point
 
     // Create a new element to show the fence line
     this.temporaryFence = document.createElement('div')
+    // Add classes
     this.temporaryFence.className = 'absolute h-1 bg-black transform origin-left'
+    // Handle placement via coordinates
     this.temporaryFence.style.left = `${point.x}px`
     this.temporaryFence.style.top = `${point.y}px`
+    // Append a temporary fence to canva
     this.canvas.appendChild(this.temporaryFence)
   }
-
+  //
+  //
+  // Handle temporary fence movement
+  // get point from planEditor
   handleMouseMove(point) {
+    // If we are not currently drawing, do nothing
     if (!this.isDrawing) return
-
+    // Constantly seek nearest connection point
     const nearestPoint = this.findNearestConnectionPoint(point)
+    // Define current endpoint of the temporary fence as mouse coordinates
     let endPoint = point
 
-    // If we're near a connection point, snap to it
+    // If a connection point is found
     if (nearestPoint) {
+      // Snap to it
       endPoint = nearestPoint
+      // Add styling class
       this.temporaryFence.classList.add('snapping-to-connection')
     } else {
+      // Remove styling class if far enough
       this.temporaryFence.classList.remove('snapping-to-connection')
     }
     // Calculate the length and angle of the fence line
+    // Get difference between startPoint and current endPoint on X and Y coordinates
     const deltaX = endPoint.x - this.drawStartPoint.x
     const deltaY = endPoint.y - this.drawStartPoint.y
+    // Calculate length (Pythagore a²= b² + c² )
     const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+    // Calculate angle
     const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
+    // atan2 returns radians, * (180 / Math.PI) transforms it into regular degrees
 
-    // Update the temporary fence line
+    // Update the temporary fence line according to length and angle
     this.temporaryFence.style.width = `${length}px`
     this.temporaryFence.style.transform = `rotate(${angle}deg)`
   }
-
+  //
+  //
+  // Handle the creation of the fence
+  // get point from planEditor
   async handleMouseUp(point) {
+    // If not currently drawing, do nothing
     if (!this.isDrawing) return
 
-    // Find the nearest valid connection point
-    const nearestPoint = this.findNearestConnectionPoint(point)
+    // Define default endpoint as current mouse position
     let endPoint = point
 
-    // If we're near a connection point, use it
+    // Seek near enough connection point
+    const nearestPoint = this.findNearestConnectionPoint(point)
+    // If we're near a connection point
     if (nearestPoint) {
+      // overwrite default endpoint with connection point
       endPoint = nearestPoint
     }
 
+    // If we are far enough from the starting point
     if (this.drawStartPoint.x !== endPoint.x || this.drawStartPoint.y !== endPoint.y) {
       try {
+        // Redirect to FenceController 'create'
         const response = await fetch('/api/fences', {
           method: 'POST',
           headers: {
@@ -169,13 +233,19 @@ export default class FenceDrawer {
           }),
         })
 
+        // Get response data for error handling
         const responseData = await response.json()
 
+        // If everything went alright in the FenceController
         if (response.ok) {
+          // Set isFirstFence to false
           this.isFirstFence = false
+          // Handle newly created fence's vertices
           this.trackVertex({ positionX: this.drawStartPoint.x, positionY: this.drawStartPoint.y })
           this.trackVertex({ positionX: endPoint.x, positionY: endPoint.y })
+          // Upodate
           this.updateConnectionPoints()
+          // Remove the temporary class
           this.temporaryFence.classList.remove('temporary-fence')
 
           // If we've closed the enclosure, trigger completion
