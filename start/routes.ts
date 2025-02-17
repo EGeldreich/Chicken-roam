@@ -27,8 +27,8 @@ router.post('/api/elements', [ElementsController, 'create'])
 // router.delete('/api/elements/:id', [ElementsController, 'delete'])
 
 // Routes for fence operations
-router.post('/api/fences', [FencesController, 'create'])
 router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
+router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
 
 router

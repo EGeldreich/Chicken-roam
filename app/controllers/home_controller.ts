@@ -10,6 +10,7 @@ export default class HomeController {
     return view.render('pages/home')
   }
   //
+  //
   onboarding({ view }: HttpContext) {
     return view.render('pages/onboarding/onboarding')
   }
@@ -31,7 +32,7 @@ export default class HomeController {
     // Retrieve all objectives
     const objectives = await Objective.all()
 
-    // Prepare pivot data for attaching objectives
+    // Prepare pivot data to attach objectives
     const objectivePivotData: {
       [key: number]: { completion_percentage: number; target_value: number }
     } = objectives.reduce(
