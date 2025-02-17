@@ -25,6 +25,9 @@ export default class Plan extends BaseModel {
   declare isTemporary: boolean
 
   @column()
+  declare isEnclosed: boolean
+
+  @column()
   declare isCompleted: boolean
 
   @column.dateTime({ autoCreate: true })
@@ -57,6 +60,9 @@ export default class Plan extends BaseModel {
 
   // Methods _________________________________________________________________
   async getUserPlanNumber() {
+    if (this.userId === null) {
+      throw new Error('User ID is null')
+    }
     // Find all plans for this user, ordered by creation date
     const userPlans = await Plan.query().where('userId', this.userId).orderBy('createdAt', 'asc')
 

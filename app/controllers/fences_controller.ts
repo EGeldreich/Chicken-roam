@@ -14,25 +14,32 @@ export default class FencesController {
       // Get the data from the request
       const { planId, startX, startY, endX, endY } = request.body()
 
-      // Create start vertex
-      const startVertex = await Vertex.create(
-        {
-          positionX: startX,
-          positionY: startY,
-          planId: planId,
-        },
-        { client: trx }
-      )
+      // Function to find or create vertex
+      const getVertex = async (x: number, y: number) => {
+        // Look for an existing vertex at these coordinates
+        const existingVertex = await Vertex.query()
+          .where('planId', planId)
+          .where('positionX', x)
+          .where('positionY', y)
+          .first()
 
-      // Create end vertex
-      const endVertex = await Vertex.create(
-        {
-          positionX: endX,
-          positionY: endY,
-          planId: planId,
-        },
-        { client: trx }
-      )
+        if (existingVertex) {
+          return existingVertex
+        }
+
+        // Create new vertex if none exists
+        return await Vertex.create(
+          {
+            positionX: x,
+            positionY: y,
+            planId: planId,
+          },
+          { client: trx }
+        )
+      }
+      // Get or create vertices
+      const startVertex = await getVertex(startX, startY)
+      const endVertex = await getVertex(endX, endY)
 
       // Create the fence connecting these vertices
       const fence = await Fence.create(

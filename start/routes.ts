@@ -28,6 +28,7 @@ router.post('/api/elements', [ElementsController, 'create'])
 router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
 router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
+router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
 
 router
   .group(() => {

@@ -41,4 +41,21 @@ export default class PlansController {
 
     return view.render('pages/plan/plan', { plan })
   }
+
+  async completeEnclosure({ params, response }: HttpContext) {
+    try {
+      const plan = await Plan.findOrFail(params.planId)
+
+      // Update plan status or perform any necessary calculations
+      plan.isEnclosed = true
+      await plan.save()
+
+      return response.ok({ message: 'Enclosure completed successfully' })
+    } catch (error) {
+      return response.internalServerError({
+        message: 'Failed to complete enclosure',
+        error: error.message,
+      })
+    }
+  }
 }

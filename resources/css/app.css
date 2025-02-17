@@ -19,3 +19,12 @@
 body {
   font-family: 'IBM Plex Mono', monospace;
 }
+
+.enclosure-complete {
+  border: 2px solid #4caf50;
+}
+.snapping-to-connection {
+  background-color: #4caf50 !important;
+  height: 0.2rem !important; /* Slightly thicker when snapping */
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
