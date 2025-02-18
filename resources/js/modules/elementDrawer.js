@@ -1,49 +1,38 @@
 // Serve as base for all elements (except fence)
 export default class ElementDrawer {
-  constructor(canvas, planId) {
+  constructor(canvas, planId, placedElementsRef) {
     this.canvas = canvas // Get canvas element (from planEditor)
     this.planId = planId // Get planId (from planEditor)
-
-    // Default states
-    this.isPlacing = false
-    this.temporaryElement = null
 
     // To be overridden by subclasses
     this.objectiveValue = null
     this.elementType = 'generic'
     this.elementSize = { width: 60, height: 60 }
 
-    // Initialize placed Elements array (to avoid overlapping)
-    this.placedElements = []
+    this.placedElements = placedElementsRef
 
-    // Get existing elements
-    this.loadExistingElements()
+    // Default states
+    this.isPlacing = false
+    this.temporaryElement = null
   }
   //
   // COMMON METHODS
   //
-  // Get existing elements
-  async loadExistingElements() {
-    // GET elements from db
-    const response = await fetch(`/api/elements/${this.planId}`)
-    if (response.ok) {
-      const elements = await response.json()
-
-      // For each element
-      elements.forEach((element) => {
-        // Render it
-        this.renderPlacedElement(element)
-
-        // Push it to tracking array
-        this.placedElements.push({
-          id: element.id,
-          type: element.type,
-          x: element.vertex.positionX,
-          y: element.vertex.positionY,
-          width: element.width,
-          height: element.height,
+  // Function called in PlanEditor to load each type of element
+  async loadElements() {
+    try {
+      const response = await fetch(`/api/elements/${this.planId}`)
+      if (response.ok) {
+        const elements = await response.json()
+        elements.forEach((element) => {
+          // Only render elements that match this drawer's type
+          if (element.type === this.elementType) {
+            this.renderPlacedElement(element)
+          }
         })
-      })
+      }
+    } catch (error) {
+      console.error(`Failed to load ${this.elementType} elements:`, error)
     }
   }
   //
@@ -152,15 +141,13 @@ export default class ElementDrawer {
         const element = await response.json()
         this.renderPlacedElement(element)
 
-        // Add to tracking array
-        console.log(this.placedElements)
         this.placedElements.push({
           id: element.id,
           type: element.type,
-          x: element.vertex.positionX,
-          y: element.vertex.positionY,
-          width: element.width,
-          height: element.height,
+          x: parseFloat(element.vertex.positionX),
+          y: parseFloat(element.vertex.positionY),
+          width: parseFloat(element.width),
+          height: parseFloat(element.height),
         })
 
         // Continue placing elements until tool is deselected

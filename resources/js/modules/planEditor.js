@@ -13,14 +13,20 @@ export default class PlanEditor {
     this.canvas = document.getElementById('planCanvas') // Get drawing area
     this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
 
+    // Single shared array for all elements to avoid overlapping
+    this.placedElements = []
+
     // Initialize tool managers
-    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId)
-    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId)
-    this.watererDrawer = new WatererDrawer(this.canvas, this.planId)
-    this.perchDrawer = new PerchDrawer(this.canvas, this.planId)
-    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId)
-    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId)
-    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId)
+    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this.placedElements)
+    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId, this.placedElements)
+    this.watererDrawer = new WatererDrawer(this.canvas, this.planId, this.placedElements)
+    this.perchDrawer = new PerchDrawer(this.canvas, this.planId, this.placedElements)
+    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this.placedElements)
+    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this.placedElements)
+    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this.placedElements)
+
+    // Load all elements once
+    this.loadAllElements()
 
     // Map tools for easier access
     this.toolHandlers = {
@@ -36,6 +42,53 @@ export default class PlanEditor {
     // Set up event listeners
     this.initializeTools()
     this.initializeCanvasEvents()
+  }
+  //
+  //
+  // Load all elements of the plan
+  async loadAllElements() {
+    try {
+      const response = await fetch(`/api/elements/${this.planId}`)
+      if (response.ok) {
+        const elements = await response.json()
+        elements.forEach((element) => {
+          // Add to the shared tracking array
+          this.placedElements.push({
+            id: element.id,
+            type: element.type,
+            x: parseFloat(element.vertex.positionX),
+            y: parseFloat(element.vertex.positionY),
+            width: parseFloat(element.width),
+            height: parseFloat(element.height),
+          })
+        })
+
+        // Have each drawer render its own elements
+        Object.values(this.toolHandlers).forEach((handler) => {
+          if (handler && handler.loadElements) {
+            handler.loadElements()
+          }
+        })
+      }
+    } catch (error) {
+      console.error('Failed to load elements:', error)
+    }
+  }
+  //
+  //
+  // Render all pre-existing elements
+  renderElement(element) {
+    const domElement = document.createElement('div')
+    domElement.className = `absolute ${element.type}`
+    domElement.dataset.elementId = element.id
+    domElement.dataset.elementType = element.type
+
+    domElement.style.left = `${element.vertex.positionX}px`
+    domElement.style.top = `${element.vertex.positionY}px`
+    domElement.style.width = `${element.width}px`
+    domElement.style.height = `${element.height}px`
+
+    this.canvas.appendChild(domElement)
   }
   //
   //

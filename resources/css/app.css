@@ -21,7 +21,7 @@
   /* ELEMENTS STYLING */
   /*  */
   .temporary {
-    @apply opacity-20 border-dashed border-2 border-black;
+    @apply opacity-40 border-dashed border-2 border-black;
   }
   .shelter {
     @apply absolute bg-gray-700;

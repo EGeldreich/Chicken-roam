@@ -1,8 +1,8 @@
 import ElementDrawer from './elementDrawer.js'
 
 export default class ShelterDrawer extends ElementDrawer {
-  constructor(canvas, planId) {
-    super(canvas, planId)
+  constructor(canvas, planId, placedElementsRef) {
+    super(canvas, planId, placedElementsRef)
     this.elementType = 'shelter'
     this.elementSize = { width: 100, height: 100 }
     this.objectiveValue = 1
