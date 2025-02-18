@@ -2,6 +2,9 @@
 @source "../views";
 
 @layer components {
+  /*  */
+  /* BUTTONS */
+  /*  */
   .btn {
     @apply rounded-lg px-3 py-1.5 border-2 h-10 flex self-center duration-300 cursor-pointer;
   }
@@ -13,6 +16,27 @@
   }
   .btn-danger {
     @apply border-red-800 text-red-800 hover:bg-red-800 hover:text-gray-300;
+  }
+  /*  */
+  /* ELEMENTS STYLING */
+  /*  */
+  .shelter {
+    @apply absolute bg-gray-700;
+  }
+  .waterer {
+    @apply absolute bg-blue-300;
+  }
+  .perch {
+    @apply absolute bg-amber-900;
+  }
+  .shrub {
+    @apply absolute bg-green-950;
+  }
+  .insectary {
+    @apply absolute bg-yellow-700;
+  }
+  .dustbath {
+    @apply absolute bg-gray-500;
   }
 }
 

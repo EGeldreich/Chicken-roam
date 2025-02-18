@@ -1,4 +1,9 @@
 import FenceDrawer from './fenceDrawer.js'
+import ShelterDrawer from './shelterDrawer.js'
+import WatererDrawer from './watererDrawer.js'
+import PerchDrawer from './perchDrawer.js'
+import ShrubDrawer from './shrubDrawer.js'
+import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
 
 export default class PlanEditor {
@@ -10,6 +15,11 @@ export default class PlanEditor {
 
     // Initialize tool managers
     this.fenceDrawer = new FenceDrawer(this.canvas, this.planId)
+    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId)
+    this.watererDrawer = new WatererDrawer(this.canvas, this.planId)
+    this.perchDrawer = new PerchDrawer(this.canvas, this.planId)
+    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId)
+    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId)
     this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId)
 
     // Map tools for easier access

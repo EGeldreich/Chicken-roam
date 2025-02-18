@@ -12,9 +12,27 @@ export default class ElementDrawer {
     this.objectiveValue = null
     this.elementType = 'generic'
     this.elementSize = { width: 60, height: 60 }
+
+    // Get existing elements
+    this.loadExistingElements()
   }
   //
   // COMMON METHODS
+  //
+  //
+  // Get existing elements
+  async loadExistingElements() {
+    // GET elements from db
+    const response = await fetch(`/api/elements/${this.planId}`)
+    if (response.ok) {
+      const elements = await response.json()
+      // For each element
+      elements.forEach((element) => {
+        this.renderPlacedElement(element)
+      })
+    }
+  }
+  //
   //
   // Stop placing elements (when tool is deselected)
   stopPlacement() {
@@ -50,7 +68,7 @@ export default class ElementDrawer {
   //
   // Handle mouse movement to update the preview position
   handleMouseMove(point) {
-    if (this.isPlacing && this.temporaryElement) {
+    if (point.x > 0 && point.y > 0 && this.isPlacing && this.temporaryElement) {
       this.updateTemporaryElementPosition(point)
     }
   }
@@ -96,6 +114,7 @@ export default class ElementDrawer {
       if (response.ok) {
         const data = await response.json()
         this.renderPlacedElement(data)
+        console.log(data)
         // Continue placing elements until tool is deselected
       } else {
         console.error('Failed to save element:', await response.json())
@@ -108,14 +127,15 @@ export default class ElementDrawer {
   //
   // Render the final placed element
   renderPlacedElement(elementData) {
+    console.log(elementData)
     const element = document.createElement('div')
-    element.className = 'absolute border-2 border-gray-800 bg-gray-200'
+    element.className = `absolute ${elementData.type}`
     element.dataset.elementId = elementData.id
     element.dataset.elementType = elementData.type
 
     // Position and size
-    element.style.left = `${elementData.positionX}px`
-    element.style.top = `${elementData.positionY}px`
+    element.style.left = `${elementData.vertex.positionX}px`
+    element.style.top = `${elementData.vertex.positionY}px`
     element.style.width = `${elementData.width}px`
     element.style.height = `${elementData.height}px`
 

@@ -54,4 +54,9 @@ export default class ElementsController {
       })
     }
   }
+  async getByPlan({ params, response }: HttpContext) {
+    const elements = await Element.query().where('planId', params.planId).preload('vertex')
+
+    return response.ok(elements)
+  }
 }

@@ -19,7 +19,7 @@ export default class FenceDrawer {
 
   // Get existing fences and update ConnectionPoints
   async loadExistingFences() {
-    // GET fences from pseudo 'API'
+    // GET fences from db
     const response = await fetch(`/api/fences/${this.planId}`)
     if (response.ok) {
       const fences = await response.json()
