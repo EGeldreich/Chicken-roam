@@ -11,7 +11,7 @@ export default class ShelterDrawer extends ElementDrawer {
   createTemporaryElement() {
     super.createTemporaryElement()
     // Add element-specific styling
-    this.temporaryElement.className = `temporary ${this.elementType}`
+    this.temporaryElement.classList.add('temporary', this.elementType)
   }
 
   // Override original method to create element-specific final appearance
