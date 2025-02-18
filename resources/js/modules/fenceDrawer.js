@@ -162,7 +162,7 @@ export default class FenceDrawer {
   //
   //
   //
-  cancelDrawing() {
+  stopPlacement() {
     if (this.temporaryFence) {
       this.temporaryFence.remove()
     }

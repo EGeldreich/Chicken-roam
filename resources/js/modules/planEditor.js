@@ -1,4 +1,5 @@
 import FenceDrawer from './fenceDrawer.js'
+import DustbathDrawer from './dustbathDrawer.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -9,6 +10,7 @@ export default class PlanEditor {
 
     // Initialize tool managers
     this.fenceDrawer = new FenceDrawer(this.canvas, this.planId)
+    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId)
 
     // Map tools for easier access
     this.toolHandlers = {
@@ -52,14 +54,26 @@ export default class PlanEditor {
   }
   //
   //
+  // Return previous tool to default state
   // Change display according to tool selection
+  // Activate new tool placement mode if necessary
   setCurrentTool(tool) {
+    // -- Stop any active placement when switching tools
+    // Get previous tool
+    const previousHandler = this.toolHandlers[this.currentTool]
+    // if there is a stopPlacement method, use it
+    if (previousHandler && previousHandler.stopPlacement) {
+      previousHandler.stopPlacement()
+    }
+    // currentTool change
     this.currentTool = tool
     this.toolDisplay.textContent = tool
     this.updateToolButtonStyles(tool)
 
-    if (this.currentTool !== 'fence' && this.fenceDrawer.isDrawing) {
-      this.fenceDrawer.cancelDrawing()
+    // Start placement mode for elements if that tool is selected
+    const newHandler = this.toolHandlers[this.currentTool]
+    if (newHandler && newHandler.startPlacement && tool !== 'fence' && tool !== 'select') {
+      newHandler.startPlacement()
     }
   }
   //
@@ -94,8 +108,10 @@ export default class PlanEditor {
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler) {
+    if (handler === this.fenceDrawer) {
       handler.handleMouseDown(point)
+    } else if (handler) {
+      handler.placeElement(point)
     }
   }
   //
@@ -114,8 +130,7 @@ export default class PlanEditor {
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    console.log(this.toolHandlers[this.currentTool])
-    if (handler) {
+    if (handler === this.fenceDrawer) {
       handler.handleMouseUp(point)
     }
   }
