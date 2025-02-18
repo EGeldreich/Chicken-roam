@@ -1,32 +1,57 @@
 import Element from '#models/element'
 import Vertex from '#models/vertex'
 import type { HttpContext } from '@adonisjs/core/http'
+import { inject } from '@adonisjs/core'
+import db from '@adonisjs/lucid/services/db'
 
+@inject()
 export default class ElementsController {
   async create({ request, response }: HttpContext) {
-    const { type, planId, position } = request.body()
+    const trx = await db.transaction()
 
-    // Create vertices for the element
-    const vertex = await Vertex.create({
-      positionX: position.x,
-      positionY: position.y,
-      planId,
-    })
+    try {
+      // Get the data from the request
+      const { planId, type, positionX, positionY, width, height, objectiveValue } = request.body()
 
-    // Create the element
-    const element = await Element.create({
-      type,
-      planId,
-      objectiveValue: 1, // This would vary based on element type
-    })
+      // Create vertex within transaction
+      const vertex = await Vertex.create(
+        {
+          positionX,
+          positionY,
+          planId,
+        },
+        { client: trx }
+      )
 
-    // Link element to vertex
-    await element.related('vertices').attach({
-      [vertex.id]: {
-        vertexOrder: 0,
-      },
-    })
+      // Create element within same transaction
+      const element = await Element.create(
+        {
+          planId,
+          type,
+          vertexId: vertex.id,
+          objectiveValue,
+          width,
+          height,
+          description: '',
+        },
+        { client: trx }
+      )
 
-    return response.created(element)
+      // If both operations succeed, commit the transaction
+      await trx.commit()
+
+      // Load the vertex relationship
+      await element.load('vertex')
+
+      return response.created(element)
+    } catch (error) {
+      // If anything fails, rollback to prevent partial data
+      await trx.rollback()
+      console.error('Error creating element:', error)
+      return response.internalServerError({
+        message: 'Failed to create element',
+        error: error.message,
+      })
+    }
   }
 }

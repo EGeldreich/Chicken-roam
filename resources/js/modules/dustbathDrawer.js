@@ -5,6 +5,7 @@ export default class DustbathDrawer extends ElementDrawer {
     super(canvas, planId)
     this.elementType = 'dustbath'
     this.elementSize = { width: 100, height: 100 }
+    this.objectiveValue = 1
   }
   // Override original method to create element-specific temporary appearance
   createTemporaryElement() {
@@ -27,6 +28,7 @@ export default class DustbathDrawer extends ElementDrawer {
     super.renderPlacedElement(elementData)
     // Get the element we just created
     const element = this.canvas.querySelector(`[data-element-id="${elementData.id}"]`)
+    console.log(this.objectiveValue)
     if (element) {
       // Add styling
       element.className = 'absolute border-2 border-yellow-600 bg-yellow-100'

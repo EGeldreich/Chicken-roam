@@ -9,6 +9,7 @@ export default class ElementDrawer {
     this.temporaryElement = null
 
     // To be overridden by subclasses
+    this.objectiveValue = null
     this.elementType = 'generic'
     this.elementSize = { width: 60, height: 60 }
   }
@@ -83,6 +84,7 @@ export default class ElementDrawer {
         body: JSON.stringify({
           planId: this.planId,
           type: this.elementType,
+          objectiveValue: this.objectiveValue,
           positionX: placementPoint.x,
           positionY: placementPoint.y,
           width: this.elementSize.width,
