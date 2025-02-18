@@ -1,5 +1,5 @@
-import { BaseModel, column, belongsTo, manyToMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, ManyToMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Plan from './plan.js'
 import Vertex from './vertex.js'
 
@@ -11,10 +11,19 @@ export default class Element extends BaseModel {
   declare planId: number
 
   @column()
+  declare vertexId: number
+
+  @column()
   declare type: string
 
   @column()
   declare objectiveValue: number
+
+  @column()
+  declare width: number
+
+  @column()
+  declare height: number
 
   @column()
   declare description: string | null
@@ -23,9 +32,6 @@ export default class Element extends BaseModel {
   @belongsTo(() => Plan)
   declare plan: BelongsTo<typeof Plan>
 
-  @manyToMany(() => Vertex, {
-    pivotTable: 'element_vertices',
-    pivotColumns: ['vertexOrder'],
-  })
-  declare vertices: ManyToMany<typeof Vertex>
+  @belongsTo(() => Vertex)
+  declare vertex: BelongsTo<typeof Vertex>
 }
