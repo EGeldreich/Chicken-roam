@@ -248,10 +248,12 @@ export default class FenceDrawer {
           // Remove the temporary class
           this.temporaryFence.classList.remove('temporary-fence')
 
-          // If we've closed the enclosure, trigger completion
+          // Use hasFormedEnclosure to check if the enclosure is now closed
           if (this.hasFormedEnclosure()) {
+            // Handle enclosure
             this.handleEnclosureComplete()
           }
+          // Error handling
         } else {
           console.error('Server error:', responseData)
           this.temporaryFence.remove()
@@ -261,17 +263,22 @@ export default class FenceDrawer {
         this.temporaryFence.remove()
       }
     } else {
+      // Remove temporary fence if not long enough
       this.temporaryFence.remove()
     }
 
+    // Reinitialize states
     this.isDrawing = false
     this.drawStartPoint = null
     this.temporaryFence = null
   }
-
+  //
+  //
+  // Render fences on load (called in loadingExistingFences)
   renderFence(fenceData) {
-    // Create a fence element
+    // Create a fence HTML element
     const fenceElement = document.createElement('div')
+    // Add classes and dataset
     fenceElement.className = 'absolute h-1 bg-black transform origin-left'
     fenceElement.dataset.fenceId = fenceData.id
 
@@ -296,25 +303,34 @@ export default class FenceDrawer {
     // Add to canvas
     this.canvas.appendChild(fenceElement)
   }
-
+  //
+  //
+  // Used to check enclosure when adding a fence (called in handleMouseUp)
+  // An enclosure is formed when all vertices have exactly 2 connections
   hasFormedEnclosure() {
-    // An enclosure is formed when all vertices have exactly 2 connections
+    // define default state
     let hasOpenConnections = false
+    // Check each vertex connections in vertices Map
     this.vertices.forEach((connections) => {
+      // If at least one vertex has only one connection, it means the enclosure is not closed
       if (connections !== 2) {
+        // Set state as true
         hasOpenConnections = true
       }
     })
+    // return true if there is no open connection and at least 3 vertices
     return !hasOpenConnections && this.vertices.size > 2
   }
-
+  //
+  //
+  // Call back-end response to handle enclosure completion
   async handleEnclosureComplete() {
-    // You might want to:
-    // 1. Notify the server that the enclosure is complete
+    // Might want to:
     // 2. Calculate the enclosed area
     // 3. Validate the enclosure (e.g., minimum size)
     // 4. Update UI to show completion
 
+    // Update DB to set Plan as 'isEnclosed' (PlanController -> completeEnclosure)
     try {
       const response = await fetch(`/api/plans/${this.planId}/complete-enclosure`, {
         method: 'POST',
@@ -324,14 +340,17 @@ export default class FenceDrawer {
         },
       })
 
+      // Once the plan is set as enclosed
       if (response.ok) {
-        // Add visual feedback that enclosure is complete
+        // Add visual feedback
         this.canvas.classList.add('enclosure-complete')
 
-        // Trigger any necessary UI updates
+        // Observer pattern
+        // Create ability to listen for an 'enclosureComplete' event on other files
         const event = new CustomEvent('enclosureComplete', {
           detail: { planId: this.planId },
         })
+        // Dispatch the event from the canvas element
         this.canvas.dispatchEvent(event)
       }
     } catch (error) {

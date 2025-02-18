@@ -2,10 +2,10 @@ import FenceDrawer from './fenceDrawer.js'
 
 export default class PlanEditor {
   constructor(planId) {
-    this.planId = planId
+    this.planId = planId // Get plan ID
     this.currentTool = 'select' // Set select as default tool
     this.canvas = document.getElementById('planCanvas') // Get drawing area
-    this.toolDisplay = document.getElementById('toolDisplay') // GET tool tooltip display HTML element
+    this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
 
     // Initialize tool managers
     this.fenceDrawer = new FenceDrawer(this.canvas, this.planId)
@@ -14,33 +14,42 @@ export default class PlanEditor {
     this.initializeTools()
     this.initializeCanvasEvents()
   }
-
+  //
+  //
   // Add mouse event listeners to our canvas
   initializeCanvasEvents() {
     this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e))
     this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e))
     this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e))
   }
-
+  //
+  //
   // Set up event listeners for tool btns
   initializeTools() {
+    // Find tool btns
     const toolButtons = document.querySelectorAll('.tool-btn')
+    // For each of them
     toolButtons.forEach((button) => {
+      // Add click event listener
       button.addEventListener('click', () => {
+        // Get information from dataset
         const tool = button.dataset.tool
+        // Set clicked tool as current tool
         this.setCurrentTool(tool)
       })
     })
   }
-
+  //
+  //
   // Change display according to tool selection
   setCurrentTool(tool) {
     this.currentTool = tool
     this.toolDisplay.textContent = tool
     this.updateToolButtonStyles(tool)
   }
-
-  // Change tool btns bg
+  //
+  //
+  // Change tool btns bg and font color
   updateToolButtonStyles(currentTool) {
     document.querySelectorAll('.tool-btn').forEach((btn) => {
       if (btn.dataset.tool === currentTool) {
@@ -52,7 +61,8 @@ export default class PlanEditor {
       }
     })
   }
-
+  //
+  //
   // Function to find canvas coordinates on click
   getCanvasPoint(event) {
     // getBoundingClientRect() gets position of the canvas in the page
@@ -63,8 +73,9 @@ export default class PlanEditor {
       y: event.clientY - rect.top,
     }
   }
-
-  // Function to ensure a click is in Canvas, and to call correct tool Class
+  //
+  //
+  // Keep track of mouse coordinates and call correct tool method
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
     if (this.currentTool === 'fence') {
@@ -72,7 +83,9 @@ export default class PlanEditor {
     }
     // Future: else if (this.currentTool === 'element') { this.elementPlacer.handleMouseDown(point); }
   }
-
+  //
+  //
+  // Keep track of mouse coordinates and call correct tool method
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
     if (this.currentTool === 'fence') {
@@ -80,7 +93,9 @@ export default class PlanEditor {
     }
     // Future: else if (this.currentTool === 'element') { this.elementPlacer.handleMouseDown(point); }
   }
-
+  //
+  //
+  // Keep track of mouse coordinates and call correct tool method
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
     if (this.currentTool === 'fence') {
