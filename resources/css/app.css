@@ -20,11 +20,14 @@
   /*  */
   /* ELEMENTS STYLING */
   /*  */
+  .temporary {
+    @apply opacity-20 border-dashed border-2 border-black;
+  }
   .shelter {
     @apply absolute bg-gray-700;
   }
   .waterer {
-    @apply absolute bg-blue-300;
+    @apply absolute bg-blue-300 rounded-full;
   }
   .perch {
     @apply absolute bg-amber-900;

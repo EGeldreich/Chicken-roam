@@ -11,8 +11,7 @@ export default class InsectaryDrawer extends ElementDrawer {
   createTemporaryElement() {
     super.createTemporaryElement()
     // Add element-specific styling
-    this.temporaryElement.className =
-      'absolute border-2 border-dashed border-yellow-600 bg-yellow-200 bg-opacity-70 transition-transform duration-100 ease-out'
+    this.temporaryElement.className = `temporary ${this.elementType}`
   }
 
   // Override original method to create element-specific final appearance
