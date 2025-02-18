@@ -161,6 +161,17 @@ export default class FenceDrawer {
   }
   //
   //
+  //
+  cancelDrawing() {
+    if (this.temporaryFence) {
+      this.temporaryFence.remove()
+    }
+    this.isDrawing = false
+    this.drawStartPoint = null
+    this.temporaryFence = null
+  }
+  //
+  //
   // Handle temporary fence movement
   // get point from planEditor
   handleMouseMove(point) {

@@ -10,6 +10,17 @@ export default class PlanEditor {
     // Initialize tool managers
     this.fenceDrawer = new FenceDrawer(this.canvas, this.planId)
 
+    // Map tools for easier access
+    this.toolHandlers = {
+      fence: this.fenceDrawer,
+      shelter: this.shelterDrawer,
+      waterer: this.watererDrawer,
+      perch: this.perchDrawer,
+      shrub: this.shrubDrawer,
+      insectary: this.insectaryDrawer,
+      dustbath: this.dustbathDrawer,
+    }
+
     // Set up event listeners
     this.initializeTools()
     this.initializeCanvasEvents()
@@ -46,6 +57,10 @@ export default class PlanEditor {
     this.currentTool = tool
     this.toolDisplay.textContent = tool
     this.updateToolButtonStyles(tool)
+
+    if (this.currentTool !== 'fence' && this.fenceDrawer.isDrawing) {
+      this.fenceDrawer.cancelDrawing()
+    }
   }
   //
   //
@@ -78,29 +93,30 @@ export default class PlanEditor {
   // Keep track of mouse coordinates and call correct tool method
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
-    if (this.currentTool === 'fence') {
-      this.fenceDrawer.handleMouseDown(point)
+    const handler = this.toolHandlers[this.currentTool]
+    if (handler) {
+      handler.handleMouseDown(point)
     }
-    // Future: else if (this.currentTool === 'element') { this.elementPlacer.handleMouseDown(point); }
   }
   //
   //
   // Keep track of mouse coordinates and call correct tool method
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
-    if (this.currentTool === 'fence') {
-      this.fenceDrawer.handleMouseMove(point)
+    const handler = this.toolHandlers[this.currentTool]
+    if (handler) {
+      handler.handleMouseMove(point)
     }
-    // Future: else if (this.currentTool === 'element') { this.elementPlacer.handleMouseDown(point); }
   }
   //
   //
   // Keep track of mouse coordinates and call correct tool method
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
-    if (this.currentTool === 'fence') {
-      this.fenceDrawer.handleMouseUp(point)
+    const handler = this.toolHandlers[this.currentTool]
+    console.log(this.toolHandlers[this.currentTool])
+    if (handler) {
+      handler.handleMouseUp(point)
     }
-    // Future: else if (this.currentTool === 'element') { this.elementPlacer.handleMouseDown(point); }
   }
 }
