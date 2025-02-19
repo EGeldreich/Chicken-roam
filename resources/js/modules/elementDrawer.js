@@ -138,9 +138,13 @@ export default class ElementDrawer {
       })
 
       if (response.ok) {
-        const element = await response.json()
+        const data = await response.json()
+        const element = data.element
+
+        // Render the placed element
         this.renderPlacedElement(element)
 
+        // Add to tracking array
         this.placedElements.push({
           id: element.id,
           type: element.type,
@@ -149,6 +153,11 @@ export default class ElementDrawer {
           width: parseFloat(element.width),
           height: parseFloat(element.height),
         })
+
+        // If objectives were returned, update their display
+        if (data.objectives) {
+          this.updateObjectivesDisplay(data.objectives)
+        }
 
         // Continue placing elements until tool is deselected
       } else {
@@ -236,5 +245,14 @@ export default class ElementDrawer {
     setTimeout(() => {
       errorMessage.remove()
     }, 3000)
+  }
+  updateObjectivesDisplay(objectives) {
+    objectives.forEach((objective) => {
+      // Finf the correct HTML element
+      const objectiveEl = document.querySelector(`#${objective.name}`)
+      if (objectiveEl) {
+        objectiveEl.textContent = objective.completion_percentage
+      }
+    })
   }
 }

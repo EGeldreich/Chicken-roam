@@ -35,7 +35,7 @@
           Target: {{ objective.$extras.pivot_target_value }}{{ objective.unit }}
         </p>
         <p>
-          Completion: {{ objective.$extras.pivot_completion_percentage }}%
+          Completion: <span id="{{ objective.name }}">{{ objective.$extras.pivot_completion_percentage }}</span>%
         </p>
       @end
     </div>

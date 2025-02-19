@@ -3,6 +3,8 @@ import Vertex from '#models/vertex'
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import ObjectiveService from '#services/objective_service'
+import Plan from '#models/plan'
 
 @inject()
 export default class ElementsController {
@@ -43,7 +45,24 @@ export default class ElementsController {
       // Load the vertex relationship
       await element.load('vertex')
 
-      return response.created(element)
+      // Recalculate objectives for this plan
+      await ObjectiveService.recalculateForPlan(planId)
+
+      // Fetch the updated objectives
+      const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+
+      // Return both the element and the updated objectives
+      return response.created({
+        element,
+        objectives: plan.objectives.map((objective) => ({
+          id: objective.id,
+          name: objective.name,
+          description: objective.description,
+          target_value: objective.$extras.pivot_target_value,
+          completion_percentage: objective.$extras.pivot_completion_percentage,
+          unit: objective.unit,
+        })),
+      })
     } catch (error) {
       // If anything fails, rollback to prevent partial data
       await trx.rollback()
