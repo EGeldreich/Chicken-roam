@@ -82,13 +82,13 @@ export default class ElementDrawer {
       }
 
       // Check for collision and update visual feedback
-      if (this.wouldOverlap(placementPoint)) {
-        this.temporaryElement.classList.add('invalid-placement')
-        this.temporaryElement.classList.remove('valid-placement')
-      } else {
-        this.temporaryElement.classList.add('valid-placement')
-        this.temporaryElement.classList.remove('invalid-placement')
-      }
+      // if (this.wouldOverlap(placementPoint)) {
+      //   this.temporaryElement.classList.add('invalid-placement')
+      //   this.temporaryElement.classList.remove('valid-placement')
+      // } else {
+      //   this.temporaryElement.classList.add('valid-placement')
+      //   this.temporaryElement.classList.remove('invalid-placement')
+      // }
     }
   }
   //
@@ -102,7 +102,7 @@ export default class ElementDrawer {
   }
   //
   //
-  // Place the element at the specified position
+  // Add element to SB, then calls renderPlacedElement
   async placeElement(point) {
     // Calculate the position where the top-left corner should be
     // This accounts for the element being centered on the cursor
