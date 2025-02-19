@@ -17,18 +17,28 @@ export default class HomeController {
   //
   //
   //
-  async guestLanding({ request, response }: HttpContext) {
+  async guestLanding({ request, response, session }: HttpContext) {
     // Validate input
     const { nbChickens } = await request.validateUsing(onboardingValidator)
 
+    // Check if there is already a guest plan from this session
+    const tempPlanId = session.get('temporaryPlanId')
+
+    if (tempPlanId) {
+      let oldPlan = await Plan.query().where('id', tempPlanId).preload('objectives').firstOrFail()
+      oldPlan.delete()
+    }
+
     // Create new plan
     const plan = await Plan.create({
-      name: `Plan ${DateTime.now().toFormat('yyyy-MM-dd HH:mm')}`, // Default name
+      name: `Guest Plan ${DateTime.now().toFormat('yyyy-MM-dd HH:mm')}`, // Default name
       nbChickens,
       isCompleted: false,
+      isTemporary: true,
       userId: null,
     })
 
+    session.put('temporaryPlanId', plan.id)
     // Retrieve all objectives
     const objectives = await Objective.all()
 

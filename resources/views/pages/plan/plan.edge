@@ -1,5 +1,5 @@
 @vite(['resources/js/pages/plan.js'])
-@let(title = 'Plan')
+@let(title = plan.name)
 @include('partials/header')
 
 <script>
@@ -29,7 +29,12 @@
     <div class="space-y-2">
       @each(objective in plan.objectives)
         <p>
-          {{ objective.name }} - Target: {{ objective.$extras.pivot_target_value }}
+          <strong>{{ objective.name }}</strong>
+        </p>
+        <p>
+          Target: {{ objective.$extras.pivot_target_value }}{{ objective.unit }}
+        </p>
+        <p>
           Completion: {{ objective.$extras.pivot_completion_percentage }}%
         </p>
       @end

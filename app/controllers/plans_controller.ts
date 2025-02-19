@@ -2,39 +2,33 @@ import Plan from '#models/plan'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PlansController {
-  async guestPlan({ session, view }: HttpContext) {
+  async guestPlan({ response, session, view }: HttpContext) {
     // Check if there's already a temporary plan ID in the session
     let plan = null
     const tempPlanId = session.get('temporaryPlanId')
 
     if (tempPlanId) {
       // Try to find the existing temporary plan
-      plan = await Plan.find(tempPlanId)
+      try {
+        plan = await Plan.query().where('id', tempPlanId).preload('objectives').first()
+      } catch (error) {
+        // Clear invalid plan id from session
+        session.forget('temporaryPlanId')
+      }
     }
 
     if (!plan) {
-      // Create a new temporary plan if none exists
-      plan = await Plan.create({
-        name: 'Guest Plan',
-        isTemporary: true,
-        nbChickens: 0,
-        isCompleted: false,
-      })
-
-      // Store the plan ID in session
-      session.put('temporaryPlanId', plan.id)
+      // Redirect to onboarding
+      return response.redirect().toRoute('onboarding')
     }
 
     return view.render('pages/plan/plan', { plan })
   }
   //
   //
-
+  //
   async plan({ params, view, auth, response, session }: HttpContext) {
-    const plan = await Plan.query()
-      .where('id', params.id)
-      .preload('objectives') // This is the key step
-      .firstOrFail()
+    const plan = await Plan.query().where('id', params.id).preload('objectives').firstOrFail()
 
     // Ensure the user can only access their own plans
     if (plan.userId !== auth.user!.id) {
@@ -44,7 +38,9 @@ export default class PlansController {
 
     return view.render('pages/plan/plan', { plan })
   }
-
+  //
+  //
+  //
   async completeEnclosure({ params, response }: HttpContext) {
     try {
       const plan = await Plan.findOrFail(params.planId)

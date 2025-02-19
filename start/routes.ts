@@ -31,6 +31,7 @@ router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
 
+// NEED GUEST
 router
   .group(() => {
     router.get('/register', [AuthController, 'register']).as('auth.register')
@@ -54,6 +55,7 @@ router
   })
   .use(middleware.guest())
 
+// NEED AUTH
 router
   .group(() => {
     router.delete('/login', [AuthController, 'logout']).as('auth.logout')
