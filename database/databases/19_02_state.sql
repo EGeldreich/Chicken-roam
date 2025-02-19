@@ -30,17 +30,17 @@ CREATE TABLE IF NOT EXISTS `adonis_schema` (
 
 -- Listage des données de la table chicken_roam.adonis_schema : ~1 rows (environ)
 INSERT INTO `adonis_schema` (`id`, `name`, `batch`, `migration_time`) VALUES
-	(1, 'database/migrations/1738932588006_create_users_table', 1, '2025-02-12 13:27:43'),
-	(2, 'database/migrations/1738932679131_create_plans_table', 1, '2025-02-12 13:27:43'),
-	(3, 'database/migrations/1738932939720_create_histories_table', 1, '2025-02-12 13:27:43'),
-	(4, 'database/migrations/1738932989830_create_elements_table', 1, '2025-02-12 13:27:43'),
-	(5, 'database/migrations/1738933000927_create_vertices_table', 1, '2025-02-12 13:27:43'),
-	(6, 'database/migrations/1738933033671_create_objectives_table', 1, '2025-02-12 13:27:43'),
-	(7, 'database/migrations/1738933204021_create_fences_table', 1, '2025-02-12 13:27:43'),
-	(8, 'database/migrations/1738933268103_create_plan_objectives_table', 1, '2025-02-12 13:27:43'),
-	(9, 'database/migrations/1738933290987_create_element_vertices_table', 1, '2025-02-12 13:27:43'),
-	(10, 'database/migrations/1739260095000_create_tokens_table', 1, '2025-02-12 13:27:43'),
-	(11, 'database/migrations/1739345969707_create_remember_me_tokens_table', 1, '2025-02-12 13:27:43');
+	(1, 'database/migrations/1738932588006_create_users_table', 1, '2025-02-18 10:54:28'),
+	(2, 'database/migrations/1738932679131_create_plans_table', 1, '2025-02-18 10:54:28'),
+	(3, 'database/migrations/1738932939720_create_histories_table', 1, '2025-02-18 10:54:28'),
+	(4, 'database/migrations/1738933000927_create_vertices_table', 1, '2025-02-18 10:54:28'),
+	(5, 'database/migrations/1738933000930_create_elements_table', 1, '2025-02-18 10:54:28'),
+	(6, 'database/migrations/1738933033671_create_objectives_table', 1, '2025-02-18 10:54:28'),
+	(7, 'database/migrations/1738933204021_create_fences_table', 1, '2025-02-18 10:54:28'),
+	(8, 'database/migrations/1738933268103_create_plan_objectives_table', 1, '2025-02-18 10:54:29'),
+	(9, 'database/migrations/1738933290987_create_element_vertices_table', 1, '2025-02-18 10:54:29'),
+	(10, 'database/migrations/1739260095000_create_tokens_table', 1, '2025-02-18 10:54:29'),
+	(11, 'database/migrations/1739345969707_create_remember_me_tokens_table', 1, '2025-02-18 10:54:29');
 
 -- Listage de la structure de table chicken_roam. adonis_schema_versions
 CREATE TABLE IF NOT EXISTS `adonis_schema_versions` (
@@ -57,12 +57,17 @@ CREATE TABLE IF NOT EXISTS `elements` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `type` varchar(50) NOT NULL,
   `objective_value` int NOT NULL,
+  `width` int NOT NULL,
+  `height` int NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `plan_id` int unsigned DEFAULT NULL,
+  `vertex_id` int unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `elements_plan_id_foreign` (`plan_id`),
-  CONSTRAINT `elements_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+  KEY `elements_vertex_id_foreign` (`vertex_id`),
+  CONSTRAINT `elements_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `elements_vertex_id_foreign` FOREIGN KEY (`vertex_id`) REFERENCES `vertices` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8mb3;
 
 -- Listage des données de la table chicken_roam.elements : ~0 rows (environ)
 
@@ -96,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `fences` (
   CONSTRAINT `fences_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fences_vertex_end_id_foreign` FOREIGN KEY (`vertex_end_id`) REFERENCES `vertices` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fences_vertex_start_id_foreign` FOREIGN KEY (`vertex_start_id`) REFERENCES `vertices` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3;
 
 -- Listage des données de la table chicken_roam.fences : ~0 rows (environ)
 
@@ -126,25 +131,38 @@ CREATE TABLE IF NOT EXISTS `objectives` (
   `unit` varchar(20) NOT NULL,
   `per_nb_chicken` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
 
 -- Listage des données de la table chicken_roam.objectives : ~7 rows (environ)
+INSERT INTO `objectives` (`id`, `name`, `description`, `goal`, `unit`, `per_nb_chicken`) VALUES
+	(1, 'area', 'Total area needed per chicken', 15, 'm²', 1),
+	(2, 'perch', 'Perch length needed per chicken', 20, 'cm', 1),
+	(3, 'shelter', 'Shelter area needed for 10 chickens', 3, 'm²', 10),
+	(4, 'shrubs', 'Edible shrubs needed for 10 chickens', 3, 'shrubs', 10),
+	(5, 'insectary', 'Insect-hosting structures needed for 5 chickens', 1, 'structure', 5),
+	(6, 'dustbath', 'Dust bath area needed for 10 chickens', 3, 'm²', 10),
+	(7, 'waterer', 'Water points needed for 5 chickens', 1, 'water point', 5);
 
 -- Listage de la structure de table chicken_roam. plans
 CREATE TABLE IF NOT EXISTS `plans` (
   `id` int unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `nb_chickens` int NOT NULL,
-  `is_completed` tinyint(1) DEFAULT '0',
   `user_id` int unsigned DEFAULT NULL,
+  `is_completed` tinyint(1) DEFAULT '0',
+  `is_temporary` tinyint(1) DEFAULT '0',
+  `is_enclosed` tinyint(1) DEFAULT '0',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `plans_user_id_foreign` (`user_id`),
   CONSTRAINT `plans_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb3;
 
--- Listage des données de la table chicken_roam.plans : ~0 rows (environ)
+-- Listage des données de la table chicken_roam.plans : ~2 rows (environ)
+INSERT INTO `plans` (`id`, `name`, `nb_chickens`, `user_id`, `is_completed`, `is_temporary`, `is_enclosed`, `created_at`, `updated_at`) VALUES
+	(23, 'Plan 2025-02-19 09:02', 10, 1, 0, 0, 0, '2025-02-19 08:02:56', '2025-02-19 08:02:56'),
+	(32, 'Guest Plan 2025-02-19 09:15', 10, NULL, 0, 1, 0, '2025-02-19 08:15:08', '2025-02-19 08:15:08');
 
 -- Listage de la structure de table chicken_roam. plan_objectives
 CREATE TABLE IF NOT EXISTS `plan_objectives` (
@@ -158,9 +176,24 @@ CREATE TABLE IF NOT EXISTS `plan_objectives` (
   KEY `plan_objectives_objective_id_foreign` (`objective_id`),
   CONSTRAINT `plan_objectives_objective_id_foreign` FOREIGN KEY (`objective_id`) REFERENCES `objectives` (`id`) ON DELETE CASCADE,
   CONSTRAINT `plan_objectives_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8mb3;
 
--- Listage des données de la table chicken_roam.plan_objectives : ~14 rows (environ)
+-- Listage des données de la table chicken_roam.plan_objectives : ~63 rows (environ)
+INSERT INTO `plan_objectives` (`id`, `plan_id`, `objective_id`, `completion_percentage`, `target_value`) VALUES
+	(99, 23, 1, 0, 150),
+	(100, 23, 2, 0, 200),
+	(101, 23, 3, 0, 3),
+	(102, 23, 4, 0, 3),
+	(103, 23, 5, 0, 2),
+	(104, 23, 6, 0, 3),
+	(105, 23, 7, 0, 2),
+	(162, 32, 1, 0, 150),
+	(163, 32, 2, 0, 200),
+	(164, 32, 3, 0, 3),
+	(165, 32, 4, 0, 3),
+	(166, 32, 5, 0, 2),
+	(167, 32, 6, 0, 3),
+	(168, 32, 7, 0, 2);
 
 -- Listage de la structure de table chicken_roam. remember_me_tokens
 CREATE TABLE IF NOT EXISTS `remember_me_tokens` (
@@ -203,9 +236,11 @@ CREATE TABLE IF NOT EXISTS `users` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 
 -- Listage des données de la table chicken_roam.users : ~0 rows (environ)
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `updated_at`) VALUES
+	(1, 'test1', 'test1@test.fr', '$scrypt$n=16384,r=8,p=1$mCEHAkHxOHpqBqGJiG2fuw$rFvaXfmkPmlJUtqDoHCzh+8p2aRE1N4L0IVpEnvkpKsRAcBTZlBooOqh8WX15GGoCpfbqjQ5c6MIMwn+zjmWRA', '2025-02-18 09:55:11', '2025-02-18 09:55:11');
 
 -- Listage de la structure de table chicken_roam. vertices
 CREATE TABLE IF NOT EXISTS `vertices` (
@@ -216,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `vertices` (
   PRIMARY KEY (`id`),
   KEY `vertices_plan_id_foreign` (`plan_id`),
   CONSTRAINT `vertices_plan_id_foreign` FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb3;
 
 -- Listage des données de la table chicken_roam.vertices : ~0 rows (environ)
 
