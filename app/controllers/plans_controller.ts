@@ -31,7 +31,10 @@ export default class PlansController {
   //
 
   async plan({ params, view, auth, response, session }: HttpContext) {
-    const plan = await Plan.findOrFail(params.id)
+    const plan = await Plan.query()
+      .where('id', params.id)
+      .preload('objectives') // This is the key step
+      .firstOrFail()
 
     // Ensure the user can only access their own plans
     if (plan.userId !== auth.user!.id) {

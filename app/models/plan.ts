@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo, hasMany, manyToMany } from '@adonisjs/lucid/orm'
 import type { HasMany, ManyToMany, BelongsTo } from '@adonisjs/lucid/types/relations'
+// import db from '@adonisjs/lucid/services/db'
 import User from './user.js'
 import Fence from './fence.js'
 import Objective from './objective.js'
@@ -54,31 +55,9 @@ export default class Plan extends BaseModel {
 
   @manyToMany(() => Objective, {
     pivotTable: 'plan_objectives',
-    pivotColumns: ['completionPercentage', 'targetValue'],
+    pivotColumns: ['completion_percentage', 'target_value'],
   })
   declare objectives: ManyToMany<typeof Objective>
 
   // Methods _________________________________________________________________
-  async getUserPlanNumber() {
-    if (this.userId === null) {
-      throw new Error('User ID is null')
-    }
-    // Find all plans for this user, ordered by creation date
-    const userPlans = await Plan.query().where('userId', this.userId).orderBy('createdAt', 'asc')
-
-    // Find this plan's position in the array (adding 1 since positions start at 1)
-    return userPlans.findIndex((plan) => plan.id === this.id) + 1
-  }
-
-  // Add a method to find a plan by its position for a user
-  static async findByUserPosition(userId: number, position: number) {
-    const plan = await Plan.query()
-      .where('userId', userId)
-      .orderBy('createdAt', 'asc')
-      .offset(position - 1)
-      .limit(1)
-      .firstOrFail()
-
-    return plan
-  }
 }

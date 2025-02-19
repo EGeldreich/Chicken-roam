@@ -23,6 +23,17 @@
       <button class="tool-btn btn btn-primary" data-tool="insectary">Insectary</button>
       <button class="tool-btn btn btn-primary" data-tool="dustbath">Dustbath</button>
     </div>
+    <h2 class="text-lg font-bold mb-4">
+      Objectives
+    </h2>
+    <div class="space-y-2">
+      @each(objective in plan.objectives)
+        <p>
+          {{ objective.name }} - Target: {{ objective.$extras.pivot_target_value }}
+          Completion: {{ objective.$extras.pivot_completion_percentage }}%
+        </p>
+      @end
+    </div>
   </div>
 
   {{-- Main Canvas Area --}}

@@ -56,7 +56,7 @@ export default class HomeController {
   //
   //
   //
-  async handleLanding({ request, response, auth }: HttpContext) {
+  async userLanding({ request, response, auth }: HttpContext) {
     // Validate input
     const { nbChickens } = await request.validateUsing(onboardingValidator)
 

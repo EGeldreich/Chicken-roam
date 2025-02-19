@@ -66,7 +66,7 @@ router
     router.post('/user/edit-username', [UsersController, 'handleEditUsername'])
     router.delete('/user', [UsersController, 'deleteAccount']).as('user-destroy')
 
-    router.post('/plan', [HomeController, 'handleLanding'])
+    router.post('/plan', [HomeController, 'userLanding'])
 
     router.get('/plan/:id', [PlansController, 'plan']).as('plan')
   })
