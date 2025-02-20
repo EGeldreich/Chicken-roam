@@ -1,5 +1,27 @@
 # Guide du fonctionnement Chicken Roam
 
+## Initialisation sur une nouvelle machine
+
+Récupérer les modules nécessaires.
+
+```bash
+npm install
+```
+
+Vérifier le fichier .env, en dupliquant et modifiant .env.exemple
+Créer une nouvelle **APP_KEY**.
+
+```bash
+node ace generate:key
+```
+
+Créer une table 'chicken_roam', puis
+
+```bash
+node ace migration:run
+node ace db:seed
+```
+
 ## Middlewares
 
 > Dans AdonisJs, un middleware forment une série de fonctions qui s'éxécutent durant une requête HTTP. Chaque middleware sert de **_checkpoint_** avec une condition à remplir
