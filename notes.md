@@ -298,3 +298,24 @@ router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
 ```
+
+## Selecteur
+
+Le selecteur est simplement lié au **PlanEditor** via la méthode **_handleMouseDown()_** qui appelle la méthode **_selectElement()_** du **Selector**.  
+En plus d'un petit peu de logique pour déselectionner l'ancien élément, la méthode repose seulement sur l'**event.target** qui est fourni par le **PlanEditor**
+
+```typescript
+const targetElement = event.target
+```
+
+C'est également dans le selecteur que se gère la suppression d'éléments.
+
+## Supression d'élement ou de clôture
+
+Dans le **Selector**, méthode **_handleDelete()_**.  
+On gère la supression des clôtures et des éléments de manière indépendantes, afin de coller avec la construction de la base de donnée et du fonctionnement en **_endpoint API_**.  
+On appelle l'endpoint lié, avec une méthode DELETE.  
+En back, dans le controller lié, on supprime la ligne de la base de donnée.  
+Retour dans le front, pour une clotûre, on envoit un évènement **_fenceDeleted_** qui sera receptionné dans le **fenceDrawer**.  
+Pour un élément, on récupère les data lié aux objectives et on redirige vers la méthode **_updateObjectivesDisplay()_**. On retire également l'élément du tableau **_placedElements_** qui s'occupe des collisions.  
+Dans les deux cas, on **_remove()_** l'élément du **DOM**.
