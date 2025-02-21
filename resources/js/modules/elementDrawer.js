@@ -172,7 +172,7 @@ export default class ElementDrawer {
   // Render the final placed element
   renderPlacedElement(elementData) {
     const element = document.createElement('div')
-    element.className = `${elementData.type}`
+    element.className = `${elementData.type} element`
     element.dataset.elementId = elementData.id
     element.dataset.elementType = elementData.type
 

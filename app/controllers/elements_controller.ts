@@ -73,9 +73,36 @@ export default class ElementsController {
       })
     }
   }
+  //
+  //
   async getByPlan({ params, response }: HttpContext) {
     const elements = await Element.query().where('planId', params.planId).preload('vertex')
 
     return response.ok(elements)
+  }
+  //
+  //
+  async delete({ params, response }: HttpContext) {
+    const element = await Element.findOrFail(params.id)
+
+    const planId = element.planId
+
+    await element.delete()
+
+    // Recalculate objectives for this plan
+    await ObjectiveService.recalculateForPlan(planId)
+
+    const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+
+    return response.status(200).json({
+      objectives: plan.objectives.map((objective) => ({
+        id: objective.id,
+        name: objective.name,
+        description: objective.description,
+        target_value: objective.$extras.pivot_target_value,
+        completion_percentage: objective.$extras.pivot_completion_percentage,
+        unit: objective.unit,
+      })),
+    })
   }
 }
