@@ -290,7 +290,7 @@ export default class FenceDrawer {
     // Create a fence HTML element
     const fenceElement = document.createElement('div')
     // Add classes and dataset
-    fenceElement.className = 'absolute h-1 bg-black transform origin-left'
+    fenceElement.className = 'fence'
     fenceElement.dataset.fenceId = fenceData.id
 
     // Get start and end positions from the fence data

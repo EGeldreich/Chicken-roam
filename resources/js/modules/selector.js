@@ -28,7 +28,7 @@ export default class Selector {
   }
   //
   //
-  // Select an element
+  // Use event.target to select clicked-on element or fence
   selectElement(event) {
     if (!this.isUsing) return
 

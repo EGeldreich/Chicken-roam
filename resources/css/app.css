@@ -23,6 +23,9 @@
   .temporary {
     @apply opacity-40 border-dashed border-2 border-black;
   }
+  .fence {
+    @apply absolute h-1 bg-black transform origin-left;
+  }
   .shelter {
     @apply absolute bg-gray-700;
   }
