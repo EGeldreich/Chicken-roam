@@ -261,6 +261,15 @@ if (
 
 ## Récupération en temps réel de la complétion des objectifs
 
+Afin de mettre à jour la complétion des objectifs, la logique est la suivante :
+
+1. Lors du placement d'un élément (**_placeElement() dans ElementDrawer_**), **objectiveValue** est envoyé parmis les infos concernant l'élément.
+2. Dans **_create() de l'ElementsController_**, on appelle l'**ObjectiveService** et sa méthode **recalculateForPlan**.
+3. Dans cette méthode, on trouve le plan par son id, on calcule le taux de complétion de tous les objectifs, on update la base de donnée avec le nouveau taux.
+4. Dans la suite de **_create() de l'ElementsController_**, dans la réponse envoyée, on inclut le taux de completion.
+5. Dans la suite de **_placeElement() de l'ElementDrawer_**, on appelle la méthode **updateObjectivesDisplay()**.
+6. **updateObjectivesDisplay()** remplace le **_textContent_** des taux de complétion.
+
 ## TRX
 
 trx est le nom données aux variables qui englobent une **database transaction**.  
@@ -277,3 +286,15 @@ Une transaction suit la principe ACID :
    > Une fois qu'une transaction est validée (**_commit_**), ses effets sont permanents et survivent en cas de problème technique après la validation.
 
 ## Pseudo systeme d'API
+
+Bien que le site ne nécessite pas réellement d'API, on utilise la syntaxe d'une API et le fonctionnement d'endpoints.  
+Ainsi, lors de l'ajout d'un élément à la pase de donnée, on utilise /api/elements avec une requête POST.  
+Pour récupérer toutes les clôtures d'un plan, on utilise /api/fences/:idPlan en GET.
+
+```typescript
+// Routes for fence operations
+router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
+router.post('/api/fences', [FencesController, 'create'])
+router.delete('/api/fences/:id', [FencesController, 'delete'])
+router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
+```

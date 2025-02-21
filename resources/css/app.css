@@ -41,6 +41,12 @@
   .dustbath {
     @apply absolute bg-gray-500;
   }
+  /*  */
+  /* SELECTION */
+  /*  */
+  .selected {
+    @apply border-3 border-green-800;
+  }
 }
 
 body {

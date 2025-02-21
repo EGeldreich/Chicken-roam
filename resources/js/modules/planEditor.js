@@ -5,6 +5,7 @@ import PerchDrawer from './perchDrawer.js'
 import ShrubDrawer from './shrubDrawer.js'
 import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
+import Selector from './selector.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -24,6 +25,7 @@ export default class PlanEditor {
     this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this.placedElements)
     this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this.placedElements)
     this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this.placedElements)
+    this.selector = new Selector(this.canvas, this.planId, this.placedElements)
 
     // Load all elements once
     this.loadAllElements()
@@ -37,6 +39,7 @@ export default class PlanEditor {
       shrub: this.shrubDrawer,
       insectary: this.insectaryDrawer,
       dustbath: this.dustbathDrawer,
+      select: this.selector,
     }
 
     // Set up event listeners
@@ -124,9 +127,9 @@ export default class PlanEditor {
     // -- Stop any active placement when switching tools
     // Get previous tool
     const previousHandler = this.toolHandlers[this.currentTool]
-    // if there is a stopPlacement method, use it
-    if (previousHandler && previousHandler.stopPlacement) {
-      previousHandler.stopPlacement()
+    // if there is a stopUsing method, use it
+    if (previousHandler && previousHandler.stopUsing) {
+      previousHandler.stopUsing()
     }
     // currentTool change
     this.currentTool = tool
@@ -135,8 +138,8 @@ export default class PlanEditor {
 
     // Start placement mode for elements if that tool is selected
     const newHandler = this.toolHandlers[this.currentTool]
-    if (newHandler && newHandler.startPlacement && tool !== 'fence' && tool !== 'select') {
-      newHandler.startPlacement()
+    if (newHandler && newHandler.startUsing && tool !== 'fence') {
+      newHandler.startUsing()
     }
   }
   //
@@ -173,6 +176,8 @@ export default class PlanEditor {
     const handler = this.toolHandlers[this.currentTool]
     if (handler === this.fenceDrawer) {
       handler.handleMouseDown(point)
+    } else if (handler === this.selector) {
+      handler.selectElement(point)
     } else if (handler) {
       handler.placeElement(point)
     }
@@ -183,7 +188,9 @@ export default class PlanEditor {
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler) {
+    if (handler === this.selector) {
+      return
+    } else if (handler) {
       handler.handleMouseMove(point)
     }
   }

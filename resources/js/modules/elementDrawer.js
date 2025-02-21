@@ -12,7 +12,7 @@ export default class ElementDrawer {
     this.placedElements = placedElementsRef
 
     // Default states
-    this.isPlacing = false
+    this.isUsing = false
     this.temporaryElement = null
   }
   //
@@ -38,8 +38,8 @@ export default class ElementDrawer {
   //
   //
   // Stop placing elements (when tool is deselected)
-  stopPlacement() {
-    this.isPlacing = false
+  stopUsing() {
+    this.isUsing = false
     if (this.temporaryElement) {
       this.temporaryElement.remove()
       this.temporaryElement = null
@@ -48,8 +48,8 @@ export default class ElementDrawer {
   //
   //
   // Start the placement process - create temporary element that follows mouse
-  startPlacement() {
-    this.isPlacing = true
+  startUsing() {
+    this.isUsing = true
     this.createTemporaryElement()
   }
   //
@@ -72,7 +72,7 @@ export default class ElementDrawer {
   //
   // Handle mouse movement to update the preview position
   handleMouseMove(point) {
-    if (point.x > 0 && point.y > 0 && this.isPlacing && this.temporaryElement) {
+    if (point.x > 0 && point.y > 0 && this.isUsing && this.temporaryElement) {
       this.updateTemporaryElementPosition(point)
 
       // Calculate placement position
