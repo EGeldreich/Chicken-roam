@@ -177,7 +177,7 @@ export default class PlanEditor {
     if (handler === this.fenceDrawer) {
       handler.handleMouseDown(point)
     } else if (handler === this.selector) {
-      handler.selectElement(point)
+      handler.selectElement(event)
     } else if (handler) {
       handler.placeElement(point)
     }
