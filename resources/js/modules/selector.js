@@ -5,7 +5,7 @@ export default class Selector {
     this.placedElements = placedElementsRef // Get elements coordinates from planEditor
 
     // Default state
-    this.isUsing = false
+    this.isUsing = true
     this.selectedElement = null
   }
   //
@@ -21,6 +21,10 @@ export default class Selector {
   stopUsing() {
     this.isUsing = false
     this.selectedElement = null
+    let selectedElement = document.querySelector('.selected')
+    if (selectedElement) {
+      selectedElement.classList.remove('selected')
+    }
   }
   //
   //
@@ -68,6 +72,10 @@ export default class Selector {
     const selectionPoint = {
       x: point.x,
       y: point.y,
+    }
+    let oldSelectedElement = document.querySelector('.selected')
+    if (oldSelectedElement) {
+      oldSelectedElement.classList.remove('selected')
     }
     // If there is an element at target point
     if (this.wouldSelect(selectionPoint)) {

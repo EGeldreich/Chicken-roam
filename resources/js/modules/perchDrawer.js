@@ -5,7 +5,7 @@ export default class DustbathDrawer extends ElementDrawer {
     super(canvas, planId, placedElementsRef)
     this.elementType = 'perch'
     this.elementSize = { width: 100, height: 100 }
-    this.objectiveValue = 1
+    this.objectiveValue = 50
   }
   // Override original method to create element-specific temporary appearance
   createTemporaryElement() {
