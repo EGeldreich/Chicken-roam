@@ -104,8 +104,13 @@ export default class FencesController {
 
       // Delete the vertices if they're not used by other fences
       await Vertex.query()
-        .whereIn('id', [startVertexId, endVertexId])
-        .whereDoesntHave('fences')
+        .whereIn('id', [startVertexId, endVertexId]) // WHERE id IN (startVertexId, endVertexId)
+        .whereDoesntHave('startFences', (query) => {
+          query.where('vertex_start_id', endVertexId)
+        })
+        .whereDoesntHave('endFences', (query) => {
+          query.where('vertex_end_id', startVertexId)
+        })
         .delete()
 
       return response.status(200).json({ message: 'Fence deleted successfully' })

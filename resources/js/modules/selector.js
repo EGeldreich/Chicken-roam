@@ -75,7 +75,6 @@ export default class Selector {
   //
   //
   hideMenu() {
-    console.log('hidding menu')
     this.menu.classList.add('hidden')
   }
   //
@@ -83,15 +82,12 @@ export default class Selector {
   //   Delete element from database and DOM
   async handleDelete() {
     if (!this.selectedElement) {
-      console.log('No element selected')
       return
     }
-    console.log('trying to delete')
     let response
     try {
       if (this.selectedElement.classList.contains('fence')) {
         const fenceId = this.selectedElement.dataset.fenceId
-        console.log('Deleting fence with ID:', fenceId)
         response = await fetch(`/api/fences/${fenceId}`, {
           method: 'DELETE',
           headers: {
@@ -100,7 +96,6 @@ export default class Selector {
         })
       } else {
         const elementId = this.selectedElement.dataset.elementId
-        console.log('Deleting element with ID:', elementId)
         response = await fetch(`/api/elements/${elementId}`, {
           method: 'DELETE',
           headers: {
@@ -118,8 +113,20 @@ export default class Selector {
       if (data.objectives) {
         this.updateObjectivesDisplay(data.objectives)
       }
+
+      // Send out event useful for fences
+      if (this.selectedElement.classList.contains('fence')) {
+        console.log('sending fencedeleted event')
+        // Dispatch a custom event when a fence is deleted
+        const event = new CustomEvent('fenceDeleted', {
+          detail: { fenceId: this.selectedElement.dataset.fenceId },
+        })
+        this.canvas.dispatchEvent(event)
+      }
+
       // Remove from DOM
       this.selectedElement.remove()
+
       // Remove from placedElements array
       const elementId = this.selectedElement.dataset.elementId
       this.placedElements = this.placedElements.filter((el) => el.id !== parseInt(elementId))

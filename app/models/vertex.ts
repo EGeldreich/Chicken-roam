@@ -18,8 +18,15 @@ export default class Vertex extends BaseModel {
   declare positionY: number
 
   // RelationShips
-  @hasMany(() => Fence)
-  declare fences: HasMany<typeof Fence>
+  @hasMany(() => Fence, {
+    foreignKey: 'vertexStartId',
+  })
+  declare startFences: HasMany<typeof Fence>
+
+  @hasMany(() => Fence, {
+    foreignKey: 'vertexEndId',
+  })
+  declare endFences: HasMany<typeof Fence>
 
   @hasOne(() => Element)
   declare elements: HasOne<typeof Element>

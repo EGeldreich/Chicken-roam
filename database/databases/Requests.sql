@@ -21,3 +21,12 @@ INNER JOIN plan_objectives po ON p.id_plan = po.id_plan
 INNER JOIN objective o ON po.id_objective = o.id_objective
 INNER JOIN plan_element pe ON p.id_plan = pe.id_plan
 WHERE p.id_plan = 1 AND o.name = 'shrubs'
+
+-- FIND DELETABLE VERTICES ON FENCE DELETE
+SELECT * FROM vertices 
+WHERE id IN ("FenceStartVertex", "FenceEndVertex")
+AND NOT EXISTS (
+    SELECT * FROM fences 
+    WHERE fences.vertex_start_id = "FenceEndVertex" -- Check if vertex is used as start
+    OR fences.vertex_end_id =  "FenceStartVertex" -- Check if vertex is used as end    
+)

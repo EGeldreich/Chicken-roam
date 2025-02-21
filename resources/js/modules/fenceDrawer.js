@@ -15,16 +15,33 @@ export default class FenceDrawer {
     this.isFirstFence = true // Needed to be able to draw first fence without any connection point
 
     this.loadExistingFences() // Get existings fences from DB
+
+    // Listen for fence deletions
+    this.canvas.addEventListener('fenceDeleted', (event) => {
+      console.log('inside event listener')
+      this.loadExistingFences()
+    })
   }
 
   // Get existing fences and update ConnectionPoints
   async loadExistingFences() {
     // GET fences from db
+    console.log(this.vertices)
+    console.log('inside loadExistingFences() method')
     const response = await fetch(`/api/fences/${this.planId}`)
     if (response.ok) {
       const fences = await response.json()
       // Set isFirstFence to false if there is at least 1 fence
       this.isFirstFence = fences.length === 0
+
+      // Clear existing vertices and connection points
+      this.vertices.clear()
+      this.connectionPoints.forEach((point) => point.remove())
+      this.connectionPoints = []
+
+      // Remove all existing fence elements from the DOM
+      const existingFences = this.canvas.querySelectorAll('.fence')
+      existingFences.forEach((fence) => fence.remove())
 
       // For each fence
       fences.forEach((fence) => {
@@ -43,8 +60,12 @@ export default class FenceDrawer {
   // Fills up vertices Map() with (key,connections) in the form of ('100,200', 2)
   // Where '100' is X coords, '200' is Y coords, and '2' is the number of fences using that vertex
   trackVertex(vertex) {
+    // Normalize coordinates to integers
+    const x = Math.round(parseFloat(vertex.positionX))
+    const y = Math.round(parseFloat(vertex.positionY))
+
     // Set key as 'coordX,coordY'
-    const key = `${vertex.positionX},${vertex.positionY}`
+    const key = `${x},${y}`
     // Check for an already existing vertex with those coords (1), or set connections as (0)
     const connections = this.vertices.get(key) || 0
     // Increment connection count for this vertex (1) if first, (2) if second
@@ -54,6 +75,7 @@ export default class FenceDrawer {
   //
   // Connection points are used as starting point for any fence that isn't the first, and as closure point
   updateConnectionPoints() {
+    console.log('inside updateConnectionPoints() method')
     // Remove connection points from html (point in an HTML element because that's what is pushed in the array)
     this.connectionPoints.forEach((point) => point.remove())
     // Set connectionPoints as empty array
@@ -86,6 +108,7 @@ export default class FenceDrawer {
     this.canvas.appendChild(point)
     // Push into connectionPoints array
     this.connectionPoints.push(point)
+    console.log(this.vertices)
   }
   //
   //
@@ -252,12 +275,20 @@ export default class FenceDrawer {
           // Set isFirstFence to false
           this.isFirstFence = false
           // Handle newly created fence's vertices
-          this.trackVertex({ positionX: this.drawStartPoint.x, positionY: this.drawStartPoint.y })
-          this.trackVertex({ positionX: endPoint.x, positionY: endPoint.y })
+          this.trackVertex({
+            positionX: Math.round(this.drawStartPoint.x),
+            positionY: Math.round(this.drawStartPoint.y),
+          })
+          this.trackVertex({
+            positionX: Math.round(endPoint.x),
+            positionY: Math.round(endPoint.y),
+          })
           // Upodate
           this.updateConnectionPoints()
-          // Remove the temporary class
-          this.temporaryFence.classList.remove('temporary-fence')
+          // Transform classes to permanent ones
+          this.temporaryFence.className = 'fence element'
+          // Add a dataset id
+          this.temporaryFence.dataset.fenceId = responseData.id
 
           // Use hasFormedEnclosure to check if the enclosure is now closed
           if (this.hasFormedEnclosure()) {
