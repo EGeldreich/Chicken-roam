@@ -66,4 +66,34 @@ export default class ObjectiveService {
         .update({ completion_percentage: percentage })
     }
   }
+
+  static async calculateEnclosedCompletion(planId: number, area: number) {
+    // Safety check
+    // If for some reason there is no planId, get out
+    if (!planId) return
+
+    // Load the plan, with it's objectives and fences
+    const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail() // Safety measure (throw exception if no plan is found)
+
+    const areaObjective = plan.objectives.find((obj) => obj.name === 'area')
+
+    if (areaObjective) {
+      const targetValue = areaObjective.$extras.pivot_target_value
+      console.log('Area:', area)
+      console.log('Target:', targetValue)
+      console.log('Raw percentage:', (area / targetValue) * 100)
+      const percentage = Math.min(Math.round((area / targetValue) * 100), 100)
+      console.log('Final percentage:', percentage)
+
+      // Update the area objective
+      await plan
+        .related('objectives')
+        .pivotQuery()
+        .where('plan_id', planId)
+        .where('objective_id', areaObjective.id)
+        .update({ completion_percentage: percentage })
+    }
+
+    return plan
+  }
 }

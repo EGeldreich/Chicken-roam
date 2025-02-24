@@ -1,4 +1,5 @@
 import Plan from '#models/plan'
+import ObjectiveService from '#services/objective_service'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class PlansController {
@@ -41,19 +42,44 @@ export default class PlansController {
   //
   //
   //
-  async completeEnclosure({ params, response }: HttpContext) {
+  async completeEnclosure({ params, response, request }: HttpContext) {
+    const area = request.input('area')
     try {
+      // Find plan
       const plan = await Plan.findOrFail(params.planId)
+
+      console.log('Plan found:', plan.id)
+      console.log('Area received:', area)
 
       // Update plan status or perform any necessary calculations
       plan.isEnclosed = true
       await plan.save()
 
-      return response.ok({ message: 'Enclosure completed successfully' })
+      // Calculate area completion
+      await ObjectiveService.calculateEnclosedCompletion(params.planId, area)
+
+      await plan.load('objectives')
+
+      // Get just the area objective using find
+      const areaObjective = plan.objectives.find((obj) => obj.name === 'area')
+
+      if (!areaObjective) {
+        return response.badRequest({
+          message: 'Area objective not found',
+        })
+      }
+      console.log('target area: ' + areaObjective.$extras.pivot_target_value)
+      console.log('areaCompletion: ' + areaObjective.$extras.pivot_completion_percentage)
+      return response.ok({
+        message: 'Enclosure completed successfully',
+        areaCompletion: areaObjective.$extras.pivot_completion_percentage,
+      })
     } catch (error) {
+      console.error('Error in completeEnclosure:', error) // Add detailed error logging
       return response.internalServerError({
         message: 'Failed to complete enclosure',
         error: error.message,
+        stack: error.stack, // This will help debug the issue
       })
     }
   }

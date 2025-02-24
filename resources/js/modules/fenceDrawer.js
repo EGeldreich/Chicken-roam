@@ -18,7 +18,6 @@ export default class FenceDrawer {
 
     // Listen for fence deletions
     this.canvas.addEventListener('fenceDeleted', (event) => {
-      console.log('inside event listener')
       this.loadExistingFences()
     })
   }
@@ -26,8 +25,6 @@ export default class FenceDrawer {
   // Get existing fences and update ConnectionPoints
   async loadExistingFences() {
     // GET fences from db
-    console.log(this.vertices)
-    console.log('inside loadExistingFences() method')
     const response = await fetch(`/api/fences/${this.planId}`)
     if (response.ok) {
       const fences = await response.json()
@@ -75,7 +72,6 @@ export default class FenceDrawer {
   //
   // Connection points are used as starting point for any fence that isn't the first, and as closure point
   updateConnectionPoints() {
-    console.log('inside updateConnectionPoints() method')
     // Remove connection points from html (point in an HTML element because that's what is pushed in the array)
     this.connectionPoints.forEach((point) => point.remove())
     // Set connectionPoints as empty array
@@ -108,7 +104,6 @@ export default class FenceDrawer {
     this.canvas.appendChild(point)
     // Push into connectionPoints array
     this.connectionPoints.push(point)
-    console.log(this.vertices)
   }
   //
   //
@@ -367,10 +362,9 @@ export default class FenceDrawer {
   //
   // Call back-end response to handle enclosure completion
   async handleEnclosureComplete() {
-    // Might want to:
-    // 2. Calculate the enclosed area
-    // 3. Validate the enclosure (e.g., minimum size)
-    // 4. Update UI to show completion
+    // Calculate the area
+    const enclosedArea = this.calculateEnclosedArea()
+    console.log('in handleEnclosureComplete')
 
     // Update DB to set Plan as 'isEnclosed' (PlanController -> completeEnclosure)
     try {
@@ -380,23 +374,145 @@ export default class FenceDrawer {
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
         },
+        body: JSON.stringify({
+          area: enclosedArea,
+        }),
       })
 
       // Once the plan is set as enclosed
       if (response.ok) {
+        const { areaCompletion } = await response.json()
+        console.log('area Completion:' + areaCompletion)
         // Add visual feedback
         this.canvas.classList.add('enclosure-complete')
 
         // Observer pattern
         // Create ability to listen for an 'enclosureComplete' event on other files
         const event = new CustomEvent('enclosureComplete', {
-          detail: { planId: this.planId },
+          detail: { planId: this.planId, area: enclosedArea },
         })
         // Dispatch the event from the canvas element
         this.canvas.dispatchEvent(event)
+        // Update just the area objective
+        const areaObjectiveEl = document.querySelector('#area')
+        if (areaObjectiveEl) {
+          areaObjectiveEl.textContent = areaCompletion
+        }
       }
     } catch (error) {
       console.error('Failed to complete enclosure:', error)
     }
+  }
+  //
+  //
+  // Define fences in order, and calculate enclosed area as a polygon
+  calculateEnclosedArea() {
+    // Get all fences of the plan
+    // Convert Node to Array for ease of use
+    const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
+
+    // Initilize empty array of ordered Vertices
+    let orderedVertices = []
+    // Initialize current vertex
+    let currentVertex = null
+    // Keep track of which fences are used
+    let usedFences = new Set()
+
+    // Start with the start vertex of first fence (which fence we start with is irrelevant)
+    if (fenceElements.length > 0) {
+      // Security check to avoid error
+      const firstFence = fenceElements[0]
+      const startX = parseFloat(firstFence.style.left) // Get X coord from style
+      const startY = parseFloat(firstFence.style.top) // Get Y coord from style
+
+      orderedVertices.push([startX, startY]) // Store vertex object into array
+      currentVertex = [startX, startY] // Set just stored vertex as current
+      usedFences.add(firstFence) // Set fence as used
+
+      console.log('Starting vertex:', [startX, startY])
+    }
+
+    // Seek all connected vertices until the loop is closed
+    // __
+    // For each fence, check start vertex (from style left and top), and end vertex (calculation)
+    // Check if either start or end correspond to currentVertex, then go to other end
+    // Avoid back and forth by storing usedFences
+    while (usedFences.size < fenceElements.length) {
+      console.log('Current vertex:', currentVertex)
+      console.log('Used fences:', usedFences.size, 'of', fenceElements.length)
+      // Function to seek out the next fence we'll use
+      const nextFence = fenceElements.find((fence) => {
+        if (usedFences.has(fence)) return false // Return false if the fence is used
+
+        // Get start relevant information from style
+        const startX = parseFloat(fence.style.left)
+        const startY = parseFloat(fence.style.top)
+        const angle = parseFloat(fence.style.transform.replace('rotate(', '').replace('deg)', ''))
+        const width = parseFloat(fence.style.width)
+
+        // Calculate end point using trigonometry
+        const endX = startX + width * Math.cos((angle * Math.PI) / 180)
+        const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+
+        // Return true if connects to our current vertex (either endpoint OR startpoint)
+        const isConnected =
+          (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) ||
+          (Math.abs(endX - currentVertex[0]) < 1 && Math.abs(endY - currentVertex[1]) < 1)
+
+        if (isConnected) {
+          console.log('Found connected fence:', { startX, startY, endX, endY })
+        }
+
+        return isConnected
+      })
+
+      if (!nextFence) {
+        console.log('No next fence found! Breaking loop')
+        break // Add safety break to prevent infinite loop
+      }
+
+      // If we found a nextFence (true returned)
+      if (nextFence) {
+        usedFences.add(nextFence) // Add this fence to used set
+        // Get relevant informations again
+        const startX = parseFloat(nextFence.style.left)
+        const startY = parseFloat(nextFence.style.top)
+        const angle = parseFloat(
+          nextFence.style.transform.replace('rotate(', '').replace('deg)', '')
+        )
+        const width = parseFloat(nextFence.style.width)
+        // Calculate end point
+        const endX = startX + width * Math.cos((angle * Math.PI) / 180)
+        const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+
+        // Add the vertex we haven't seen yet
+        if (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) {
+          currentVertex = [endX, endY]
+        } else {
+          currentVertex = [startX, startY]
+        }
+        // Add new 'currentVertex' to array
+        orderedVertices.push(currentVertex)
+        console.log('Added vertex:', currentVertex)
+      }
+    }
+
+    console.log('Final ordered vertices:', orderedVertices)
+    // Apply Shoelace formula
+    // It calculates the area of a polygon using its vertices
+    let area = 0 // Initialize area as 0
+    for (let i = 0; i < orderedVertices.length; i++) {
+      const j = (i + 1) % orderedVertices.length
+      area += orderedVertices[i][0] * orderedVertices[j][1]
+      area -= orderedVertices[j][0] * orderedVertices[i][1]
+    }
+    area = Math.abs(area) / 2
+
+    // Convert square pixels to square meters
+    const pixelsPerMeter = 100 // scale
+    const areaInSquareMeters = area / (pixelsPerMeter * pixelsPerMeter)
+
+    console.log('total square meters: ' + areaInSquareMeters)
+    return areaInSquareMeters
   }
 }
