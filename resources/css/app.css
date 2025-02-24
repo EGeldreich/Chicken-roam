@@ -83,6 +83,13 @@ body {
     fadeOut 0.3s 2.7s;
 }
 
+.invalid-placement {
+  background-color: red !important;
+}
+.valid-placement {
+  background-color: black;
+}
+
 @keyframes shake {
   0%,
   100% {

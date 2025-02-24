@@ -210,6 +210,24 @@ export default class FenceDrawer {
       // Remove styling class if far enough
       this.temporaryFence.classList.remove('snapping-to-connection')
     }
+
+    // Check for potential intersection
+    const wouldIntersect = this.wouldIntersectExistingFences(
+      this.drawStartPoint.x,
+      this.drawStartPoint.y,
+      endPoint.x,
+      endPoint.y
+    )
+
+    // Update visual feedback
+    if (wouldIntersect) {
+      this.temporaryFence.classList.add('invalid-placement')
+      this.temporaryFence.classList.remove('valid-placement')
+    } else {
+      this.temporaryFence.classList.add('valid-placement')
+      this.temporaryFence.classList.remove('invalid-placement')
+    }
+
     // Calculate the length and angle of the fence line
     // Get difference between startPoint and current endPoint on X and Y coordinates
     const deltaX = endPoint.x - this.drawStartPoint.x
@@ -245,6 +263,30 @@ export default class FenceDrawer {
 
     // If we are far enough from the starting point
     if (this.drawStartPoint.x !== endPoint.x || this.drawStartPoint.y !== endPoint.y) {
+      // Check for intersections before placing fence
+      if (
+        this.wouldIntersectExistingFences(
+          this.drawStartPoint.x,
+          this.drawStartPoint.y,
+          endPoint.x,
+          endPoint.y
+        )
+      ) {
+        // Show error feedback
+        this.temporaryFence.classList.add('invalid-placement')
+        setTimeout(() => {
+          this.temporaryFence.remove()
+        }, 500)
+
+        // Show a message to the user
+        const errorMessage = document.createElement('div')
+        errorMessage.className = 'placement-error-toast'
+        errorMessage.textContent = 'Fences cannot cross each other'
+        document.body.appendChild(errorMessage)
+        setTimeout(() => errorMessage.remove(), 3000)
+
+        return
+      }
       try {
         // Redirect to FenceController 'create'
         const response = await fetch('/api/fences', {
@@ -422,14 +464,11 @@ export default class FenceDrawer {
     if (fenceElements.length > 0) {
       // Security check to avoid error
       const firstFence = fenceElements[0]
-      const startX = parseFloat(firstFence.style.left) // Get X coord from style
-      const startY = parseFloat(firstFence.style.top) // Get Y coord from style
+      const endpoints = this.getFenceEndpoints(firstFence)
 
-      orderedVertices.push([startX, startY]) // Store vertex object into array
-      currentVertex = [startX, startY] // Set just stored vertex as current
+      orderedVertices.push([endpoints.start.x, endpoints.start.y]) // Store vertex object into array
+      currentVertex = [endpoints.start.x, endpoints.start.y] // Set just stored vertex as current
       usedFences.add(firstFence) // Set fence as used
-
-      console.log('Starting vertex:', [startX, startY])
     }
 
     // Seek all connected vertices until the loop is closed
@@ -438,36 +477,27 @@ export default class FenceDrawer {
     // Check if either start or end correspond to currentVertex, then go to other end
     // Avoid back and forth by storing usedFences
     while (usedFences.size < fenceElements.length) {
-      console.log('Current vertex:', currentVertex)
-      console.log('Used fences:', usedFences.size, 'of', fenceElements.length)
       // Function to seek out the next fence we'll use
       const nextFence = fenceElements.find((fence) => {
         if (usedFences.has(fence)) return false // Return false if the fence is used
 
-        // Get start relevant information from style
-        const startX = parseFloat(fence.style.left)
-        const startY = parseFloat(fence.style.top)
-        const angle = parseFloat(fence.style.transform.replace('rotate(', '').replace('deg)', ''))
-        const width = parseFloat(fence.style.width)
-
-        // Calculate end point using trigonometry
-        const endX = startX + width * Math.cos((angle * Math.PI) / 180)
-        const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+        // Get fence Endpoints
+        const endpoints = this.getFenceEndpoints(fence)
 
         // Return true if connects to our current vertex (either endpoint OR startpoint)
         const isConnected =
-          (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) ||
-          (Math.abs(endX - currentVertex[0]) < 1 && Math.abs(endY - currentVertex[1]) < 1)
+          (Math.abs(endpoints.start.x - currentVertex[0]) < 1 &&
+            Math.abs(endpoints.start.y - currentVertex[1]) < 1) ||
+          (Math.abs(endpoints.end.x - currentVertex[0]) < 1 &&
+            Math.abs(endpoints.end.y - currentVertex[1]) < 1)
 
         if (isConnected) {
-          console.log('Found connected fence:', { startX, startY, endX, endY })
         }
 
         return isConnected
       })
 
       if (!nextFence) {
-        console.log('No next fence found! Breaking loop')
         break // Add safety break to prevent infinite loop
       }
 
@@ -493,11 +523,9 @@ export default class FenceDrawer {
         }
         // Add new 'currentVertex' to array
         orderedVertices.push(currentVertex)
-        console.log('Added vertex:', currentVertex)
       }
     }
 
-    console.log('Final ordered vertices:', orderedVertices)
     // Apply Shoelace formula
     // It calculates the area of a polygon using its vertices
     let area = 0 // Initialize area as 0
@@ -514,5 +542,66 @@ export default class FenceDrawer {
 
     console.log('total square meters: ' + areaInSquareMeters)
     return areaInSquareMeters
+  }
+  //
+  //
+  // Method to check if a fence would intersect with an existing fence
+  wouldIntersectExistingFences(startX, startY, endX, endY) {
+    const fences = Array.from(this.canvas.querySelectorAll('.fence'))
+
+    for (const fence of fences) {
+      const endpoints = this.getFenceEndpoints(fence)
+
+      if (
+        this.checkLineIntersection(
+          startX,
+          startY,
+          endX,
+          endY,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        )
+      ) {
+        return true
+      }
+    }
+    return false
+  }
+  //
+  //
+  // Method called in wouldIntersectExistingFences to check intersection
+  checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+    // Calculate the denominators
+    const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+    if (denominator === 0) return false // Lines are parallel
+
+    // Calculate intersection point parameters
+    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
+    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
+
+    // Return true if the intersection is within both line segments
+    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1
+  }
+  //
+  //
+  // DRY method to get endpoint from a fence element
+  getFenceEndpoints(fence) {
+    // Get relevant informations from style
+    const startX = parseFloat(fence.style.left)
+    const startY = parseFloat(fence.style.top)
+    const angle = parseFloat(fence.style.transform.replace('rotate(', '').replace('deg)', ''))
+    const width = parseFloat(fence.style.width)
+
+    // Calculate end point
+    const endX = startX + width * Math.cos((angle * Math.PI) / 180)
+    const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+
+    // return result
+    return {
+      start: { x: startX, y: startY },
+      end: { x: endX, y: endY },
+    }
   }
 }
