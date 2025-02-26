@@ -146,6 +146,8 @@ export default class Selector {
       // Finf the correct HTML element
       const objectiveEl = document.querySelector(`#${objective.name}`)
       if (objectiveEl) {
+        console.log(objectiveEl)
+        console.log(objective.completion_percentage)
         objectiveEl.textContent = objective.completion_percentage
       }
     })

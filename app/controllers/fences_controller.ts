@@ -99,6 +99,12 @@ export default class FencesController {
       await fence.load('plan')
       // Find related Plan
       const plan = fence.plan
+      // Load objectives
+      await plan.load('objectives')
+      // Get area objective
+      const areaObjective = plan.objectives.find((obj) => obj.name === 'area')
+      // Set reset const
+      const reset = 0
 
       // Get vertex IDs before deleting the fence
       const startVertexId = fence.vertexStartId
@@ -106,9 +112,18 @@ export default class FencesController {
 
       // Delete the fence
       await fence.delete()
-
+      // Update isEnclosed state
       plan.isEnclosed = false
-
+      // Update completion percentage of area objective
+      if (areaObjective) {
+        await plan
+          .related('objectives')
+          .pivotQuery()
+          .where('plan_id', plan.id)
+          .where('objective_id', areaObjective.id)
+          .update({ completion_percentage: reset })
+      }
+      // Save changes
       await plan.save()
 
       // Delete the vertices if they're not used by other fences
@@ -122,7 +137,21 @@ export default class FencesController {
         })
         .delete()
 
-      return response.status(200).json({ message: 'Fence deleted successfully' })
+      return response.status(200).json({
+        message: 'Fence deleted successfully',
+        objectives: areaObjective
+          ? [
+              {
+                id: areaObjective.id,
+                name: areaObjective.name,
+                description: areaObjective.description,
+                target_value: areaObjective.$extras.pivot_target_value,
+                completion_percentage: 0,
+                unit: areaObjective.unit,
+              },
+            ]
+          : [],
+      })
     } catch (error) {
       console.error('Error deleting fence:', error)
       return response.status(500).json({
