@@ -8,6 +8,7 @@ export default class FenceDrawer {
     this.connectionPoints = [] // Initialize empty array for connection points
     this.enclosureSnapDistance = 50 // Distance in pixels to snap to first vertex
     this.EPSILON = 0.001 // Margin of error value
+    this.MIN_ANGLE_DEG = 15 // Minimum angle between 2 consecutive fences
 
     // Set default states
     this.temporaryFence = null // used to show fences that are being drawn but not confirmed yet
@@ -279,27 +280,35 @@ export default class FenceDrawer {
 
     // If we are far enough from the starting point
     if (this.drawStartPoint.x !== endPoint.x || this.drawStartPoint.y !== endPoint.y) {
-      // Check for intersections before placing fence
-      if (
-        this.wouldIntersectExistingFences(
-          this.drawStartPoint.x,
-          this.drawStartPoint.y,
-          endPoint.x,
-          endPoint.y
-        )
-      ) {
-        // Show error feedback
+      // Check for placement validity using helper method
+      const checkResult = this.checkPlacementValidity(
+        this.drawStartPoint.x,
+        this.drawStartPoint.y,
+        endPoint.x,
+        endPoint.y
+      )
+
+      // If the placement is invalid
+      if (checkResult.invalid) {
+        // Create error display
+        const errorMessage = document.createElement('div')
+        errorMessage.className = 'placement-error-toast'
+
+        if (checkResult.reason === 'angle') {
+          errorMessage.textContent = `Angle between two fences should be at least ${this.MIN_ANGLE_DEG}°.`
+        } else {
+          errorMessage.textContent = 'Fences cannot intersect.'
+        }
+
+        // Append to DOM for 3 seconds
+        document.body.appendChild(errorMessage)
+        setTimeout(() => errorMessage.remove(), 3000)
+
+        // Add error class to temporary fence
         this.temporaryFence.classList.add('invalid-placement')
         setTimeout(() => {
           this.temporaryFence.remove()
         }, 500)
-
-        // Show a message to the user
-        const errorMessage = document.createElement('div')
-        errorMessage.className = 'placement-error-toast'
-        errorMessage.textContent = 'Fences cannot cross each other'
-        document.body.appendChild(errorMessage)
-        setTimeout(() => errorMessage.remove(), 3000)
 
         return
       }
@@ -502,13 +511,10 @@ export default class FenceDrawer {
 
         // Return true if connects to our current vertex (either endpoint OR startpoint)
         const isConnected =
-          (Math.abs(endpoints.start.x - currentVertex[0]) < 1 &&
-            Math.abs(endpoints.start.y - currentVertex[1]) < 1) ||
-          (Math.abs(endpoints.end.x - currentVertex[0]) < 1 &&
-            Math.abs(endpoints.end.y - currentVertex[1]) < 1)
-
-        if (isConnected) {
-        }
+          (Math.abs(endpoints.start.x - currentVertex[0]) < this.EPSILON &&
+            Math.abs(endpoints.start.y - currentVertex[1]) < this.EPSILON) ||
+          (Math.abs(endpoints.end.x - currentVertex[0]) < this.EPSILON &&
+            Math.abs(endpoints.end.y - currentVertex[1]) < this.EPSILON)
 
         return isConnected
       })
@@ -517,29 +523,24 @@ export default class FenceDrawer {
         break // Add safety break to prevent infinite loop
       }
 
-      // If we found a nextFence (true returned)
-      if (nextFence) {
-        usedFences.add(nextFence) // Add this fence to used set
-        // Get relevant informations again
-        const startX = parseFloat(nextFence.style.left)
-        const startY = parseFloat(nextFence.style.top)
-        const angle = parseFloat(
-          nextFence.style.transform.replace('rotate(', '').replace('deg)', '')
-        )
-        const width = parseFloat(nextFence.style.width)
-        // Calculate end point
-        const endX = startX + width * Math.cos((angle * Math.PI) / 180)
-        const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+      usedFences.add(nextFence) // Add this fence to used set
+      // Get relevant informations again
+      const startX = parseFloat(nextFence.style.left)
+      const startY = parseFloat(nextFence.style.top)
+      const angle = parseFloat(nextFence.style.transform.replace('rotate(', '').replace('deg)', ''))
+      const width = parseFloat(nextFence.style.width)
+      // Calculate end point
+      const endX = startX + width * Math.cos((angle * Math.PI) / 180)
+      const endY = startY + width * Math.sin((angle * Math.PI) / 180)
 
-        // Add the vertex we haven't seen yet
-        if (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) {
-          currentVertex = [endX, endY]
-        } else {
-          currentVertex = [startX, startY]
-        }
-        // Add new 'currentVertex' to array
-        orderedVertices.push(currentVertex)
+      // Add the vertex we haven't seen yet
+      if (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) {
+        currentVertex = [endX, endY]
+      } else {
+        currentVertex = [startX, startY]
       }
+      // Add new 'currentVertex' to array
+      orderedVertices.push(currentVertex)
     }
 
     // Apply Shoelace formula
@@ -563,50 +564,7 @@ export default class FenceDrawer {
   //
   // Method to check if a fence would intersect with an existing fence
   wouldIntersectExistingFences(startX, startY, endX, endY) {
-    // Get all fences
-    const fences = Array.from(this.canvas.querySelectorAll('.fence'))
-
-    // Get starting and ending point of new fence
-    const newStart = { x: startX, y: startY }
-    const newEnd = { x: endX, y: endY }
-
-    // For each fence
-    for (const fence of fences) {
-      // Get the end points
-      const endpoints = this.getFenceEndpoints(fence)
-      // Starting point
-      const existingStart = endpoints.start
-      // Ending point
-      const existingEnd = endpoints.end
-
-      // Check for common endpoints between new and existing fences
-      const sharesEndpoint =
-        this.arePointsEqual(newStart, existingStart) ||
-        this.arePointsEqual(newStart, existingEnd) ||
-        this.arePointsEqual(newEnd, existingStart) ||
-        this.arePointsEqual(newEnd, existingEnd)
-
-      // If there is a shared endpoint, intersection authorized
-      if (sharesEndpoint) {
-        continue // Go to nect fence
-      }
-
-      if (
-        this.checkLineIntersection(
-          startX,
-          startY,
-          endX,
-          endY,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        )
-      ) {
-        return true // Intersection detected
-      }
-    }
-    return false // No intersection
+    return this.checkPlacementValidity(startX, startY, endX, endY).invalid
   }
   //
   //
@@ -665,10 +623,121 @@ export default class FenceDrawer {
   }
   //
   //
-  // Method implementing the use of EPSILON as a margin of error
-  arePointsEqual(point1, point2) {
-    return (
-      Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
-    )
+  // Method to calculate angle between 2 fences. Used to avoid superposition
+  calculateAngleBetweenLines(line1Start, line1End, line2Start, line2End) {
+    // Line verctors
+    const vector1 = {
+      x: line1End.x - line1Start.x,
+      y: line1End.y - line1Start.y,
+    }
+    const vector2 = {
+      x: line2End.x - line2Start.x,
+      y: line2End.y - line2Start.y,
+    }
+
+    // Scalare product / Dot product
+    const dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
+
+    // Vectors length
+    const magnitude1 = Math.sqrt(vector1.x * vector1.x + vector1.y * vector1.y)
+    const magnitude2 = Math.sqrt(vector2.x * vector2.x + vector2.y * vector2.y)
+
+    // Security to avoir dividing by 0
+    if (magnitude1 < this.EPSILON || magnitude2 < this.EPSILON) {
+      return 0 // length too small
+    }
+
+    // Angle cosinus
+    const cosAngle = dotProduct / (magnitude1 * magnitude2)
+    // Radial angle
+    const angleRad = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
+    // Convert to degrees
+    let angleDeg = angleRad * (180 / Math.PI)
+
+    return 180 - angleDeg
+  }
+
+  checkPlacementValidity(startX, startY, endX, endY) {
+    // Get all fences
+    const fences = Array.from(this.canvas.querySelectorAll('.fence'))
+
+    const newStart = { x: startX, y: startY } // Start point of new fence
+    const newEnd = { x: endX, y: endY } // End point of new fence
+
+    const result = { invalid: false, reason: null } // Default result
+
+    // First, check angle
+    // For each fence ...
+    for (const fence of fences) {
+      const endpoints = this.getFenceEndpoints(fence) // Get endpoints
+
+      // Check if the new fence start point is used by another fence
+      // (Should always be the case except for the first fence)
+      const sharesStartPoint =
+        this.arePointsEqual(newStart, endpoints.start) ||
+        this.arePointsEqual(newStart, endpoints.end)
+
+      // Check if the new fence end point is used by another fence
+      // (Should be the case only on fence closure, or if a fence has been deleted)
+      const sharesEndPoint =
+        this.arePointsEqual(newEnd, endpoints.start) || this.arePointsEqual(newEnd, endpoints.end)
+
+      // If there is a shared point
+      if (sharesStartPoint || sharesEndPoint) {
+        // Calculate angle
+        const angle = this.calculateAngleBetweenLines(
+          newStart,
+          newEnd,
+          endpoints.start,
+          endpoints.end
+        )
+
+        // Check angle validity
+        if (angle < this.MIN_ANGLE_DEG) {
+          result.invalid = true
+          result.reason = 'angle'
+          return result
+        }
+      }
+    }
+
+    // Secondly, check for intersections
+    // For each fence ...
+    for (const fence of fences) {
+      const endpoints = this.getFenceEndpoints(fence) // Get endpoints
+
+      // Check if we share an endpoint
+      const sharesEndpoint =
+        this.arePointsEqual(newStart, endpoints.start) ||
+        this.arePointsEqual(newStart, endpoints.end) ||
+        this.arePointsEqual(newEnd, endpoints.start) ||
+        this.arePointsEqual(newEnd, endpoints.end)
+
+      // If an endpoint is shared, intersection is tolerated
+      if (sharesEndpoint) {
+        continue
+      }
+
+      // Check intersections on non-linked fences
+      if (
+        this.checkLineIntersection(
+          startX,
+          startY,
+          endX,
+          endY,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        )
+      ) {
+        // Update result accordingly
+        result.invalid = true
+        result.reason = 'intersection'
+        return result
+      }
+    }
+
+    return result // Valid placement
   }
 }
