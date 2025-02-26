@@ -319,3 +319,86 @@ En back, dans le controller lié, on supprime la ligne de la base de donnée.
 Retour dans le front, pour une clotûre, on envoit un évènement **_fenceDeleted_** qui sera receptionné dans le **fenceDrawer**.  
 Pour un élément, on récupère les data lié aux objectives et on redirige vers la méthode **_updateObjectivesDisplay()_**. On retire également l'élément du tableau **_placedElements_** qui s'occupe des collisions.  
 Dans les deux cas, on **_remove()_** l'élément du **DOM**.
+
+## Formules mathématiques utilisées
+
+### Trouver la longueur et l'angle d'une clôture
+
+```javascript
+// Calculate length and angle
+const deltaX = endX - startX
+const deltaY = endY - startY
+const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
+```
+
+Utilisation de Pythagore pour la longueur.
+
+> a² = b² + c²
+
+Pour l'angle, calcule de l'arc tangente avec Math.atan2, puis transformation en degrés avec \* (180 / Math.pi)
+
+### Trouver le point le plus proche
+
+```javascript
+// In fenceDrawer.js
+const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2))
+```
+
+Utilisation de la formule euclidienne.  
+Comparaison de la distance avec chaque point déjà présent.
+
+> Distance entre A et B est égal à Racine carrée de ((Ax - Bx)² + (Ay - By)²)
+
+### Détection d'intersection pour les clôtures
+
+```javascript
+checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+    // Calculate the denominators
+    const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
+    if (denominator === 0) return false // Lines are parallel
+
+    // Calculate intersection point parameters
+    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
+    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
+
+    // Return true if the intersection is within both line segments
+    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1
+}
+```
+
+Utilisation de l'algorithme d'intersection de segments de droite basé sur les équations paramétriques.  
+Si le dénominateur est nul, les lignes sont parallèles ou colinéaires.  
+Les paramètres ua et ub indiquent où l'intersection se produit le long de chaque segment.
+
+> Une intersection existe si et seulement si 0 ≤ ua ≤ 1 et 0 ≤ ub ≤ 1
+
+### Calcul de la surface d'un enclos
+
+```javascript
+// Apply Shoelace formula
+let area = 0
+for (let i = 0; i < orderedVertices.length; i++) {
+  const j = (i + 1) % orderedVertices.length
+  area += orderedVertices[i][0] * orderedVertices[j][1]
+  area -= orderedVertices[j][0] * orderedVertices[i][1]
+}
+area = Math.abs(area) / 2
+```
+
+Utilisation de la formule du lacet (ou formule de Gauss) pour calculer l'aire d'un polygone simple.  
+Chaque paire de points consécutifs contribue à l'aire totale.  
+La valeur absolue et la division par 2 sont nécessaires pour obtenir l'aire correcte, indépendamment de l'ordre des sommets.
+
+> Aire = (1/2) × |∑(x₁y₂ - x₂y₁ + x₂y₃ - x₃y₂ + ... + xₙy₁ - x₁yₙ)|
+
+### EPSILON
+
+Afin d'éviter des problèmes liés à la précision limitée des chiffres en mémoire :
+
+```javascript
+0.1 + 0.2 === 0.3 // Retourne false!
+// Le résultat réel est 0.30000000000000004
+```
+
+On utilise une valeur **epsilon**, qui définit une marge d'erreur acceptée.

@@ -7,6 +7,7 @@ export default class FenceDrawer {
     this.vertices = new Map() // Initialize Map() so we can store coordinates and number of fences linked
     this.connectionPoints = [] // Initialize empty array for connection points
     this.enclosureSnapDistance = 50 // Distance in pixels to snap to first vertex
+    this.EPSILON = 0.001 // Margin of error value
 
     // Set default states
     this.temporaryFence = null // used to show fences that are being drawn but not confirmed yet
@@ -61,12 +62,27 @@ export default class FenceDrawer {
     const x = Math.round(parseFloat(vertex.positionX))
     const y = Math.round(parseFloat(vertex.positionY))
 
-    // Set key as 'coordX,coordY'
-    const key = `${x},${y}`
-    // Check for an already existing vertex with those coords (1), or set connections as (0)
-    const connections = this.vertices.get(key) || 0
-    // Increment connection count for this vertex (1) if first, (2) if second
-    this.vertices.set(key, connections + 1)
+    // Seek out 'almost indentical' vertex
+    let existingKey = null
+    this.vertices.forEach((connections, key) => {
+      // Get coordinates from the key
+      const [existingX, existingY] = key.split(',').map(Number)
+      // Compare existing Vertex and potential new one with epsilon
+      if (Math.abs(existingX - x) < this.EPSILON && Math.abs(existingY - y) < this.EPSILON) {
+        existingKey = key
+      }
+    })
+
+    // If we found a indentical Vertex
+    if (existingKey) {
+      // Use it and increment connections
+      const connections = this.vertices.get(existingKey)
+      this.vertices.set(existingKey, connections + 1)
+    } else {
+      // Create new vertex
+      const key = `${x},${y}`
+      this.vertices.set(key, 1)
+    }
   }
   //
   //
@@ -547,10 +563,33 @@ export default class FenceDrawer {
   //
   // Method to check if a fence would intersect with an existing fence
   wouldIntersectExistingFences(startX, startY, endX, endY) {
+    // Get all fences
     const fences = Array.from(this.canvas.querySelectorAll('.fence'))
 
+    // Get starting and ending point of new fence
+    const newStart = { x: startX, y: startY }
+    const newEnd = { x: endX, y: endY }
+
+    // For each fence
     for (const fence of fences) {
+      // Get the end points
       const endpoints = this.getFenceEndpoints(fence)
+      // Starting point
+      const existingStart = endpoints.start
+      // Ending point
+      const existingEnd = endpoints.end
+
+      // Check for common endpoints between new and existing fences
+      const sharesEndpoint =
+        this.arePointsEqual(newStart, existingStart) ||
+        this.arePointsEqual(newStart, existingEnd) ||
+        this.arePointsEqual(newEnd, existingStart) ||
+        this.arePointsEqual(newEnd, existingEnd)
+
+      // If there is a shared endpoint, intersection authorized
+      if (sharesEndpoint) {
+        continue // Go to nect fence
+      }
 
       if (
         this.checkLineIntersection(
@@ -564,10 +603,18 @@ export default class FenceDrawer {
           endpoints.end.y
         )
       ) {
-        return true
+        return true // Intersection detected
       }
     }
-    return false
+    return false // No intersection
+  }
+  //
+  //
+  // Helper method to compare 2 points, with epsilon margin of error
+  arePointsEqual(point1, point2) {
+    return (
+      Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
+    )
   }
   //
   //
@@ -575,14 +622,16 @@ export default class FenceDrawer {
   checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
     // Calculate the denominators
     const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
-    if (denominator === 0) return false // Lines are parallel
+    if (Math.abs(denominator) < this.EPSILON) return false // Lines are parallel if denominator is null
 
     // Calculate intersection point parameters
     const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
     const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
 
     // Return true if the intersection is within both line segments
-    return ua >= 0 && ua <= 1 && ub >= 0 && ub <= 1
+    return (
+      ua >= -this.EPSILON && ua <= 1 + this.EPSILON && ub >= -this.EPSILON && ub <= 1 + this.EPSILON
+    )
   }
   //
   //
@@ -603,5 +652,13 @@ export default class FenceDrawer {
       start: { x: startX, y: startY },
       end: { x: endX, y: endY },
     }
+  }
+  //
+  //
+  // Method implementing the use of EPSILON as a margin of error
+  arePointsEqual(point1, point2) {
+    return (
+      Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
+    )
   }
 }
