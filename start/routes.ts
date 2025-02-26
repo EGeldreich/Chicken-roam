@@ -20,12 +20,13 @@ import FencesController from '#controllers/fences_controller'
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
 
+// ELEMENTS
 router.post('/api/elements', [ElementsController, 'create'])
 router.get('/api/elements/:planId', [ElementsController, 'getByPlan'])
 // router.patch('/api/elements/:id', [ElementsController, 'update'])
 router.delete('/api/elements/:id', [ElementsController, 'delete'])
 
-// Routes for fence operations
+// FENCES
 router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
 router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
@@ -73,3 +74,6 @@ router
     router.get('/plan/:id', [PlansController, 'plan']).as('plan')
   })
   .use(middleware.auth())
+
+// PLANS
+router.get('/api/plans/:id/state', [PlansController, 'getPlanState'])

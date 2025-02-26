@@ -1,8 +1,15 @@
+import EnclosureService from '../services/enclosureService'
+
 export default class FenceDrawer {
-  constructor(canvas, planId) {
+  constructor(canvas, planId, placedElements, planEditor) {
+    // Add EnclosureService instance
+    this.enclosureService = new EnclosureService(this.EPSILON)
+
     // Get basic properties
     this.canvas = canvas // Defined in PlanEditor, drawing area HTML element
     this.planId = planId // Defined in PlanEditor, used to push elements
+    this.placedElements = placedElements // Shared array of elements
+    this.planEditor = planEditor // Reference planEditor for useful methods
 
     this.vertices = new Map() // Initialize Map() so we can store coordinates and number of fences linked
     this.connectionPoints = [] // Initialize empty array for connection points
@@ -410,20 +417,9 @@ export default class FenceDrawer {
   //
   //
   // Used to check enclosure when adding a fence (called in handleMouseUp)
-  // An enclosure is formed when all vertices have exactly 2 connections
+  // Calls enslosureService method
   hasFormedEnclosure() {
-    // define default state
-    let hasOpenConnections = false
-    // Check each vertex connections in vertices Map
-    this.vertices.forEach((connections) => {
-      // If at least one vertex has only one connection, it means the enclosure is not closed
-      if (connections !== 2) {
-        // Set state as true
-        hasOpenConnections = true
-      }
-    })
-    // return true if there is no open connection and at least 3 vertices
-    return !hasOpenConnections && this.vertices.size > 2
+    return this.enclosureService.isEnclosureComplete(this.vertices)
   }
   //
   //
@@ -431,9 +427,49 @@ export default class FenceDrawer {
   async handleEnclosureComplete() {
     // Calculate the area
     const enclosedArea = this.calculateEnclosedArea()
-    console.log('in handleEnclosureComplete')
 
-    // Update DB to set Plan as 'isEnclosed' (PlanController -> completeEnclosure)
+    // Before sending to the backend, check existing elements if plan was previously broken
+    const wasInBrokenState = this.planEditor.planState === 'broken'
+
+    // If the plan was previously broken, categorize existing elements
+    let elementsToUpdate = []
+    let elementsToRemove = []
+
+    if (wasInBrokenState) {
+      // Use the categorizeElements method from PlanEditor
+      const { inside, outside } = this.planEditor.categorizeElements()
+
+      // Elements inside the new enclosure should be reactivated
+      elementsToUpdate = inside.map((el) => el.id)
+
+      // Elements outside the new enclosure should be removed
+      elementsToRemove = outside.map((el) => el.id)
+
+      // Mark elements for visual update
+      outside.forEach((el) => {
+        const domElement = document.querySelector(`[data-element-id="${el.id}"]`)
+        if (domElement) {
+          domElement.classList.add('outside-enclosure')
+        }
+      })
+
+      // Ask user for confirmation before removing elements
+      if (elementsToRemove.length > 0) {
+        const confirmRemoval = confirm(
+          `${elementsToRemove.length} elements are now outside the enclosure and will be removed. Continue?`
+        )
+
+        if (!confirmRemoval) {
+          // User canceled - clear visual markings
+          document.querySelectorAll('.outside-enclosure').forEach((el) => {
+            el.classList.remove('outside-enclosure')
+          })
+          return // Don't complete the enclosure
+        }
+      }
+    }
+
+    // Update DB to set Plan as 'isEnclosed' and handle elements
     try {
       const response = await fetch(`/api/plans/${this.planId}/complete-enclosure`, {
         method: 'POST',
@@ -443,20 +479,46 @@ export default class FenceDrawer {
         },
         body: JSON.stringify({
           area: enclosedArea,
+          elementsToUpdate, // Elements to reactivate
+          elementsToRemove, // Elements to remove
         }),
       })
 
       // Once the plan is set as enclosed
       if (response.ok) {
-        const { areaCompletion } = await response.json()
+        const responseData = await response.json()
+        const areaCompletion = responseData.areaCompletion
+        const newState = responseData.newState || 'enclosed'
+
         console.log('area Completion:' + areaCompletion)
+
         // Add visual feedback
         this.canvas.classList.add('enclosure-complete')
+
+        // Update the plan state in the editor
+        this.planEditor.updatePlanState(newState)
+
+        // If elements were removed, remove them from the DOM and tracking array
+        if (elementsToRemove.length > 0) {
+          elementsToRemove.forEach((id) => {
+            const element = document.querySelector(`[data-element-id="${id}"]`)
+            if (element) element.remove()
+          })
+
+          // Update the placedElements array
+          this.planEditor.placedElements = this.planEditor.placedElements.filter(
+            (el) => !elementsToRemove.includes(el.id)
+          )
+        }
 
         // Observer pattern
         // Create ability to listen for an 'enclosureComplete' event on other files
         const event = new CustomEvent('enclosureComplete', {
-          detail: { planId: this.planId, area: enclosedArea },
+          detail: {
+            planId: this.planId,
+            area: enclosedArea,
+            elementsRemoved: elementsToRemove.length,
+          },
         })
         // Dispatch the event from the canvas element
         this.canvas.dispatchEvent(event)
@@ -464,6 +526,15 @@ export default class FenceDrawer {
         const areaObjectiveEl = document.querySelector('#area')
         if (areaObjectiveEl) {
           areaObjectiveEl.textContent = areaCompletion
+        }
+
+        // If elements were removed or updated, show a message
+        if (elementsToRemove.length > 0 || elementsToUpdate.length > 0) {
+          const message = document.createElement('div')
+          message.className = 'enclosure-update-toast'
+          message.textContent = `Enclosure complete! ${elementsToUpdate.length} elements reactivated, ${elementsToRemove.length} elements removed.`
+          document.body.appendChild(message)
+          setTimeout(() => message.remove(), 5000)
         }
       }
     } catch (error) {
@@ -474,96 +545,26 @@ export default class FenceDrawer {
   //
   // Define fences in order, and calculate enclosed area as a polygon
   calculateEnclosedArea() {
-    // Get all fences of the plan
-    // Convert Node to Array for ease of use
+    // Get all fences
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
 
-    // Initilize empty array of ordered Vertices
-    let orderedVertices = []
-    // Initialize current vertex
-    let currentVertex = null
-    // Keep track of which fences are used
-    let usedFences = new Set()
+    // Use the service to get ordered vertices
+    const orderedVertices = this.enclosureService.getOrderedVertices(fenceElements)
 
-    // Start with the start vertex of first fence (which fence we start with is irrelevant)
-    if (fenceElements.length > 0) {
-      // Security check to avoid error
-      const firstFence = fenceElements[0]
-      const endpoints = this.getFenceEndpoints(firstFence)
+    console.log(`Found ${orderedVertices.length} ordered vertices`)
 
-      orderedVertices.push([endpoints.start.x, endpoints.start.y]) // Store vertex object into array
-      currentVertex = [endpoints.start.x, endpoints.start.y] // Set just stored vertex as current
-      usedFences.add(firstFence) // Set fence as used
-    }
+    // Use the service to calculate area
+    const areaInSquareMeters = this.enclosureService.calculateArea(orderedVertices)
 
-    // Seek all connected vertices until the loop is closed
-    // __
-    // For each fence, check start vertex (from style left and top), and end vertex (calculation)
-    // Check if either start or end correspond to currentVertex, then go to other end
-    // Avoid back and forth by storing usedFences
-    while (usedFences.size < fenceElements.length) {
-      // Function to seek out the next fence we'll use
-      const nextFence = fenceElements.find((fence) => {
-        if (usedFences.has(fence)) return false // Return false if the fence is used
-
-        // Get fence Endpoints
-        const endpoints = this.getFenceEndpoints(fence)
-
-        // Return true if connects to our current vertex (either endpoint OR startpoint)
-        const isConnected =
-          (Math.abs(endpoints.start.x - currentVertex[0]) < this.EPSILON &&
-            Math.abs(endpoints.start.y - currentVertex[1]) < this.EPSILON) ||
-          (Math.abs(endpoints.end.x - currentVertex[0]) < this.EPSILON &&
-            Math.abs(endpoints.end.y - currentVertex[1]) < this.EPSILON)
-
-        return isConnected
-      })
-
-      if (!nextFence) {
-        break // Add safety break to prevent infinite loop
-      }
-
-      usedFences.add(nextFence) // Add this fence to used set
-      // Get relevant informations again
-      const startX = parseFloat(nextFence.style.left)
-      const startY = parseFloat(nextFence.style.top)
-      const angle = parseFloat(nextFence.style.transform.replace('rotate(', '').replace('deg)', ''))
-      const width = parseFloat(nextFence.style.width)
-      // Calculate end point
-      const endX = startX + width * Math.cos((angle * Math.PI) / 180)
-      const endY = startY + width * Math.sin((angle * Math.PI) / 180)
-
-      // Add the vertex we haven't seen yet
-      if (Math.abs(startX - currentVertex[0]) < 1 && Math.abs(startY - currentVertex[1]) < 1) {
-        currentVertex = [endX, endY]
-      } else {
-        currentVertex = [startX, startY]
-      }
-      // Add new 'currentVertex' to array
-      orderedVertices.push(currentVertex)
-    }
-
-    // Apply Shoelace formula
-    // It calculates the area of a polygon using its vertices
-    let area = 0 // Initialize area as 0
-    for (let i = 0; i < orderedVertices.length; i++) {
-      const j = (i + 1) % orderedVertices.length
-      area += orderedVertices[i][0] * orderedVertices[j][1]
-      area -= orderedVertices[j][0] * orderedVertices[i][1]
-    }
-    area = Math.abs(area) / 2
-
-    // Convert square pixels to square meters
-    const pixelsPerMeter = 100 // scale
-    const areaInSquareMeters = area / (pixelsPerMeter * pixelsPerMeter)
-
-    console.log('total square meters: ' + areaInSquareMeters)
+    console.log(`Area in square meters: ${areaInSquareMeters}`)
     return areaInSquareMeters
   }
   //
   //
   // Method to check if a fence would intersect with an existing fence
   wouldIntersectExistingFences(startX, startY, endX, endY) {
+    // this.debugIntersection(startX, startY, endX, endY)
+    // console.log(this.checkPlacementValidity(startX, startY, endX, endY))
     return this.checkPlacementValidity(startX, startY, endX, endY).invalid
   }
   //
@@ -585,21 +586,21 @@ export default class FenceDrawer {
       (Math.abs(x2 - x3) < this.EPSILON && Math.abs(y2 - y3) < this.EPSILON) ||
       (Math.abs(x2 - x4) < this.EPSILON && Math.abs(y2 - y4) < this.EPSILON)
     ) {
-      // If segments share an endpoint, this is not condidered as an intersection
+      // If segments share an endpoint, this is not considered as an intersection
       return false
     }
+
     // Calculate the denominators
     const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
-    if (Math.abs(denominator) < this.EPSILON) return false // Lines are parallel if denominator is null
+
+    // If the denominator is close to zero, the lines are parallel or colinear
+    if (Math.abs(denominator) < this.EPSILON) return false
 
     // Calculate intersection point parameters
     const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
     const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
 
-    // Return true if the intersection is within both line segments
-    return (
-      ua >= -this.EPSILON && ua <= 1 + this.EPSILON && ub >= -this.EPSILON && ub <= 1 + this.EPSILON
-    )
+    return ua > this.EPSILON && ua < 1 - this.EPSILON && ub > this.EPSILON && ub < 1 - this.EPSILON
   }
   //
   //
@@ -740,4 +741,61 @@ export default class FenceDrawer {
 
     return result // Valid placement
   }
+  //
+  //
+  //________________________________________________________________________________________________________
+  // debugIntersection(startX, startY, endX, endY) {
+  //   // Get all fences
+  //   const fences = Array.from(this.canvas.querySelectorAll('.fence'))
+  //   let intersectingFences = []
+
+  //   // Pour chaque clôture...
+  //   fences.forEach((fence, index) => {
+  //     const endpoints = this.getFenceEndpoints(fence)
+
+  //     // Vérifier si nous partageons une extrémité
+  //     const sharesEndpoint =
+  //       this.arePointsEqual({ x: startX, y: startY }, endpoints.start) ||
+  //       this.arePointsEqual({ x: startX, y: startY }, endpoints.end) ||
+  //       this.arePointsEqual({ x: endX, y: endY }, endpoints.start) ||
+  //       this.arePointsEqual({ x: endX, y: endY }, endpoints.end)
+
+  //     // Si nous partageons une extrémité, l'intersection est tolérée
+  //     if (sharesEndpoint) {
+  //       return
+  //     }
+
+  //     // Vérifier l'intersection
+  //     const intersects = this.checkLineIntersection(
+  //       startX,
+  //       startY,
+  //       endX,
+  //       endY,
+  //       endpoints.start.x,
+  //       endpoints.start.y,
+  //       endpoints.end.x,
+  //       endpoints.end.y
+  //     )
+
+  //     if (intersects) {
+  //       intersectingFences.push({
+  //         index,
+  //         fence,
+  //         endpoints,
+  //       })
+  //     }
+  //   })
+
+  //   if (intersectingFences.length > 0) {
+  //     console.log('=== INTERSECTIONS DÉTECTÉES ===')
+  //     console.log(`Nouvelle clôture: (${startX}, ${startY}) → (${endX}, ${endY})`)
+  //     intersectingFences.forEach(({ index, endpoints }) => {
+  //       console.log(
+  //         `Clôture #${index}: (${endpoints.start.x}, ${endpoints.start.y}) → (${endpoints.end.x}, ${endpoints.end.y})`
+  //       )
+  //     })
+  //   }
+
+  //   return intersectingFences.length > 0
+  // }
 }

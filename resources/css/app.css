@@ -68,21 +68,6 @@ body {
   animation: shake 0.5s;
 }
 
-.placement-error-toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: #e74c3c;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  z-index: 1000;
-  animation:
-    fadeIn 0.3s,
-    fadeOut 0.3s 2.7s;
-}
-
 .invalid-placement {
   background-color: red !important;
 }
@@ -125,5 +110,141 @@ body {
   }
   to {
     opacity: 0;
+  }
+}
+/* State indicators */
+.state-label {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.state-construction {
+  background-color: #ffeecc;
+  color: #ff9900;
+  border: 1px solid #ffcc66;
+}
+
+.state-enclosed {
+  background-color: #d1ffd1;
+  color: #00aa00;
+  border: 1px solid #99cc99;
+}
+
+.state-broken {
+  background-color: #ffdddd;
+  color: #cc0000;
+  border: 1px solid #ff9999;
+}
+
+/* Canvas state styling */
+#planCanvas.state-broken {
+  border: 2px dashed #cc0000;
+}
+
+#planCanvas.state-enclosed {
+  border: 2px solid #00aa00;
+}
+
+#planCanvas.state-construction {
+  border: 2px dotted #ff9900;
+}
+
+/* Element states */
+.element.inactive-element {
+  opacity: 0.5;
+  filter: grayscale(80%);
+  pointer-events: none;
+}
+
+.element.outside-enclosure {
+  border: 2px dashed #cc0000;
+  animation: pulse-red 1s infinite;
+}
+
+/* Placement restrictions */
+.temporary-element.invalid-placement {
+  background-color: rgba(255, 0, 0, 0.3);
+  border: 2px dashed #cc0000;
+}
+
+.temporary-element.valid-placement {
+  background-color: rgba(0, 255, 0, 0.2);
+  border: 2px dashed #00aa00;
+}
+
+/* Guidance message */
+.guidance-message {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: #495057;
+}
+
+.guidance-message.pulse {
+  animation: pulse-blue 0.5s;
+}
+
+/* Toast messages */
+.enclosure-break-toast,
+.enclosure-update-toast,
+.placement-error-toast {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-width: 300px;
+}
+
+.enclosure-break-toast.warning {
+  border-left: 4px solid #cc0000;
+}
+
+.enclosure-update-toast {
+  border-left: 4px solid #00aa00;
+}
+
+.placement-error-toast {
+  border-left: 4px solid #ff9900;
+}
+
+/* Disabled tool buttons */
+.tool-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes pulse-red {
+  0% {
+    box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(204, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(204, 0, 0, 0);
+  }
+}
+
+@keyframes pulse-blue {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
   }
 }

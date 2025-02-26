@@ -9,6 +9,12 @@ import Vertex from './vertex.js'
 import History from './history.js'
 import Element from './element.js'
 
+export enum PlanState {
+  CONSTRUCTION = 'construction',
+  ENCLOSED = 'enclosed',
+  BROKEN = 'broken',
+}
+
 export default class Plan extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -18,6 +24,9 @@ export default class Plan extends BaseModel {
 
   @column()
   declare name: string
+
+  @column()
+  declare state: PlanState
 
   @column()
   declare nbChickens: number

@@ -3,6 +3,7 @@ import Fence from '#models/fence'
 import Vertex from '#models/vertex'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
+import { PlanState } from '#models/plan'
 
 @inject()
 export default class FencesController {
@@ -95,34 +96,37 @@ export default class FencesController {
     try {
       // Find fence
       const fence = await Fence.findOrFail(params.id)
-      // Load plan
+      // Load plan with objectives
       await fence.load('plan')
-      // Find related Plan
       const plan = fence.plan
-      // Load objectives
       await plan.load('objectives')
+
       // Get area objective
       const areaObjective = plan.objectives.find((obj) => obj.name === 'area')
-      // Set reset const
-      const reset = 0
 
       // Get vertex IDs before deleting the fence
       const startVertexId = fence.vertexStartId
       const endVertexId = fence.vertexEndId
-
       // Delete the fence
       await fence.delete()
-      // Update isEnclosed state
-      plan.isEnclosed = false
-      // Update completion percentage of area objective
-      if (areaObjective) {
-        await plan
-          .related('objectives')
-          .pivotQuery()
-          .where('plan_id', plan.id)
-          .where('objective_id', areaObjective.id)
-          .update({ completion_percentage: reset })
+
+      // Update plan state based on enclosure status
+      if (plan.isEnclosed) {
+        // Transition from enclosed to broken
+        plan.isEnclosed = false
+        plan.state = PlanState.BROKEN
+
+        // Reset area objective to 0
+        if (areaObjective) {
+          await plan
+            .related('objectives')
+            .pivotQuery()
+            .where('plan_id', plan.id)
+            .where('objective_id', areaObjective.id)
+            .update({ completion_percentage: 0 })
+        }
       }
+
       // Save changes
       await plan.save()
 
@@ -151,6 +155,7 @@ export default class FencesController {
               },
             ]
           : [],
+        planState: plan.state,
       })
     } catch (error) {
       console.error('Error deleting fence:', error)

@@ -6,6 +6,7 @@ import ShrubDrawer from './shrubDrawer.js'
 import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
 import Selector from './selector.js'
+import EnclosureService from '../services/enclosureService'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -14,18 +15,27 @@ export default class PlanEditor {
     this.canvas = document.getElementById('planCanvas') // Get drawing area
     this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
 
+    // Plan state property
+    this.planState = 'construction' // Default state: construction, enclosed, broken
+    this.isEnclosureComplete = false
+    // Get initial plan state from the server
+    this.fetchPlanState()
+
     // Single shared array for all elements to avoid overlapping
     this.placedElements = []
 
     // Initialize tool managers
-    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this.placedElements)
-    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId, this.placedElements)
-    this.watererDrawer = new WatererDrawer(this.canvas, this.planId, this.placedElements)
-    this.perchDrawer = new PerchDrawer(this.canvas, this.planId, this.placedElements)
-    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this.placedElements)
-    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this.placedElements)
-    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this.placedElements)
-    this.selector = new Selector(this.canvas, this.planId, this.placedElements)
+    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.watererDrawer = new WatererDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.perchDrawer = new PerchDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this.placedElements, this)
+    this.selector = new Selector(this.canvas, this.planId, this.placedElements, this)
+
+    // Add EnclosureService instance
+    this.enclosureService = new EnclosureService(this.EPSILON)
 
     // Load all elements once
     this.loadAllElements()
@@ -45,6 +55,112 @@ export default class PlanEditor {
     // Set up event listeners
     this.initializeTools()
     this.initializeCanvasEvents()
+
+    // Listen for enclosure completion event
+    this.canvas.addEventListener('enclosureComplete', (event) => {
+      this.isEnclosureComplete = true
+      this.updatePlanState('enclosed')
+    })
+  }
+  //
+  //
+  // Fetch plan state from the server
+  async fetchPlanState() {
+    try {
+      const response = await fetch(`/api/plans/${this.planId}/state`)
+      if (response.ok) {
+        const data = await response.json()
+        this.updatePlanState(data.state)
+        this.isEnclosureComplete = data.isEnclosed
+
+        // Add enclosure-complete class if enclosure is complete
+        if (data.isEnclosed) {
+          this.canvas.classList.add('enclosure-complete')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch plan state:', error)
+    }
+  }
+  //
+  //
+  // Update plan state and UI accordingly
+  updatePlanState(newState) {
+    // Update state property
+    this.planState = newState
+
+    // Add state class to canvas
+    this.canvas.classList.remove('state-construction', 'state-enclosed', 'state-broken')
+    this.canvas.classList.add(`state-${newState}`)
+
+    // Update UI based on state
+    const stateLabel = document.getElementById('planStateLabel')
+    if (stateLabel) {
+      const stateLabels = {
+        construction: 'Under Construction',
+        enclosed: 'Enclosure Complete',
+        broken: 'Enclosure Broken',
+      }
+      stateLabel.textContent = stateLabels[newState] || 'Unknown State'
+      stateLabel.className = `state-label state-${newState}`
+    }
+
+    // Update tool availability based on state
+    if (newState === 'construction' || newState === 'broken') {
+      // In construction or broken state, disable element tools
+      document.querySelectorAll('.element-tool-btn').forEach((btn) => {
+        btn.classList.add('disabled')
+      })
+
+      // If current tool is an element tool, switch to fence or select
+      if (this.currentTool !== 'fence' && this.currentTool !== 'select') {
+        this.setCurrentTool('fence')
+      }
+
+      // Show guidance message
+      this.showGuidanceMessage(
+        newState === 'construction'
+          ? 'Complete the enclosure before placing elements'
+          : 'Enclosure is broken! Fix it before placing more elements'
+      )
+
+      // If in broken state, add visual indication to elements
+      if (newState === 'broken') {
+        document.querySelectorAll('.element:not(.fence)').forEach((element) => {
+          element.classList.add('inactive-element')
+        })
+      }
+    } else if (newState === 'enclosed') {
+      // In enclosed state, enable all tools
+      document.querySelectorAll('.tool-btn').forEach((btn) => {
+        btn.classList.remove('disabled')
+      })
+
+      // Remove inactive indication from elements
+      document.querySelectorAll('.inactive-element').forEach((element) => {
+        element.classList.remove('inactive-element')
+      })
+
+      // Show guidance message
+      this.showGuidanceMessage('Enclosure complete! You can now place elements')
+    }
+  }
+  //
+  //
+  // Show guidance message
+  showGuidanceMessage(message) {
+    const existingMessage = document.querySelector('.guidance-message')
+    if (existingMessage) {
+      existingMessage.textContent = message
+      // Animate to draw attention
+      existingMessage.classList.add('pulse')
+      setTimeout(() => existingMessage.classList.remove('pulse'), 1000)
+    } else {
+      const messageEl = document.createElement('div')
+      messageEl.className = 'guidance-message'
+      messageEl.textContent = message
+      this.canvas.parentNode.appendChild(messageEl)
+    }
   }
   //
   //
@@ -120,18 +236,30 @@ export default class PlanEditor {
   }
   //
   //
+  // Show guidance if a tool is disabled
   // Return previous tool to default state
   // Change display according to tool selection
   // Activate new tool placement mode if necessary
   setCurrentTool(tool) {
+    // Check if tool is disabled based on state
+    const toolBtn = document.querySelector(`[data-tool="${tool}"]`)
+    if (toolBtn && toolBtn.classList.contains('disabled')) {
+      // Show message explaining why the tool can't be used
+      this.showGuidanceMessage(
+        this.planState === 'construction'
+          ? 'Complete the enclosure before using this tool'
+          : 'Fix the enclosure before using this tool'
+      )
+      return // Don't change the tool
+    }
+
     // -- Stop any active placement when switching tools
-    // Get previous tool
     const previousHandler = this.toolHandlers[this.currentTool]
-    // if there is a stopUsing method, use it
     if (previousHandler && previousHandler.stopUsing) {
       previousHandler.stopUsing()
     }
-    // currentTool change
+
+    // Update current tool
     this.currentTool = tool
     this.toolDisplay.textContent = tool
     this.updateToolButtonStyles(tool)
@@ -203,5 +331,56 @@ export default class PlanEditor {
     if (handler === this.fenceDrawer) {
       handler.handleMouseUp(point)
     }
+  }
+  //
+  //
+  //  Check if a point is inside the current enclosure
+  //  Uses the Ray Casting algorithm
+  isPointInEnclosure(point) {
+    // If there's no enclosure yet, return false
+    if (!this.isEnclosureComplete) return false
+
+    // Get ordered vertices
+    const enclosureVertices = this.getOrderedEnclosureVertices()
+    if (enclosureVertices.length < 3) return false
+
+    // Use service to check if point is inside
+    return this.enclosureService.isPointInPolygon(point, enclosureVertices)
+  }
+  //
+  //
+  // Get fences ordered vertices (as if walking along the fences)
+  getOrderedEnclosureVertices() {
+    const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
+    return this.enclosureService.getOrderedVertices(fenceElements)
+  }
+  //
+  //
+  // Check if an element is inside the enclosure
+  isElementInEnclosure(element) {
+    // Check if the center of the element is inside the enclosure
+    const centerX = element.x + element.width / 2
+    const centerY = element.y + element.height / 2
+
+    return this.isPointInEnclosure({ x: centerX, y: centerY })
+  }
+  //
+  //
+  // Set elements as either inside or outside
+  categorizeElements() {
+    const result = {
+      inside: [],
+      outside: [],
+    }
+
+    this.placedElements.forEach((element) => {
+      if (this.isElementInEnclosure(element)) {
+        result.inside.push(element)
+      } else {
+        result.outside.push(element)
+      }
+    })
+
+    return result
   }
 }

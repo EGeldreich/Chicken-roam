@@ -1,6 +1,8 @@
+import Element from '#models/element'
 import Plan from '#models/plan'
 import ObjectiveService from '#services/objective_service'
 import type { HttpContext } from '@adonisjs/core/http'
+import { PlanState } from '#models/plan'
 
 export default class PlansController {
   async guestPlan({ response, session, view }: HttpContext) {
@@ -43,7 +45,7 @@ export default class PlansController {
   //
   //
   async completeEnclosure({ params, response, request }: HttpContext) {
-    const area = request.input('area')
+    const { area, elementsToUpdate = [], elementsToRemove = [] } = request.body()
     try {
       // Find plan
       const plan = await Plan.findOrFail(params.planId)
@@ -51,12 +53,24 @@ export default class PlansController {
       console.log('Plan found:', plan.id)
       console.log('Area received:', area)
 
+      // Get previous state for later logic
+      // const previousState = plan.state || 'construction'
+
       // Update plan status or perform any necessary calculations
       plan.isEnclosed = true
+      plan.state = PlanState.ENCLOSED
       await plan.save()
 
       // Calculate area completion
       await ObjectiveService.calculateEnclosedCompletion(params.planId, area)
+
+      // Handle elements if needed
+      if (elementsToRemove.length > 0) {
+        // Delete elements that are now outside the enclosure
+        await Element.query().whereIn('id', elementsToRemove).delete()
+
+        console.log(`Removed ${elementsToRemove.length} elements outside the enclosure`)
+      }
 
       await plan.load('objectives')
 
@@ -73,6 +87,9 @@ export default class PlansController {
       return response.ok({
         message: 'Enclosure completed successfully',
         areaCompletion: areaObjective.$extras.pivot_completion_percentage,
+        elementsUpdated: elementsToUpdate.length,
+        elementsRemoved: elementsToRemove.length,
+        newState: plan.state,
       })
     } catch (error) {
       console.error('Error in completeEnclosure:', error) // Add detailed error logging
@@ -80,6 +97,25 @@ export default class PlansController {
         message: 'Failed to complete enclosure',
         error: error.message,
         stack: error.stack, // This will help debug the issue
+      })
+    }
+  }
+  //
+  //
+  //
+  async getPlanState({ params, response }: HttpContext) {
+    try {
+      const plan = await Plan.findOrFail(params.id)
+
+      return response.ok({
+        state: plan.state || 'construction', // Default to 'construction' if not set
+        isEnclosed: plan.isEnclosed,
+      })
+    } catch (error) {
+      console.error('Error getting plan state:', error)
+      return response.internalServerError({
+        message: 'Failed to get plan state',
+        error: error.message,
       })
     }
   }

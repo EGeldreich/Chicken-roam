@@ -1,8 +1,9 @@
 // Serve as base for all elements (except fence)
 export default class ElementDrawer {
-  constructor(canvas, planId, placedElementsRef) {
+  constructor(canvas, planId, placedElementsRef, planEditor) {
     this.canvas = canvas // Get canvas element (from planEditor)
     this.planId = planId // Get planId (from planEditor)
+    this.planEditor = planEditor // Reference planEditor for useful methods
 
     // To be overridden by subclasses
     this.objectiveValue = null
@@ -81,14 +82,32 @@ export default class ElementDrawer {
         y: point.y - this.elementSize.height / 2,
       }
 
-      // Check for collision and update visual feedback
-      // if (this.wouldOverlap(placementPoint)) {
-      //   this.temporaryElement.classList.add('invalid-placement')
-      //   this.temporaryElement.classList.remove('valid-placement')
-      // } else {
-      //   this.temporaryElement.classList.add('valid-placement')
-      //   this.temporaryElement.classList.remove('invalid-placement')
-      // }
+      // Check if the placement point would be inside the enclosure
+      const wouldBeInside =
+        !this.planEditor.isEnclosureComplete ||
+        this.planEditor.isPointInEnclosure({
+          x: point.x,
+          y: point.y,
+        })
+
+      // First, check enclosure restriction
+      if (!wouldBeInside) {
+        this.temporaryElement.classList.add('invalid-placement')
+        this.temporaryElement.classList.remove('valid-placement')
+      }
+      // Then check for collision with other elements
+      else if (this.wouldOverlap(placementPoint)) {
+        this.temporaryElement.classList.add('invalid-placement')
+        this.temporaryElement.classList.remove('valid-placement')
+      }
+      // Finally check for collision with fences
+      else if (this.wouldOverlapFence(placementPoint)) {
+        this.temporaryElement.classList.add('invalid-placement')
+        this.temporaryElement.classList.remove('valid-placement')
+      } else {
+        this.temporaryElement.classList.add('valid-placement')
+        this.temporaryElement.classList.remove('invalid-placement')
+      }
     }
   }
   //
@@ -111,10 +130,30 @@ export default class ElementDrawer {
       y: point.y - this.elementSize.height / 2,
     }
 
-    // Do not place the element if it would overlap
+    // Check if the enclosure is complete
+    const isEnclosureComplete = this.planEditor.isEnclosureComplete
+    //  and if the element would be inside
+    const wouldBeInside =
+      !isEnclosureComplete ||
+      this.planEditor.isPointInEnclosure({
+        x: point.x,
+        y: point.y,
+      })
+
+    // First, check enclosure restriction
+    if (isEnclosureComplete && !wouldBeInside) {
+      this.showPlacementError('Elements must be placed inside the enclosure')
+      return
+    }
+
+    // Do not place the element if it would overlap with another element
     if (this.wouldOverlap(placementPoint)) {
-      // Optionally, provide feedback to the user
-      this.showPlacementError()
+      this.showPlacementError('Elements cannot overlap')
+      return
+    }
+    // Do not place the element if it would overlap with a fence
+    if (this.wouldOverlapFence(placementPoint)) {
+      this.showPlacementError('Elements cannot overlap with fences')
       return
     }
 
@@ -227,7 +266,7 @@ export default class ElementDrawer {
   //
   //
   // Show placement error feedback
-  showPlacementError() {
+  showPlacementError(message) {
     // Visual feedback
     this.temporaryElement.classList.add('placement-error')
     setTimeout(() => {
@@ -239,13 +278,16 @@ export default class ElementDrawer {
     // Optionally show a toast message
     const errorMessage = document.createElement('div')
     errorMessage.className = 'placement-error-toast'
-    errorMessage.textContent = 'Cannot place here - overlaps with existing element'
+    errorMessage.textContent = message
     document.body.appendChild(errorMessage)
 
     setTimeout(() => {
       errorMessage.remove()
     }, 3000)
   }
+  //
+  //
+  //
   updateObjectivesDisplay(objectives) {
     objectives.forEach((objective) => {
       // Finf the correct HTML element
@@ -254,5 +296,92 @@ export default class ElementDrawer {
         objectiveEl.textContent = objective.completion_percentage
       }
     })
+  }
+  //
+  //
+  // Method to check overlaping with fences
+  wouldOverlapFence(newElementPosition) {
+    // Get all fences
+    const fences = Array.from(this.canvas.querySelectorAll('.fence'))
+
+    // Calculate the bounds of the new element
+    const newElement = {
+      left: newElementPosition.x,
+      top: newElementPosition.y,
+      right: newElementPosition.x + this.elementSize.width,
+      bottom: newElementPosition.y + this.elementSize.height,
+    }
+
+    // Check each fence for collision
+    for (const fence of fences) {
+      const endpoints = this.planEditor.fenceDrawer.getFenceEndpoints(fence)
+
+      // Simple bounding box check first for performance
+      const fenceBounds = {
+        left: Math.min(endpoints.start.x, endpoints.end.x),
+        top: Math.min(endpoints.start.y, endpoints.end.y),
+        right: Math.max(endpoints.start.x, endpoints.end.x),
+        bottom: Math.max(endpoints.start.y, endpoints.end.y),
+      }
+
+      // If bounding boxes don't intersect, skip more complex check
+      if (
+        newElement.right < fenceBounds.left ||
+        newElement.left > fenceBounds.right ||
+        newElement.bottom < fenceBounds.top ||
+        newElement.top > fenceBounds.bottom
+      ) {
+        continue
+      }
+
+      // For more accurate detection, check if the fence line intersects any of the element edges
+      // This is a simplified version - full implementation would check all four edges of the element
+      if (
+        this.planEditor.fenceDrawer.checkLineIntersection(
+          newElement.left,
+          newElement.top,
+          newElement.right,
+          newElement.top,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.planEditor.fenceDrawer.checkLineIntersection(
+          newElement.right,
+          newElement.top,
+          newElement.right,
+          newElement.bottom,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.planEditor.fenceDrawer.checkLineIntersection(
+          newElement.right,
+          newElement.bottom,
+          newElement.left,
+          newElement.bottom,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.planEditor.fenceDrawer.checkLineIntersection(
+          newElement.left,
+          newElement.bottom,
+          newElement.left,
+          newElement.top,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        )
+      ) {
+        return true // Collision detected
+      }
+    }
+
+    return false // No collision
   }
 }

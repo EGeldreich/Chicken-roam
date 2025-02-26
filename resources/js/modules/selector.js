@@ -1,8 +1,9 @@
 export default class Selector {
-  constructor(canvas, planId, placedElementsRef) {
+  constructor(canvas, planId, placedElementsRef, planEditor) {
     this.canvas = canvas // Get canvas element (from planEditor)
     this.planId = planId // Get planId (from planEditor)
     this.placedElements = placedElementsRef // Get elements coordinates from planEditor
+    this.planEditor = planEditor // Reference to planEditor
 
     // Default state
     this.isUsing = true
@@ -84,9 +85,12 @@ export default class Selector {
     if (!this.selectedElement) {
       return
     }
+
     let response
     try {
-      if (this.selectedElement.classList.contains('fence')) {
+      const isFence = this.selectedElement.classList.contains('fence')
+
+      if (isFence) {
         const fenceId = this.selectedElement.dataset.fenceId
         response = await fetch(`/api/fences/${fenceId}`, {
           method: 'DELETE',
@@ -109,30 +113,58 @@ export default class Selector {
         console.error('Delete failed:', errorData)
         return
       }
+
       const data = await response.json()
+
+      // Update objectives display
       if (data.objectives) {
         this.updateObjectivesDisplay(data.objectives)
       }
 
-      // Send out event useful for fences
-      if (this.selectedElement.classList.contains('fence')) {
-        console.log('sending fencedeleted event')
-        // Dispatch a custom event when a fence is deleted
+      // Handle plan state change if fence was deleted
+      if (isFence && data.planState) {
+        // Notify PlanEditor of state change
+        if (this.planEditor && typeof this.planEditor.updatePlanState === 'function') {
+          this.planEditor.updatePlanState(data.planState)
+        }
+
+        // If state changed to 'broken', show a notification
+        if (data.planState === 'broken') {
+          const breakMessage = document.createElement('div')
+          breakMessage.className = 'enclosure-break-toast warning'
+          breakMessage.textContent =
+            'Enclosure is now broken! Elements will be inactive until enclosure is complete.'
+          document.body.appendChild(breakMessage)
+          setTimeout(() => breakMessage.remove(), 5000)
+
+          // Add visual indication to all elements that they're inactive
+          document.querySelectorAll('.element:not(.fence)').forEach((element) => {
+            element.classList.add('inactive-element')
+          })
+        }
+
+        // Send out event for fence deletion
+        console.log('sending fenceDeleted event')
         const event = new CustomEvent('fenceDeleted', {
-          detail: { fenceId: this.selectedElement.dataset.fenceId },
+          detail: {
+            fenceId: this.selectedElement.dataset.fenceId,
+            planState: data.planState,
+          },
         })
         this.canvas.dispatchEvent(event)
       }
 
-      // Remove from DOM
+      // Remove element from DOM
       this.selectedElement.remove()
 
-      // Remove from placedElements array
-      const elementId = this.selectedElement.dataset.elementId
-      this.placedElements = this.placedElements.filter((el) => el.id !== parseInt(elementId))
-      // Hide menu
+      // Update placedElements array for non-fence elements
+      if (!isFence && this.selectedElement.dataset.elementId) {
+        const elementId = this.selectedElement.dataset.elementId
+        this.placedElements = this.placedElements.filter((el) => el.id !== parseInt(elementId))
+      }
+
+      // Hide menu and reset selection
       this.hideMenu()
-      // Clear selection
       this.selectedElement = null
     } catch (error) {
       console.error('Error during delete:', error)
