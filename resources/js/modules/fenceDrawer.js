@@ -620,6 +620,16 @@ export default class FenceDrawer {
   //
   // Method called in wouldIntersectExistingFences to check intersection
   checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
+    // Check for shared endpoints
+    if (
+      (Math.abs(x1 - x3) < this.EPSILON && Math.abs(y1 - y3) < this.EPSILON) ||
+      (Math.abs(x1 - x4) < this.EPSILON && Math.abs(y1 - y4) < this.EPSILON) ||
+      (Math.abs(x2 - x3) < this.EPSILON && Math.abs(y2 - y3) < this.EPSILON) ||
+      (Math.abs(x2 - x4) < this.EPSILON && Math.abs(y2 - y4) < this.EPSILON)
+    ) {
+      // If segments share an endpoint, this is not condidered as an intersection
+      return false
+    }
     // Calculate the denominators
     const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
     if (Math.abs(denominator) < this.EPSILON) return false // Lines are parallel if denominator is null

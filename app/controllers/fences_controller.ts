@@ -93,7 +93,12 @@ export default class FencesController {
 
   async delete({ params, response }: HttpContext) {
     try {
+      // Find fence
       const fence = await Fence.findOrFail(params.id)
+      // Load plan
+      await fence.load('plan')
+      // Find related Plan
+      const plan = fence.plan
 
       // Get vertex IDs before deleting the fence
       const startVertexId = fence.vertexStartId
@@ -101,6 +106,10 @@ export default class FencesController {
 
       // Delete the fence
       await fence.delete()
+
+      plan.isEnclosed = false
+
+      await plan.save()
 
       // Delete the vertices if they're not used by other fences
       await Vertex.query()
