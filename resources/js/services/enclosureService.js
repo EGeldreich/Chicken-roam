@@ -24,20 +24,35 @@ export default class EnclosureService {
     // Track used fences
     let usedFences = new Set()
 
+    console.log(`Processing ${fenceElements.length} fence elements`)
+
     // Start with the first fence if available
     if (fenceElements.length > 0) {
       const firstFence = fenceElements[0]
       const endpoints = this.getFenceEndpoints(firstFence)
 
+      console.log(
+        'Starting with first fence endpoints:',
+        `start:(${endpoints.start.x}, ${endpoints.start.y})`,
+        `end:(${endpoints.end.x}, ${endpoints.end.y})`
+      )
+
       orderedVertices.push([endpoints.start.x, endpoints.start.y])
       currentVertex = [endpoints.start.x, endpoints.start.y]
       usedFences.add(firstFence)
     } else {
+      console.log('No fences to process')
       return [] // No fences, return empty array
     }
 
     // Traverse the fence network
-    while (usedFences.size < fenceElements.length) {
+    let iteration = 0
+    const MAX_ITERATIONS = fenceElements.length * 2 // Safety limit
+
+    while (usedFences.size < fenceElements.length && iteration < MAX_ITERATIONS) {
+      iteration++
+      console.log(`Iteration ${iteration}, used ${usedFences.size}/${fenceElements.length} fences`)
+
       // Find next fence that connects to current vertex
       const nextFence = fenceElements.find((fence) => {
         if (usedFences.has(fence)) return false
@@ -53,12 +68,20 @@ export default class EnclosureService {
         return isConnected
       })
 
-      if (!nextFence) break // No next fence found
+      if (!nextFence) {
+        console.log('No next fence found - breaking loop')
+        break // No next fence found
+      }
 
       usedFences.add(nextFence)
 
       // Get endpoints of next fence
       const endpoints = this.getFenceEndpoints(nextFence)
+      console.log(
+        'Next fence endpoints:',
+        `start:(${endpoints.start.x}, ${endpoints.start.y})`,
+        `end:(${endpoints.end.x}, ${endpoints.end.y})`
+      )
 
       // Determine which point is the next vertex
       let nextVertex
@@ -66,14 +89,28 @@ export default class EnclosureService {
         Math.abs(endpoints.start.x - currentVertex[0]) < this.EPSILON &&
         Math.abs(endpoints.start.y - currentVertex[1]) < this.EPSILON
       ) {
+        console.log('Current matches start point, next vertex is end point')
         nextVertex = [endpoints.end.x, endpoints.end.y]
       } else {
+        console.log('Current matches end point, next vertex is start point')
         nextVertex = [endpoints.start.x, endpoints.start.y]
       }
 
+      console.log(`Adding vertex: [${nextVertex[0]}, ${nextVertex[1]}]`)
       currentVertex = nextVertex
       orderedVertices.push(currentVertex)
     }
+
+    // Safety check for infinite loop
+    if (iteration >= MAX_ITERATIONS) {
+      console.warn('Maximum iterations reached, polygon may be incomplete')
+    }
+
+    console.log(`Found ${orderedVertices.length} vertices:`)
+    // Properly log the vertices array
+    orderedVertices.forEach((vertex, i) => {
+      console.log(`  Vertex ${i}: (${vertex[0]}, ${vertex[1]})`)
+    })
 
     return orderedVertices
   }
@@ -129,6 +166,7 @@ export default class EnclosureService {
    * @returns {boolean} True if point is inside polygon
    */
   isPointInPolygon(point, vertices) {
+    console.log('checking if inside')
     if (vertices.length < 3) return false
 
     let inside = false
