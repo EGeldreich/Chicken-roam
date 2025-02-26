@@ -402,3 +402,7 @@ Afin d'éviter des problèmes liés à la précision limitée des chiffres en m�
 ```
 
 On utilise une valeur **epsilon**, qui définit une marge d'erreur acceptée.
+
+## TO DO
+
+Pas satisfait par la gestion du 'plan state' (PlanEditor.js - updatePlanState)

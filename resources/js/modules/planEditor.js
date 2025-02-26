@@ -62,9 +62,12 @@ export default class PlanEditor {
       this.updatePlanState('enclosed')
     })
   }
-  //
-  //
-  // Fetch plan state from the server
+
+  //_____________________________________________________________________________________________________________fetchPlanState
+  /**
+   * Send a GET request to fetch the current state of plan
+   * Calls updatePlanState with that state
+   */
   async fetchPlanState() {
     try {
       const response = await fetch(`/api/plans/${this.planId}/state`)
@@ -82,9 +85,13 @@ export default class PlanEditor {
       console.error('Failed to fetch plan state:', error)
     }
   }
-  //
-  //
-  // Update plan state and UI accordingly
+
+  //_____________________________________________________________________________________________________________updatePlanState
+  /**
+   * Update plan UI according to new state
+   * Mainly disable and reable element btns, show message, and change color
+   * @param {String} newState - newState variable must contain 'construction', 'enclosed' or 'broken'
+   */
   updatePlanState(newState) {
     // Update state property
     this.planState = newState
@@ -145,9 +152,13 @@ export default class PlanEditor {
       this.showGuidanceMessage('Enclosure complete! You can now place elements')
     }
   }
-  //
-  //
-  // Show guidance message
+
+  //_____________________________________________________________________________________________________________showGuidanceMessage
+  /**
+   * Update the guidance message
+   * Useful to help users
+   * @param {String} message - string with guidance message that will be displayed
+   */
   showGuidanceMessage(message) {
     const existingMessage = document.querySelector('.guidance-message')
     if (existingMessage) {
@@ -162,9 +173,12 @@ export default class PlanEditor {
       this.canvas.parentNode.appendChild(messageEl)
     }
   }
-  //
-  //
-  // Load all elements of the plan
+
+  //_____________________________________________________________________________________________________________loadAllElements
+  /**
+   * Load all elements of the plan
+   * GET request, response includes everything needed for element placement
+   */
   async loadAllElements() {
     try {
       const response = await fetch(`/api/elements/${this.planId}`)
@@ -193,33 +207,45 @@ export default class PlanEditor {
       console.error('Failed to load elements:', error)
     }
   }
-  //
-  //
-  // Render all pre-existing elements
-  renderElement(element) {
-    const domElement = document.createElement('div')
-    domElement.className = `absolute ${element.type}`
-    domElement.dataset.elementId = element.id
-    domElement.dataset.elementType = element.type
 
-    domElement.style.left = `${element.vertex.positionX}px`
-    domElement.style.top = `${element.vertex.positionY}px`
-    domElement.style.width = `${element.width}px`
-    domElement.style.height = `${element.height}px`
+  // //_____________________________________________________________________________________________________________renderElement
+  // /**
+  //  * Render all pre-existing elements
+  //  * Useful to help users
+  //  * @param {String} message - string with guidance message that will be displayed
+  //  */
+  // renderElement(element) {
+  //   const domElement = document.createElement('div')
+  //   domElement.className = `absolute ${element.type}`
+  //   domElement.dataset.elementId = element.id
+  //   domElement.dataset.elementType = element.type
 
-    this.canvas.appendChild(domElement)
-  }
+  //   domElement.style.left = `${element.vertex.positionX}px`
+  //   domElement.style.top = `${element.vertex.positionY}px`
+  //   domElement.style.width = `${element.width}px`
+  //   domElement.style.height = `${element.height}px`
+
+  //   this.canvas.appendChild(domElement)
+  // }
   //
   //
   // Add mouse event listeners to our canvas
+  //_____________________________________________________________________________________________________________initializeCanvasEvents
+  /**
+   * Initialize the mouse events
+   * Redirect to relevant methods
+   */
   initializeCanvasEvents() {
     this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e))
     this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e))
     this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e))
   }
-  //
-  //
-  // Set up event listeners for tool btns
+
+  //_____________________________________________________________________________________________________________initializeTools
+  /**
+   * Setup event listeners for tools
+   * Listen for a click and calls setCurrentTool
+   */
   initializeTools() {
     // Find tool btns
     const toolButtons = document.querySelectorAll('.tool-btn')
@@ -234,12 +260,15 @@ export default class PlanEditor {
       })
     })
   }
-  //
-  //
-  // Show guidance if a tool is disabled
-  // Return previous tool to default state
-  // Change display according to tool selection
-  // Activate new tool placement mode if necessary
+
+  //_____________________________________________________________________________________________________________setCurrentTool
+  /**
+   * Show guidance if a tool is disabled
+   * Return previous tool to default state
+   * Change display according to tool selection
+   * Activate new tool placement mode if relevant
+   * @param {String} tool - string sent by initializeTools, correspond to btn dataset
+   */
   setCurrentTool(tool) {
     // Check if tool is disabled based on state
     const toolBtn = document.querySelector(`[data-tool="${tool}"]`)
@@ -270,9 +299,12 @@ export default class PlanEditor {
       newHandler.startUsing()
     }
   }
-  //
-  //
-  // Change tool btns bg and font color
+
+  //_____________________________________________________________________________________________________________updateToolButtonStyles
+  /**
+   * Change tool btns bg and font color
+   * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
+   */
   updateToolButtonStyles(currentTool) {
     document.querySelectorAll('.tool-btn').forEach((btn) => {
       if (btn.dataset.tool === currentTool) {
@@ -284,9 +316,13 @@ export default class PlanEditor {
       }
     })
   }
-  //
-  //
-  // Function to find canvas coordinates on click
+
+  //_____________________________________________________________________________________________________________getCanvasPoint
+  /**
+   * Function to find canvas coordinates when called
+   * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
+   * @returns {Object} - Coordinates of the mouse on the canvas
+   */
   getCanvasPoint(event) {
     // getBoundingClientRect() gets position of the canvas in the page
     const rect = this.canvas.getBoundingClientRect()
@@ -296,9 +332,12 @@ export default class PlanEditor {
       y: event.clientY - rect.top,
     }
   }
-  //
-  //
-  // Keep track of mouse coordinates and call correct tool method
+
+  //_____________________________________________________________________________________________________________handleMouseDown
+  /**
+   * Get mouse coordinates and call correct tool method
+   * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
+   */
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
@@ -310,9 +349,12 @@ export default class PlanEditor {
       handler.placeElement(point)
     }
   }
-  //
-  //
-  // Keep track of mouse coordinates and call correct tool method
+
+  //_____________________________________________________________________________________________________________handleMouseMove
+  /**
+   * Get mouse coordinates and call correct tool method
+   * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
+   */
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
@@ -322,9 +364,12 @@ export default class PlanEditor {
       handler.handleMouseMove(point)
     }
   }
-  //
-  //
-  // Keep track of mouse coordinates and call correct tool method
+
+  //_____________________________________________________________________________________________________________handleMouseUp
+  /**
+   * Get mouse coordinates and call correct tool method
+   * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
+   */
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
@@ -332,10 +377,13 @@ export default class PlanEditor {
       handler.handleMouseUp(point)
     }
   }
-  //
-  //
-  //  Check if a point is inside the current enclosure
-  //  Uses the Ray Casting algorithm
+
+  //_____________________________________________________________________________________________________________isPointInEnclosure
+  /**
+   * Check if a given point is in enclosure (the enclosure must be complete)
+   * @param {Object} point - Coordinates to check
+   * @returns {Boolean} - True if in enclosure, false if outside or enclosure incomplete
+   */
   isPointInEnclosure(point) {
     // If there's no enclosure yet, return false
     if (!this.isEnclosureComplete) return false
@@ -347,16 +395,25 @@ export default class PlanEditor {
     // Use service to check if point is inside
     return this.enclosureService.isPointInPolygon(point, enclosureVertices)
   }
-  //
-  //
-  // Get fences ordered vertices (as if walking along the fences)
+
+  //_____________________________________________________________________________________________________________getOrderedEnclosureVertices
+  /**
+   * Get fences ordered vertices (as if walking along the fences)
+   * Use EnclosureService
+   * @returns {Array} - Array of [x, y] coordinates in order
+   */
   getOrderedEnclosureVertices() {
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
     return this.enclosureService.getOrderedVertices(fenceElements)
   }
-  //
-  //
-  // Check if an element is inside the enclosure
+
+  //_____________________________________________________________________________________________________________isElementInEnclosure
+  /**
+   * Check if an element is inside the enclosure
+   * Calls isPointInEnclosure
+   * @param {Object} element - Object containing all relevant element information (id, type, x, y, width, height)
+   * @returns {Boolean} - True if the element is in the enclosure
+   */
   isElementInEnclosure(element) {
     // Check if the center of the element is inside the enclosure
     const centerX = element.x + element.width / 2
@@ -364,9 +421,13 @@ export default class PlanEditor {
 
     return this.isPointInEnclosure({ x: centerX, y: centerY })
   }
-  //
-  //
-  // Set elements as either inside or outside
+
+  //_____________________________________________________________________________________________________________categorizeElements
+  /**
+   * Set elements as either inside or outside
+   * Calls isElementInEnclosure
+   * @returns {Object} result - result = {inside: [...],outside: [...],}
+   */
   categorizeElements() {
     const result = {
       inside: [],

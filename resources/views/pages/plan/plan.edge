@@ -5,6 +5,10 @@
 <script>
   // Pass server-side data to JavaScript
   window.PLAN_ID = {{ plan.id }};
+  
+  window.PLAN_STATE = "{{ plan.state || 'construction' }}";
+  
+  window.IS_ENCLOSED = {{ plan.isEnclosed ? 'true' : 'false' }};
 </script>
 
 <div class="flex">
@@ -13,17 +17,54 @@
     <h2 class="text-lg font-bold mb-4">
       Tools
     </h2>
+
+    {{-- État du plan --}}
+    <div class="mb-4">
+      <span class="text-sm font-medium text-gray-500">Status:</span>
+      <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
+        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+      </div>
+    </div>
+
+    {{-- Message de guidage --}}
+    <div class="guidance-message mb-4">
+      @if(plan.isEnclosed)
+        Enclosure complete! You can now place elements
+      @else
+        Complete the enclosure before placing elements
+      @endif
+    </div>
+
     <div class="space-y-2">
       <button class="tool-btn btn btn-primary bg-gray-800 text-gray-200" data-tool="select">Select</button>
       <button class="tool-btn btn btn-primary" data-tool="fence">Draw Fence</button>
-      <button class="tool-btn btn btn-primary" data-tool="shelter">Shelter</button>
-      <button class="tool-btn btn btn-primary" data-tool="waterer">Waterer</button>
-      <button class="tool-btn btn btn-primary" data-tool="perch">Perch</button>
-      <button class="tool-btn btn btn-primary" data-tool="shrub">Shrub</button>
-      <button class="tool-btn btn btn-primary" data-tool="insectary">Insectary</button>
-      <button class="tool-btn btn btn-primary" data-tool="dustbath">Dustbath</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="shelter"
+      >Shelter</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="waterer"
+      >Waterer</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="perch"
+      >Perch</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="shrub"
+      >Shrub</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="insectary"
+      >Insectary</button>
+      <button
+        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+        data-tool="dustbath"
+      >Dustbath</button>
     </div>
-    <h2 class="text-lg font-bold mb-4">
+
+    <h2 class="text-lg font-bold mt-6 mb-4">
       Objectives
     </h2>
     <div class="space-y-2">
@@ -43,7 +84,10 @@
 
   {{-- Main Canvas Area --}}
   <div class="flex-1 relative">
-    <div id="planCanvas" class="w-full h-screen bg-white relative border-2 border-gray-300">
+    <div
+      id="planCanvas"
+      class="w-full h-screen bg-white relative border-2 state-{{ plan.state || 'construction' }}"
+    >
       <div id="currentTool" class="absolute top-4 right-4 bg-gray-100 p-2 rounded">
         Current Tool: <span id="toolDisplay">select</span>
       </div>
@@ -53,4 +97,5 @@
     </div>
   </div>
 </div>
+
 @include('partials/footer')
