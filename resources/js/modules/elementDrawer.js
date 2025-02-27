@@ -18,8 +18,12 @@ export default class ElementDrawer {
   }
   //
   // COMMON METHODS
-  //
-  // Function called in PlanEditor to load each type of element
+  //_____________________________________________________________________________________________________________loadElements
+  /**
+   * Called in constructor to load each type of elements
+   * In turn, calls renderPlacedElement
+   * @throws {Error} if request failed to fetch plan elements
+   */
   async loadElements() {
     try {
       const response = await fetch(`/api/elements/${this.planId}`)
@@ -36,9 +40,12 @@ export default class ElementDrawer {
       console.error(`Failed to load ${this.elementType} elements:`, error)
     }
   }
-  //
-  //
-  // Stop placing elements (when tool is deselected)
+
+  //_____________________________________________________________________________________________________________stopUsing
+  /**
+   * Stop placing elements (when tool is deselected)
+   *
+   */
   stopUsing() {
     this.isUsing = false
     if (this.temporaryElement) {
@@ -46,16 +53,23 @@ export default class ElementDrawer {
       this.temporaryElement = null
     }
   }
-  //
-  //
-  // Start the placement process - create temporary element that follows mouse
+
+  //_____________________________________________________________________________________________________________startUsing
+  /**
+   * Start the placement process - create temporary element that follows mouse
+   * Called in PlanEditor setCurrentTool()
+   * Calls createTemporaryElement()
+   */
   startUsing() {
     this.isUsing = true
     this.createTemporaryElement()
   }
-  //
-  //
-  // Create temporary visual element that follows mouse
+
+  //_____________________________________________________________________________________________________________createTemporaryElement
+  /**
+   * Create temporary visual element that follows mouse
+   * Called in startUsing()
+   */
   createTemporaryElement() {
     this.temporaryElement = document.createElement('div')
     this.temporaryElement.className = 'temporary-element valid-placement'
@@ -69,9 +83,14 @@ export default class ElementDrawer {
 
     this.canvas.appendChild(this.temporaryElement)
   }
-  //
-  //
-  // Handle mouse movement to update the preview position
+
+  //_____________________________________________________________________________________________________________handleMouseMove
+  /**
+   * Handle placement of temporary element according to mouse with updateTemporaryElementPosition()
+   * Check if element is in enclosure with isPointInEnclosure()
+   * Add or remove style accordingly
+   * @param {Object} point Object containing coordinates {x, y}
+   */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.temporaryElement) {
       this.updateTemporaryElementPosition(point)
@@ -89,7 +108,6 @@ export default class ElementDrawer {
           x: point.x,
           y: point.y,
         })
-
       // First, check enclosure restriction
       if (!wouldBeInside) {
         this.temporaryElement.classList.add('invalid-placement')
@@ -110,18 +128,29 @@ export default class ElementDrawer {
       }
     }
   }
-  //
-  //
-  // Update position to follow mouse cursor
+
+  //_____________________________________________________________________________________________________________updateTemporaryElementPosition
+  /**
+   * Update position of temporary element to follow mouse cursor
+   * @param {Object} point
+   */
   updateTemporaryElementPosition(point) {
     if (!this.temporaryElement) return
 
     this.temporaryElement.style.left = `${point.x}px`
     this.temporaryElement.style.top = `${point.y}px`
   }
-  //
-  //
-  // Add element to SB, then calls renderPlacedElement
+
+  //_____________________________________________________________________________________________________________placeElement
+  /**
+   * Check if element is in enclosure ( isPointInEnclosure () ), and is not overlaping ( wouldOverlap() ).
+   * Display error if needed ( showPlacementError() ), or add element to DataBase.
+   * POST request to api/elements.
+   * Then render permanent element with renderPlacedElement().
+   * And update objectives displau with updateObjectivesDisplay()
+   * @param {Object} point Object containing mouse coordinates {x, y}
+   * @throws {Error} if request failed to post new element
+   */
   async placeElement(point) {
     // Calculate the position where the top-left corner should be
     // This accounts for the element being centered on the cursor
@@ -206,9 +235,12 @@ export default class ElementDrawer {
       console.error('Error saving element:', error)
     }
   }
-  //
-  //
-  // Render the final placed element
+
+  //_____________________________________________________________________________________________________________renderPlacedElement
+  /**
+   * Create permanent DOM version of added element
+   * @param {Object} elementData Object containing all relevant element information (id, type, x, y, width, height)
+   */
   renderPlacedElement(elementData) {
     const element = document.createElement('div')
     element.className = `${elementData.type} element`
@@ -223,9 +255,14 @@ export default class ElementDrawer {
 
     this.canvas.appendChild(element)
   }
-  //
-  //
-  // Method to avoid overlapping
+
+  //_____________________________________________________________________________________________________________wouldOverlap
+  /**
+   * Method to avoid overlapping
+   * Called in placeElement()
+   * @param {Object} newElementPosition Object containing top-left corner coordinates {x, y}
+   * @returns {Boolean} True if there is a collision, false if not
+   */
   wouldOverlap(newElementPosition) {
     // Calculate the bounds of the new element
     const newElement = {
@@ -263,9 +300,13 @@ export default class ElementDrawer {
 
     return false // No collision
   }
-  //
-  //
-  // Show placement error feedback
+
+  //_____________________________________________________________________________________________________________showPlacementError
+  /**
+   * Display an error feedback as an error toast
+   * Called in placeElement if necessary
+   * @param {String} message Text content of the message
+   */
   showPlacementError(message) {
     // Visual feedback
     this.temporaryElement.classList.add('placement-error')
@@ -285,9 +326,13 @@ export default class ElementDrawer {
       errorMessage.remove()
     }, 3000)
   }
-  //
-  //
-  //
+
+  //_____________________________________________________________________________________________________________updateObjectivesDisplay
+  /**
+   * Update the textContent of the objectives
+   * Called in placeElement()
+   * @param {Object} objectives Object containing all relevant objective information {id, name, description, target_value, completion_percentage, unit}
+   */
   updateObjectivesDisplay(objectives) {
     objectives.forEach((objective) => {
       // Finf the correct HTML element
@@ -297,14 +342,19 @@ export default class ElementDrawer {
       }
     })
   }
-  //
-  //
-  // Method to check overlaping with fences
+
+  //_____________________________________________________________________________________________________________wouldOverlapFence
+  /**
+   * Check if an element would overlap with fences
+   * Called in placeElement()
+   * @param {Object} newElementPosition Object containing top-left corner coordinates {x, y}
+   * @returns {Boolean} True if would overlap, false if not
+   */
   wouldOverlapFence(newElementPosition) {
     // Get all fences
     const fences = Array.from(this.canvas.querySelectorAll('.fence'))
 
-    // Calculate the bounds of the new element
+    // Calculate extremities of the new element (create element-sized rectangle)
     const newElement = {
       left: newElementPosition.x,
       top: newElementPosition.y,
@@ -312,11 +362,12 @@ export default class ElementDrawer {
       bottom: newElementPosition.y + this.elementSize.height,
     }
 
-    // Check each fence for collision
+    // For each fence ...
     for (const fence of fences) {
+      // Get endpoints
       const endpoints = this.planEditor.fenceDrawer.getFenceEndpoints(fence)
 
-      // Simple bounding box check first for performance
+      // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
       const fenceBounds = {
         left: Math.min(endpoints.start.x, endpoints.end.x),
         top: Math.min(endpoints.start.y, endpoints.end.y),
@@ -324,7 +375,7 @@ export default class ElementDrawer {
         bottom: Math.max(endpoints.start.y, endpoints.end.y),
       }
 
-      // If bounding boxes don't intersect, skip more complex check
+      // If the element rectangle does not intersect with any fence-rectangles, obviously no overlap, skip more precise test
       if (
         newElement.right < fenceBounds.left ||
         newElement.left > fenceBounds.right ||
@@ -334,8 +385,8 @@ export default class ElementDrawer {
         continue
       }
 
-      // For more accurate detection, check if the fence line intersects any of the element edges
-      // This is a simplified version - full implementation would check all four edges of the element
+      // Treat each side of the element rectangle as a line, and use fenceDrawer method to check intersection
+      // A newElement.side is called twice because lines are horizontal or vertical, so either x or y is the same for both points
       if (
         this.planEditor.fenceDrawer.checkLineIntersection(
           newElement.left,

@@ -24,24 +24,15 @@ export default class EnclosureService {
     // Track used fences
     let usedFences = new Set()
 
-    console.log(`Processing ${fenceElements.length} fence elements`)
-
     // Start with the first fence if available
     if (fenceElements.length > 0) {
       const firstFence = fenceElements[0]
       const endpoints = this.getFenceEndpoints(firstFence)
 
-      console.log(
-        'Starting with first fence endpoints:',
-        `start:(${endpoints.start.x}, ${endpoints.start.y})`,
-        `end:(${endpoints.end.x}, ${endpoints.end.y})`
-      )
-
       orderedVertices.push([endpoints.start.x, endpoints.start.y])
       currentVertex = [endpoints.start.x, endpoints.start.y]
       usedFences.add(firstFence)
     } else {
-      console.log('No fences to process')
       return [] // No fences, return empty array
     }
 
@@ -51,7 +42,6 @@ export default class EnclosureService {
 
     while (usedFences.size < fenceElements.length && iteration < MAX_ITERATIONS) {
       iteration++
-      console.log(`Iteration ${iteration}, used ${usedFences.size}/${fenceElements.length} fences`)
 
       // Find next fence that connects to current vertex
       const nextFence = fenceElements.find((fence) => {
@@ -69,7 +59,6 @@ export default class EnclosureService {
       })
 
       if (!nextFence) {
-        console.log('No next fence found - breaking loop')
         break // No next fence found
       }
 
@@ -77,11 +66,6 @@ export default class EnclosureService {
 
       // Get endpoints of next fence
       const endpoints = this.getFenceEndpoints(nextFence)
-      console.log(
-        'Next fence endpoints:',
-        `start:(${endpoints.start.x}, ${endpoints.start.y})`,
-        `end:(${endpoints.end.x}, ${endpoints.end.y})`
-      )
 
       // Determine which point is the next vertex
       let nextVertex
@@ -89,14 +73,10 @@ export default class EnclosureService {
         Math.abs(endpoints.start.x - currentVertex[0]) < this.EPSILON &&
         Math.abs(endpoints.start.y - currentVertex[1]) < this.EPSILON
       ) {
-        console.log('Current matches start point, next vertex is end point')
         nextVertex = [endpoints.end.x, endpoints.end.y]
       } else {
-        console.log('Current matches end point, next vertex is start point')
         nextVertex = [endpoints.start.x, endpoints.start.y]
       }
-
-      console.log(`Adding vertex: [${nextVertex[0]}, ${nextVertex[1]}]`)
       currentVertex = nextVertex
       orderedVertices.push(currentVertex)
     }
@@ -106,18 +86,13 @@ export default class EnclosureService {
       console.warn('Maximum iterations reached, polygon may be incomplete')
     }
 
-    console.log(`Found ${orderedVertices.length} vertices:`)
-    // Properly log the vertices array
-    orderedVertices.forEach((vertex, i) => {
-      console.log(`  Vertex ${i}: (${vertex[0]}, ${vertex[1]})`)
-    })
-
     return orderedVertices
   }
 
+  //_____________________________________________________________________________________________________________getFenceEndpoints
   /**
    * Get endpoints of a fence element
-   * @param {Element} fence - DOM element representing a fence
+   * @param {Element} fence DOM element representing a fence
    * @returns {Object} Object with start and end points {start: {x, y}, end: {x, y}}
    */
   getFenceEndpoints(fence) {
@@ -136,10 +111,11 @@ export default class EnclosureService {
     }
   }
 
+  //_____________________________________________________________________________________________________________calculateArea
   /**
    * Calculate area of a polygon using Shoelace formula
-   * @param {Array} vertices - Array of [x, y] coordinates
-   * @param {number} pixelsPerMeter - Scale to convert pixels to meters
+   * @param {Array} vertices Array of [x, y] coordinates
+   * @param {number} pixelsPerMeter Scale to convert pixels to meters
    * @returns {number} Area in square meters
    */
   calculateArea(vertices, pixelsPerMeter = 100) {
@@ -159,14 +135,14 @@ export default class EnclosureService {
     return area / (pixelsPerMeter * pixelsPerMeter)
   }
 
+  //_____________________________________________________________________________________________________________isPointInPolygon
   /**
    * Check if a point is inside a polygon
-   * @param {Object} point - Point to check {x, y}
-   * @param {Array} vertices - Array of [x, y] coordinates defining the polygon
+   * @param {Object} point Point to check {x, y}
+   * @param {Array} vertices Array of [x, y] coordinates defining the polygon
    * @returns {boolean} True if point is inside polygon
    */
   isPointInPolygon(point, vertices) {
-    console.log('checking if inside')
     if (vertices.length < 3) return false
 
     let inside = false
@@ -185,10 +161,11 @@ export default class EnclosureService {
     return inside
   }
 
+  //_____________________________________________________________________________________________________________isEnclosureComplete
   /**
    * Check if an enclosure is complete (all vertices have exactly 2 connections)
-   * @param {Map} vertexConnections - Map of vertex positions to connection counts
-   * @returns {boolean} True if enclosure is complete
+   * @param {Map} vertexConnections  Map of vertex positions to connection counts
+   * @returns {Boolean} True if enclosure is complete
    */
   isEnclosureComplete(vertexConnections) {
     let hasOpenConnections = false

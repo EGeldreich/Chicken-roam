@@ -67,6 +67,7 @@ export default class PlanEditor {
   /**
    * Send a GET request to fetch the current state of plan
    * Calls updatePlanState with that state
+   * @throws {Error} if request failed to fetch plan state
    */
   async fetchPlanState() {
     try {
@@ -178,6 +179,7 @@ export default class PlanEditor {
   /**
    * Load all elements of the plan
    * GET request, response includes everything needed for element placement
+   * @throws {Error} if request failed to fetch elements
    */
   async loadAllElements() {
     try {
@@ -321,7 +323,7 @@ export default class PlanEditor {
   /**
    * Function to find canvas coordinates when called
    * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
-   * @returns {Object} - Coordinates of the mouse on the canvas
+   * @returns {Object} Coordinates of the mouse on the canvas
    */
   getCanvasPoint(event) {
     // getBoundingClientRect() gets position of the canvas in the page
@@ -382,7 +384,7 @@ export default class PlanEditor {
   /**
    * Check if a given point is in enclosure (the enclosure must be complete)
    * @param {Object} point - Coordinates to check
-   * @returns {Boolean} - True if in enclosure, false if outside or enclosure incomplete
+   * @returns {Boolean} True if in enclosure, false if outside or enclosure incomplete
    */
   isPointInEnclosure(point) {
     // If there's no enclosure yet, return false
@@ -400,7 +402,7 @@ export default class PlanEditor {
   /**
    * Get fences ordered vertices (as if walking along the fences)
    * Use EnclosureService
-   * @returns {Array} - Array of [x, y] coordinates in order
+   * @returns {Array} Array of [x, y] coordinates in order
    */
   getOrderedEnclosureVertices() {
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
@@ -411,8 +413,8 @@ export default class PlanEditor {
   /**
    * Check if an element is inside the enclosure
    * Calls isPointInEnclosure
-   * @param {Object} element - Object containing all relevant element information (id, type, x, y, width, height)
-   * @returns {Boolean} - True if the element is in the enclosure
+   * @param {Object} element Object containing all relevant element information (id, type, x, y, width, height)
+   * @returns {Boolean} True if the element is in the enclosure
    */
   isElementInEnclosure(element) {
     // Check if the center of the element is inside the enclosure
@@ -426,7 +428,7 @@ export default class PlanEditor {
   /**
    * Set elements as either inside or outside
    * Calls isElementInEnclosure
-   * @returns {Object} result - result = {inside: [...],outside: [...],}
+   * @returns {Object} result = {inside: [...],outside: [...],}
    */
   categorizeElements() {
     const result = {
