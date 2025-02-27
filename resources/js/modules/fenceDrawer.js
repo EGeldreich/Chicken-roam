@@ -14,7 +14,7 @@ export default class FenceDrawer {
     this.vertices = new Map() // Initialize Map() so we can store coordinates and number of fences linked
     this.connectionPoints = [] // Initialize empty array for connection points
     this.enclosureSnapDistance = 50 // Distance in pixels to snap to first vertex
-    this.EPSILON = 0.001 // Margin of error value
+    this.EPSILON = 0.1 // Margin of error value
     this.MIN_ANGLE_DEG = 15 // Minimum angle between 2 consecutive fences
 
     // Set default states
@@ -604,8 +604,6 @@ export default class FenceDrawer {
     // Use the service to get ordered vertices
     const orderedVertices = this.enclosureService.getOrderedVertices(fenceElements)
 
-    console.log(`Found ${orderedVertices.length} ordered vertices`)
-
     // Use the service to calculate area
     const areaInSquareMeters = this.enclosureService.calculateArea(orderedVertices)
 
@@ -729,7 +727,6 @@ export default class FenceDrawer {
     // For each fence ...
     for (const fence of fences) {
       const endpoints = this.enclosureService.getFenceEndpoints(fence) // Get endpoints
-
       // Check if the new fence start point is used by another fence
       // (Should always be the case except for the first fence)
       const sharesStartPoint =

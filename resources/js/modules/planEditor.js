@@ -75,7 +75,7 @@ export default class PlanEditor {
       if (response.ok) {
         const data = await response.json()
         this.updatePlanState(data.state)
-        this.isEnclosureComplete = data.isEnclosed
+        data.isEnclosed === 1 ? (this.isEnclosureComplete = true) : false
 
         // Add enclosure-complete class if enclosure is complete
         if (data.isEnclosed) {
@@ -388,10 +388,12 @@ export default class PlanEditor {
    */
   isPointInEnclosure(point) {
     // If there's no enclosure yet, return false
+    console.log('Eclosure complete ? ' + this.isEnclosureComplete)
     if (!this.isEnclosureComplete) return false
 
     // Get ordered vertices
     const enclosureVertices = this.getOrderedEnclosureVertices()
+    console.log('enclosure vertices length : ' + enclosureVertices.length)
     if (enclosureVertices.length < 3) return false
 
     // Use service to check if point is inside

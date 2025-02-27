@@ -365,7 +365,7 @@ export default class ElementDrawer {
     // For each fence ...
     for (const fence of fences) {
       // Get endpoints
-      const endpoints = this.planEditor.fenceDrawer.getFenceEndpoints(fence)
+      const endpoints = this.planEditor.enclosureService.getFenceEndpoints(fence)
 
       // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
       const fenceBounds = {

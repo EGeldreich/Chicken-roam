@@ -7,7 +7,7 @@ export default class EnclosureService {
    * Create a new EnclosureService
    * @param {number} epsilon - Small value for floating point comparisons
    */
-  constructor(epsilon = 0.001) {
+  constructor(epsilon = 0.1) {
     this.EPSILON = epsilon
   }
 
@@ -24,7 +24,10 @@ export default class EnclosureService {
     // Track used fences
     let usedFences = new Set()
 
-    // Start with the first fence if available
+    fenceElements.forEach((fence) => {
+      console.log(this.getFenceEndpoints(fence))
+    })
+    // Start with the first fence, push endpoints into orderedVertices
     if (fenceElements.length > 0) {
       const firstFence = fenceElements[0]
       const endpoints = this.getFenceEndpoints(firstFence)
