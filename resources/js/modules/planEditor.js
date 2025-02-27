@@ -330,8 +330,8 @@ export default class PlanEditor {
     const rect = this.canvas.getBoundingClientRect()
     return {
       // Get canvas coordinate by getting page coordinates - canvas displacement
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
+      x: Math.round(event.clientX - rect.left),
+      y: Math.round(event.clientY - rect.top),
     }
   }
 

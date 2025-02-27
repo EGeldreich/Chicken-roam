@@ -99,14 +99,14 @@ export default class EnclosureService {
    * @returns {Object} Object with start and end points {start: {x, y}, end: {x, y}}
    */
   getFenceEndpoints(fence) {
-    const startX = parseFloat(fence.style.left)
-    const startY = parseFloat(fence.style.top)
+    const startX = Math.round(parseFloat(fence.style.left))
+    const startY = Math.round(parseFloat(fence.style.top))
     const angle = parseFloat(fence.style.transform.replace('rotate(', '').replace('deg)', ''))
-    const width = parseFloat(fence.style.width)
+    const width = Math.round(parseFloat(fence.style.width))
 
     // Calculate end point
-    const endX = startX + width * Math.cos((angle * Math.PI) / 180)
-    const endY = startY + width * Math.sin((angle * Math.PI) / 180)
+    const endX = Math.round(startX + width * Math.cos((angle * Math.PI) / 180))
+    const endY = Math.round(startY + width * Math.sin((angle * Math.PI) / 180))
 
     return {
       start: { x: startX, y: startY },
