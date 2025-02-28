@@ -67,12 +67,18 @@ export default class Selector {
   //_____________________________________________________________________________________________________________initializeMenu
   /**
    * Initialize event listener of delete menu
+   * Also initialize Del and Backspace keys to delete selected element
    */
   initializeMenu() {
     // Handle delete button click
     const deleteBtn = this.menu.querySelector('.delete-btn')
     if (deleteBtn) {
-      deleteBtn.addEventListener('click', this.handleDelete.bind(this))
+      deleteBtn.addEventListener('click', () => this.handleDelete())
+      document.addEventListener('keydown', (event) => {
+        if (event.key == 'Delete' || event.key == 'Backspace') {
+          this.handleDelete()
+        }
+      })
     }
   }
 
