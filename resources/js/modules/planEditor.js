@@ -36,7 +36,7 @@ export default class PlanEditor {
     this.selector = new Selector(this.canvas, this.planId, this)
 
     // Add CommonFunctionsService instance
-    this.commonFunctionsService = new CommonFunctionsService(this.canvas, this.EPSILON)
+    this.commonFunctionsService = new CommonFunctionsService(this.canvas, this, this.EPSILON)
 
     // Load all elements once
     this.loadAllElements()
@@ -376,7 +376,7 @@ export default class PlanEditor {
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler === this.fenceDrawer) {
+    if (handler === this.fenceDrawer || handler === this.selector) {
       handler.handleMouseUp(point)
     }
   }

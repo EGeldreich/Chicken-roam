@@ -99,37 +99,12 @@ export default class ElementDrawer {
         y: point.y - this.elementSize.height / 2,
       }
 
-      // Check if the placement point would be inside the enclosure
-      const wouldBeInside =
-        !this.planEditor.isEnclosureComplete ||
-        this.planEditor.isPointInEnclosure({
-          x: point.x,
-          y: point.y,
-        })
-      // First, check enclosure restriction
-      if (!wouldBeInside) {
-        this.temporaryElement.classList.add('invalid-placement')
-        this.temporaryElement.classList.remove('valid-placement')
-      }
-      // Then check for collision with other elements
-      else if (this.wouldOverlap(placementPoint)) {
-        this.temporaryElement.classList.add('invalid-placement')
-        this.temporaryElement.classList.remove('valid-placement')
-      }
-      // Finally check for collision with fences
-      else if (
-        this.planEditor.commonFunctionsService.wouldOverlapFence(
-          placementPoint,
-          this.elementSize.width,
-          this.elementSize.height
-        )
-      ) {
-        this.temporaryElement.classList.add('invalid-placement')
-        this.temporaryElement.classList.remove('valid-placement')
-      } else {
-        this.temporaryElement.classList.add('valid-placement')
-        this.temporaryElement.classList.remove('invalid-placement')
-      }
+      this.planEditor.commonFunctionsService.checkElementPlacement(
+        placementPoint,
+        this.temporaryElement,
+        this.elementSize.width,
+        this.elementSize.height
+      )
     }
   }
 
@@ -180,7 +155,13 @@ export default class ElementDrawer {
     }
 
     // Do not place the element if it would overlap with another element
-    if (this.wouldOverlap(placementPoint)) {
+    if (
+      this.planEditor.commonFunctionsService.wouldOverlap(
+        placementPoint,
+        this.elementSize.width,
+        this.elementSize.height
+      )
+    ) {
       this.showPlacementError('Elements cannot overlap')
       return
     }
@@ -264,51 +245,6 @@ export default class ElementDrawer {
     element.style.height = `${elementData.height}px`
 
     this.canvas.appendChild(element)
-  }
-
-  //_____________________________________________________________________________________________________________wouldOverlap
-  /**
-   * Method to avoid overlapping
-   * Called in placeElement()
-   * @param {Object} newElementPosition Object containing top-left corner coordinates {x, y}
-   * @returns {Boolean} True if there is a collision, false if not
-   */
-  wouldOverlap(newElementPosition) {
-    // Calculate the bounds of the new element
-    const newElement = {
-      left: newElementPosition.x,
-      top: newElementPosition.y,
-      right: newElementPosition.x + this.elementSize.width,
-      bottom: newElementPosition.y + this.elementSize.height,
-    }
-
-    // Compare bounds to existing elements
-    for (const element of this.planEditor.placedElements) {
-      // Convert string coordinates to numbers if needed
-      const left = parseFloat(element.x)
-      const top = parseFloat(element.y)
-      const width = parseFloat(element.width)
-      const height = parseFloat(element.height)
-
-      const existingElement = {
-        left: left,
-        top: top,
-        right: left + width,
-        bottom: top + height,
-      }
-
-      // Check for intersection using the AABB collision detection algorithm
-      if (
-        newElement.left < existingElement.right &&
-        newElement.right > existingElement.left &&
-        newElement.top < existingElement.bottom &&
-        newElement.bottom > existingElement.top
-      ) {
-        return true // Collision detected
-      }
-    }
-
-    return false // No collision
   }
 
   //_____________________________________________________________________________________________________________showPlacementError

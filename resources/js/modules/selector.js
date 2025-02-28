@@ -69,15 +69,15 @@ export default class Selector {
    */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
-      // Get type of selected element
-      const type = this.selectedElement.dataset.elementType
-      console.log(type)
+      this.selectedElement.classList.add('moving')
+
       // Get center point of element
       const placementPoint = {
         x: point.x - this.selectedElement.style.width.replace('px', '') / 2,
         y: point.y - this.selectedElement.style.height.replace('px', '') / 2,
       }
 
+      // Constantly update selected element position
       this.updateSelectedElementPosition(placementPoint)
     }
   }
@@ -92,6 +92,26 @@ export default class Selector {
 
     this.selectedElement.style.left = `${point.x}px`
     this.selectedElement.style.top = `${point.y}px`
+  }
+
+  //_____________________________________________________________________________________________________________handleMouseUp
+  /**
+   * Handle new placement of element
+   * @param {Object} point {x, y} coordinates of mouseEvent
+   */
+  handleMouseUp(point) {
+    if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
+      // Get type of selected element
+      const type = this.selectedElement.dataset.elementType
+      console.log(type)
+      // Get center point of element
+      const placementPoint = {
+        x: point.x - this.selectedElement.style.width.replace('px', '') / 2,
+        y: point.y - this.selectedElement.style.height.replace('px', '') / 2,
+      }
+
+      this.updateSelectedElementPosition(placementPoint)
+    }
   }
 
   //_____________________________________________________________________________________________________________initializeMenu

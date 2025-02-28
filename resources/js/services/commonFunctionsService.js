@@ -5,11 +5,13 @@
 export default class CommonFunctionsService {
   /**
    * Create a new CommonFunctionsService
-   * @param {number} epsilon - Small value for floating point comparisons
+   * @param {Number} epsilon - Small value for floating point comparisons
+   * @param {Object} planEditor - PlanEditor.js class object
    * @param {Object} canvas - HTML element
    */
-  constructor(canvas, epsilon) {
+  constructor(canvas, planEditor, epsilon) {
     this.canvas = canvas
+    this.planEditor = planEditor
     this.EPSILON = epsilon
   }
 
@@ -197,6 +199,53 @@ export default class CommonFunctionsService {
     })
   }
 
+  //_____________________________________________________________________________________________________________wouldOverlap
+  /**
+   * Method to avoid overlapping
+   * Called in placeElement()
+   * @param {Object} newElementPosition Object containing top-left corner coordinates {x, y}
+   * @param {Number} width element width in pixel
+   * @param {Number} height element height in pixel
+   * @returns {Boolean} True if there is a collision, false if not
+   */
+  wouldOverlap(newElementPosition, width, height) {
+    // Calculate the bounds of the new element
+    const newElement = {
+      left: newElementPosition.x,
+      top: newElementPosition.y,
+      right: newElementPosition.x + width,
+      bottom: newElementPosition.y + height,
+    }
+
+    // Compare bounds to existing elements
+    for (const element of this.planEditor.placedElements) {
+      // Convert string coordinates to numbers if needed
+      const left = parseFloat(element.x)
+      const top = parseFloat(element.y)
+      const width = parseFloat(element.width)
+      const height = parseFloat(element.height)
+
+      const existingElement = {
+        left: left,
+        top: top,
+        right: left + width,
+        bottom: top + height,
+      }
+
+      // Check for intersection using the AABB collision detection algorithm
+      if (
+        newElement.left < existingElement.right &&
+        newElement.right > existingElement.left &&
+        newElement.top < existingElement.bottom &&
+        newElement.bottom > existingElement.top
+      ) {
+        return true // Collision detected
+      }
+    }
+
+    return false // No collision
+  }
+
   //_____________________________________________________________________________________________________________checkLineIntersection
   /**
    * Helper method to  check if two lines intersect
@@ -211,7 +260,7 @@ export default class CommonFunctionsService {
    * @returns {Boolean} True if segments would intersect, false if not
    */
   checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
-    const INTERSECTION_MARGIN = 0
+    const INTERSECTION_MARGIN = 0.001
 
     // Check for shared endpoints
     if (
@@ -286,91 +335,92 @@ export default class CommonFunctionsService {
         continue
       }
 
-      // Check if a fence endpoint is inside the rectangle
+      // Treat each side of the element rectangle as a line, and use commonFunctionsService method to check intersection
+      // A newElement.side is called twice because lines are horizontal or vertical, so either x or y is the same for both points
       if (
-        (endpoints.start.x >= newElement.left &&
-          endpoints.start.x <= newElement.right &&
-          endpoints.start.y >= newElement.top &&
-          endpoints.start.y <= newElement.bottom) ||
-        (endpoints.end.x >= newElement.left &&
-          endpoints.end.x <= newElement.right &&
-          endpoints.end.y >= newElement.top &&
-          endpoints.end.y <= newElement.bottom)
+        this.checkLineIntersection(
+          newElement.left,
+          newElement.top,
+          newElement.right,
+          newElement.top,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.checkLineIntersection(
+          newElement.right,
+          newElement.top,
+          newElement.right,
+          newElement.bottom,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.checkLineIntersection(
+          newElement.right,
+          newElement.bottom,
+          newElement.left,
+          newElement.bottom,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        ) ||
+        this.checkLineIntersection(
+          newElement.left,
+          newElement.bottom,
+          newElement.left,
+          newElement.top,
+          endpoints.start.x,
+          endpoints.start.y,
+          endpoints.end.x,
+          endpoints.end.y
+        )
       ) {
         return true // Collision detected
-      }
-
-      // Check if fence line intersects with rectangle using a more direct and robust method
-      const fenceLineVector = {
-        x: endpoints.end.x - endpoints.start.x,
-        y: endpoints.end.y - endpoints.start.y,
-      }
-
-      // Points to check (all vertices of the rectangle)
-      const rectPoints = [
-        { x: newElement.left, y: newElement.top }, // Top-left
-        { x: newElement.right, y: newElement.top }, // Top-right
-        { x: newElement.right, y: newElement.bottom }, // Bottom-right
-        { x: newElement.left, y: newElement.bottom }, // Bottom-left
-      ]
-
-      // Check all sides of the rectangle against the fence line
-      for (let i = 0; i < rectPoints.length; i++) {
-        const p1 = rectPoints[i]
-        const p2 = rectPoints[(i + 1) % rectPoints.length]
-
-        // Check intersection using vector cross product
-        const s1_x = p2.x - p1.x
-        const s1_y = p2.y - p1.y
-        const s2_x = fenceLineVector.x
-        const s2_y = fenceLineVector.y
-
-        const s =
-          (-s1_y * (p1.x - endpoints.start.x) + s1_x * (p1.y - endpoints.start.y)) /
-          (-s2_x * s1_y + s1_x * s2_y)
-
-        const t =
-          (s2_x * (p1.y - endpoints.start.y) - s2_y * (p1.x - endpoints.start.x)) /
-          (-s2_x * s1_y + s1_x * s2_y)
-
-        if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-          return true // Intersection found
-        }
-      }
-
-      // Special case: Horizontal or vertical fence that might be colinear with rectangle sides
-      const isHorizontalFence = Math.abs(endpoints.start.y - endpoints.end.y) < this.EPSILON
-      const isVerticalFence = Math.abs(endpoints.start.x - endpoints.end.x) < this.EPSILON
-
-      if (isHorizontalFence) {
-        const fenceY = endpoints.start.y
-        // Check if fence Y is between rectangle's top and bottom AND
-        // if the X ranges overlap
-        if (
-          fenceY >= newElement.top &&
-          fenceY <= newElement.bottom &&
-          Math.max(fenceBounds.left, newElement.left) <=
-            Math.min(fenceBounds.right, newElement.right)
-        ) {
-          return true
-        }
-      }
-
-      if (isVerticalFence) {
-        const fenceX = endpoints.start.x
-        // Check if fence X is between rectangle's left and right AND
-        // if the Y ranges overlap
-        if (
-          fenceX >= newElement.left &&
-          fenceX <= newElement.right &&
-          Math.max(fenceBounds.top, newElement.top) <=
-            Math.min(fenceBounds.bottom, newElement.bottom)
-        ) {
-          return true
-        }
       }
     }
 
     return false // No collision
+  }
+
+  //_____________________________________________________________________________________________________________checkElementPlacement
+  /**
+   * Check if an element placement pass tests and add classes accordingly
+   * @param {Object} point {x, y} coordinates of element center
+   * @param {Object} element HTML element
+   * @param {Number} width width of the element in pixel
+   * @param {Number} height height of the element in pixel
+   * @returns {Boolean} True if placement is correct
+   */
+  checkElementPlacement(point, element, width, height) {
+    // Check if the placement point would be inside the enclosure
+    const wouldBeInside =
+      !this.planEditor.isEnclosureComplete ||
+      this.planEditor.isPointInEnclosure({
+        x: point.x,
+        y: point.y,
+      })
+    // First, check enclosure restriction
+    if (!wouldBeInside) {
+      element.classList.add('invalid-placement')
+      element.classList.remove('valid-placement')
+    }
+    // Then check for collision with other elements
+    else if (this.wouldOverlap(point)) {
+      element.classList.add('invalid-placement')
+      element.classList.remove('valid-placement')
+    }
+    // Finally check for collision with fences
+    else if (this.wouldOverlapFence(point, width, height)) {
+      console.log('overlapFence checker')
+      element.classList.add('invalid-placement')
+      element.classList.remove('valid-placement')
+    } else {
+      element.classList.add('valid-placement')
+      element.classList.remove('invalid-placement')
+    }
   }
 }
