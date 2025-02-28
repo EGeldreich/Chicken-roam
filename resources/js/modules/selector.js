@@ -75,7 +75,7 @@ export default class Selector {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
       // Add styling class to element
       this.selectedElement.classList.add('moving')
-      console.log(this.selectedElement.dataset.elementId)
+
       // Logic to avoid selected object having collision with itself
       if (!this.isDragging) {
         this.isDragging = true

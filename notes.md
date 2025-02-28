@@ -320,6 +320,58 @@ Retour dans le front, pour une clotûre, on envoit un évènement **_fenceDelete
 Pour un élément, on récupère les data lié aux objectives et on redirige vers la méthode **_updateObjectivesDisplay()_**. On retire également l'élément du tableau **_placedElements_** qui s'occupe des collisions.  
 Dans les deux cas, on **_remove()_** l'élément du **DOM**.
 
+## Changement de position des éléments
+
+### Déplacement de l'élément
+
+Avec la même logique que lors du placement, l'élément selectionné se place en fonction de la souris en mettant constament à jour le style.
+
+```javascript
+updateSelectedElementPosition(point) {
+    if (!this.selectedElement) return
+
+    this.selectedElement.style.left = `${point.x}px`
+    this.selectedElement.style.top = `${point.y}px`
+  }
+```
+
+### Vérification de la validité
+
+Encore une fois même logique que lors du placement, on appelle d'ailleurs la même fonction.  
+Petite subtilité tout de même, il faut temporairement supprimé l'élément selectionné du tableau de l'ensemble des éléments qui est utilisé pour detecter les collisions.
+
+```javascript
+this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
+```
+
+On le replace une fois le déplacement terminé.
+
+```javascript
+this.planEditor.placedElements.splice(this.elementIndex, 0, this.draggedElement)
+```
+
+### Update dans la database
+
+La seule chose à changer en base de donnée est finalement les coordonnées du vertex lié à l'élément.  
+On trouve le vertex via l'élément, puis on modifie le vertex et on sauvegarde les changements.
+On fait tous ces changements dans une transaction, pour éviter un changement partiel.
+
+```typescript
+const element = await Element.findOrFail(params.id, { client: trx })
+
+// Find linked vertex
+element.useTransaction(trx)
+await element.load('vertex')
+// Update it
+const vertex = element.vertex
+vertex.positionX = positionX
+vertex.positionY = positionY
+
+// Save update
+vertex.useTransaction(trx)
+await vertex.save()
+```
+
 ## Formules mathématiques utilisées
 
 ### Trouver la longueur et l'angle d'une clôture
