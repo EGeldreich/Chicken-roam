@@ -69,23 +69,30 @@ export default class Selector {
    */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
-      this.planEditor.elementDrawer.temporaryElement = this.selectedElement
+      // Get type of selected element
+      const type = this.selectedElement.dataset.elementType
+      console.log(type)
+      // Get center point of element
+      const placementPoint = {
+        x: point.x - this.selectedElement.style.width.replace('px', '') / 2,
+        y: point.y - this.selectedElement.style.height.replace('px', '') / 2,
+      }
 
-      this.planEditor.elementDrawer.handleMouseMove(point)
+      this.updateSelectedElementPosition(placementPoint)
     }
   }
 
-  // //_____________________________________________________________________________________________________________updateTemporaryElementPosition
-  // /**
-  //  * Update position of selected element to follow mouse cursor
-  //  * @param {Object} point {x, y} coordinates of mouseEvent
-  //  */
-  // updateSelectedElementPosition(point) {
-  //   if (!this.selectedElement) return
+  //_____________________________________________________________________________________________________________updateTemporaryElementPosition
+  /**
+   * Update position of selected element to follow mouse cursor
+   * @param {Object} point {x, y} coordinates of mouseEvent
+   */
+  updateSelectedElementPosition(point) {
+    if (!this.selectedElement) return
 
-  //   this.selectedElement.style.left = `${point.x}px`
-  //   this.selectedElement.style.top = `${point.y}px`
-  // }
+    this.selectedElement.style.left = `${point.x}px`
+    this.selectedElement.style.top = `${point.y}px`
+  }
 
   //_____________________________________________________________________________________________________________initializeMenu
   /**
