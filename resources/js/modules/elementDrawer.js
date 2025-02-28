@@ -117,7 +117,13 @@ export default class ElementDrawer {
         this.temporaryElement.classList.remove('valid-placement')
       }
       // Finally check for collision with fences
-      else if (this.wouldOverlapFence(placementPoint)) {
+      else if (
+        this.planEditor.commonFunctionsService.wouldOverlapFence(
+          placementPoint,
+          this.elementSize.width,
+          this.elementSize.height
+        )
+      ) {
         this.temporaryElement.classList.add('invalid-placement')
         this.temporaryElement.classList.remove('valid-placement')
       } else {
@@ -179,7 +185,13 @@ export default class ElementDrawer {
       return
     }
     // Do not place the element if it would overlap with a fence
-    if (this.wouldOverlapFence(placementPoint)) {
+    if (
+      this.planEditor.commonFunctionsService.wouldOverlapFence(
+        placementPoint,
+        this.elementSize.width,
+        this.elementSize.height
+      )
+    ) {
       this.showPlacementError('Elements cannot overlap with fences')
       return
     }
@@ -323,98 +335,5 @@ export default class ElementDrawer {
     setTimeout(() => {
       errorMessage.remove()
     }, 3000)
-  }
-
-  //_____________________________________________________________________________________________________________wouldOverlapFence
-  /**
-   * Check if an element would overlap with fences
-   * Called in placeElement()
-   * @param {Object} newElementPosition Object containing top-left corner coordinates {x, y}
-   * @returns {Boolean} True if would overlap, false if not
-   */
-  wouldOverlapFence(newElementPosition) {
-    // Get all fences
-    const fences = Array.from(this.canvas.querySelectorAll('.fence'))
-
-    // Calculate extremities of the new element (create element-sized rectangle)
-    const newElement = {
-      left: newElementPosition.x,
-      top: newElementPosition.y,
-      right: newElementPosition.x + this.elementSize.width,
-      bottom: newElementPosition.y + this.elementSize.height,
-    }
-
-    // For each fence ...
-    for (const fence of fences) {
-      // Get endpoints
-      const endpoints = this.planEditor.commonFunctionsService.getFenceEndpoints(fence)
-
-      // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
-      const fenceBounds = {
-        left: Math.min(endpoints.start.x, endpoints.end.x),
-        top: Math.min(endpoints.start.y, endpoints.end.y),
-        right: Math.max(endpoints.start.x, endpoints.end.x),
-        bottom: Math.max(endpoints.start.y, endpoints.end.y),
-      }
-
-      // If the element rectangle does not intersect with any fence-rectangles, obviously no overlap, skip more precise test
-      if (
-        newElement.right < fenceBounds.left ||
-        newElement.left > fenceBounds.right ||
-        newElement.bottom < fenceBounds.top ||
-        newElement.top > fenceBounds.bottom
-      ) {
-        continue
-      }
-
-      // Treat each side of the element rectangle as a line, and use fenceDrawer method to check intersection
-      // A newElement.side is called twice because lines are horizontal or vertical, so either x or y is the same for both points
-      if (
-        this.planEditor.fenceDrawer.checkLineIntersection(
-          newElement.left,
-          newElement.top,
-          newElement.right,
-          newElement.top,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.planEditor.fenceDrawer.checkLineIntersection(
-          newElement.right,
-          newElement.top,
-          newElement.right,
-          newElement.bottom,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.planEditor.fenceDrawer.checkLineIntersection(
-          newElement.right,
-          newElement.bottom,
-          newElement.left,
-          newElement.bottom,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.planEditor.fenceDrawer.checkLineIntersection(
-          newElement.left,
-          newElement.bottom,
-          newElement.left,
-          newElement.top,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        )
-      ) {
-        return true // Collision detected
-      }
-    }
-
-    return false // No collision
   }
 }

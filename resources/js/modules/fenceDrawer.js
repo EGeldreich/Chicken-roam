@@ -1,10 +1,5 @@
-import EnclosureService from '../services/commonFunctionsService'
-
 export default class FenceDrawer {
   constructor(canvas, planId, planEditor) {
-    // Add EnclosureService instance
-    this.commonFunctionsService = new EnclosureService(this.EPSILON)
-
     // Get basic properties
     this.canvas = canvas // Defined in PlanEditor, drawing area HTML element
     this.planId = planId // Defined in PlanEditor, used to push elements
@@ -464,7 +459,7 @@ export default class FenceDrawer {
    * Calls enslosureService method
    */
   hasFormedEnclosure() {
-    return this.commonFunctionsService.isEnclosureComplete(this.vertices)
+    return this.planEditor.commonFunctionsService.isEnclosureComplete(this.vertices)
   }
 
   //_____________________________________________________________________________________________________________handleEnclosureComplete
@@ -601,10 +596,10 @@ export default class FenceDrawer {
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
 
     // Use the service to get ordered vertices
-    const orderedVertices = this.commonFunctionsService.getOrderedVertices(fenceElements)
+    const orderedVertices = this.planEditor.commonFunctionsService.getOrderedVertices(fenceElements)
 
     // Use the service to calculate area
-    const areaInSquareMeters = this.commonFunctionsService.calculateArea(orderedVertices)
+    const areaInSquareMeters = this.planEditor.commonFunctionsService.calculateArea(orderedVertices)
 
     console.log(`Area in square meters: ${areaInSquareMeters}`)
     return areaInSquareMeters
@@ -621,44 +616,6 @@ export default class FenceDrawer {
     return (
       Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
     )
-  }
-
-  //_____________________________________________________________________________________________________________checkLineIntersection
-  /**
-   * Helper method to  check if two lines intersect
-   * @param {number} x1 - First segment starting point X coordinate
-   * @param {number} y1 - First segment starting point Y coordinate
-   * @param {number} x2 - First segment ending point X coordinate
-   * @param {number} y2 - First segment ending point Y coordinate
-   * @param {number} x3 - Second segment starting point X coordinate
-   * @param {number} y3 - Second segment starting point Y coordinate
-   * @param {number} x4 - Second segment ending point X coordinate
-   * @param {number} y4 - Second segment ending point Y coordinate
-   * @returns {Boolean} True if segments would intersect, false if not
-   */
-  checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
-    // Check for shared endpoints
-    if (
-      (Math.abs(x1 - x3) < this.EPSILON && Math.abs(y1 - y3) < this.EPSILON) ||
-      (Math.abs(x1 - x4) < this.EPSILON && Math.abs(y1 - y4) < this.EPSILON) ||
-      (Math.abs(x2 - x3) < this.EPSILON && Math.abs(y2 - y3) < this.EPSILON) ||
-      (Math.abs(x2 - x4) < this.EPSILON && Math.abs(y2 - y4) < this.EPSILON)
-    ) {
-      // If segments share an endpoint, this is not considered as an intersection
-      return false
-    }
-
-    // Calculate the denominators
-    const denominator = (x2 - x1) * (y4 - y3) - (y2 - y1) * (x4 - x3)
-
-    // If the denominator is close to zero, the lines are parallel or colinear
-    if (Math.abs(denominator) < this.EPSILON) return false
-
-    // Calculate intersection point parameters
-    const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denominator
-    const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denominator
-
-    return ua > this.EPSILON && ua < 1 - this.EPSILON && ub > this.EPSILON && ub < 1 - this.EPSILON
   }
 
   //_____________________________________________________________________________________________________________calculateAngleBetweenLines
@@ -725,7 +682,7 @@ export default class FenceDrawer {
     // First, check angle
     // For each fence ...
     for (const fence of fences) {
-      const endpoints = this.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
+      const endpoints = this.planEditor.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
       // Check if the new fence start point is used by another fence
       // (Should always be the case except for the first fence)
       const sharesStartPoint =
@@ -759,7 +716,7 @@ export default class FenceDrawer {
     // Secondly, check for intersections
     // For each fence ...
     for (const fence of fences) {
-      const endpoints = this.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
+      const endpoints = this.planEditor.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
 
       // Check if we share an endpoint
       const sharesEndpoint =
@@ -775,7 +732,7 @@ export default class FenceDrawer {
 
       // Check intersections on non-linked fences
       if (
-        this.checkLineIntersection(
+        this.planEditor.commonFunctionsService.checkLineIntersection(
           startX,
           startY,
           endX,
@@ -820,7 +777,7 @@ export default class FenceDrawer {
   //     }
 
   //     // Vérifier l'intersection
-  //     const intersects = this.checkLineIntersection(
+  //     const intersects = this.planEditor.commonFunctionsService.checkLineIntersection(
   //       startX,
   //       startY,
   //       endX,

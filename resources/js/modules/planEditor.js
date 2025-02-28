@@ -6,7 +6,7 @@ import ShrubDrawer from './shrubDrawer.js'
 import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
 import Selector from './selector.js'
-import EnclosureService from '../services/commonFunctionsService.js'
+import CommonFunctionsService from '../services/commonFunctionsService.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -14,6 +14,7 @@ export default class PlanEditor {
     this.currentTool = 'select' // Set select as default tool
     this.canvas = document.getElementById('planCanvas') // Get drawing area
     this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
+    this.EPSILON = 1 // Margin of error
 
     // Plan state property
     this.planState = 'construction' // Default state: construction, enclosed, broken
@@ -34,8 +35,8 @@ export default class PlanEditor {
     this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this)
     this.selector = new Selector(this.canvas, this.planId, this)
 
-    // Add EnclosureService instance
-    this.commonFunctionsService = new EnclosureService(this.EPSILON)
+    // Add CommonFunctionsService instance
+    this.commonFunctionsService = new CommonFunctionsService(this.canvas, this.EPSILON)
 
     // Load all elements once
     this.loadAllElements()
@@ -401,7 +402,7 @@ export default class PlanEditor {
   //_____________________________________________________________________________________________________________getOrderedEnclosureVertices
   /**
    * Get fences ordered vertices (as if walking along the fences)
-   * Use EnclosureService
+   * Use CommonFunctionsService
    * @returns {Array} Array of [x, y] coordinates in order
    */
   getOrderedEnclosureVertices() {
