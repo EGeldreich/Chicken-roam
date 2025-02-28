@@ -1,8 +1,8 @@
 import ElementDrawer from './elementDrawer.js'
 
 export default class DustbathDrawer extends ElementDrawer {
-  constructor(canvas, planId, placedElementsRef, planEditor) {
-    super(canvas, planId, placedElementsRef, planEditor)
+  constructor(canvas, planId, planEditor) {
+    super(canvas, planId, planEditor)
     this.elementType = 'dustbath'
     this.elementSize = { width: 100, height: 100 }
     this.objectiveValue = 1

@@ -24,9 +24,6 @@ export default class EnclosureService {
     // Track used fences
     let usedFences = new Set()
 
-    fenceElements.forEach((fence) => {
-      console.log(this.getFenceEndpoints(fence))
-    })
     // Start with the first fence, push endpoints into orderedVertices
     if (fenceElements.length > 0) {
       const firstFence = fenceElements[0]
@@ -180,5 +177,21 @@ export default class EnclosureService {
     })
 
     return !hasOpenConnections && vertexConnections.size > 2
+  }
+
+  //_____________________________________________________________________________________________________________updateObjectivesDisplay
+  /**
+   * Update the textContent of the objectives
+   * Called in placeElement()
+   * @param {Object} objectives Object containing all relevant objective information {id, name, description, target_value, completion_percentage, unit}
+   */
+  updateObjectivesDisplay(objectives) {
+    objectives.forEach((objective) => {
+      // Finf the correct HTML element
+      const objectiveEl = document.querySelector(`#${objective.name}`)
+      if (objectiveEl) {
+        objectiveEl.textContent = objective.completion_percentage
+      }
+    })
   }
 }

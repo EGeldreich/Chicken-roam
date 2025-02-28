@@ -1,14 +1,13 @@
 import EnclosureService from '../services/enclosureService'
 
 export default class FenceDrawer {
-  constructor(canvas, planId, placedElements, planEditor) {
+  constructor(canvas, planId, planEditor) {
     // Add EnclosureService instance
     this.enclosureService = new EnclosureService(this.EPSILON)
 
     // Get basic properties
     this.canvas = canvas // Defined in PlanEditor, drawing area HTML element
     this.planId = planId // Defined in PlanEditor, used to push elements
-    this.placedElements = placedElements // Shared array of elements
     this.planEditor = planEditor // Reference planEditor for useful methods
 
     this.vertices = new Map() // Initialize Map() so we can store coordinates and number of fences linked

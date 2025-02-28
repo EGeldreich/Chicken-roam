@@ -25,14 +25,14 @@ export default class PlanEditor {
     this.placedElements = []
 
     // Initialize tool managers
-    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.watererDrawer = new WatererDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.perchDrawer = new PerchDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this.placedElements, this)
-    this.selector = new Selector(this.canvas, this.planId, this.placedElements, this)
+    this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this)
+    this.shelterDrawer = new ShelterDrawer(this.canvas, this.planId, this)
+    this.watererDrawer = new WatererDrawer(this.canvas, this.planId, this)
+    this.perchDrawer = new PerchDrawer(this.canvas, this.planId, this)
+    this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this)
+    this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this)
+    this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this)
+    this.selector = new Selector(this.canvas, this.planId, this)
 
     // Add EnclosureService instance
     this.enclosureService = new EnclosureService(this.EPSILON)
@@ -388,12 +388,10 @@ export default class PlanEditor {
    */
   isPointInEnclosure(point) {
     // If there's no enclosure yet, return false
-    console.log('Eclosure complete ? ' + this.isEnclosureComplete)
     if (!this.isEnclosureComplete) return false
 
     // Get ordered vertices
     const enclosureVertices = this.getOrderedEnclosureVertices()
-    console.log('enclosure vertices length : ' + enclosureVertices.length)
     if (enclosureVertices.length < 3) return false
 
     // Use service to check if point is inside

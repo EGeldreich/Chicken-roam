@@ -1,6 +1,6 @@
 // Serve as base for all elements (except fence)
 export default class ElementDrawer {
-  constructor(canvas, planId, placedElementsRef, planEditor) {
+  constructor(canvas, planId, planEditor) {
     this.canvas = canvas // Get canvas element (from planEditor)
     this.planId = planId // Get planId (from planEditor)
     this.planEditor = planEditor // Reference planEditor for useful methods
@@ -9,8 +9,6 @@ export default class ElementDrawer {
     this.objectiveValue = null
     this.elementType = 'generic'
     this.elementSize = { width: 60, height: 60 }
-
-    this.placedElements = placedElementsRef
 
     // Default states
     this.isUsing = false
@@ -63,6 +61,7 @@ export default class ElementDrawer {
   startUsing() {
     this.isUsing = true
     this.createTemporaryElement()
+    console.log('ElementDrawer ' + this.planEditor.placedElements)
   }
 
   //_____________________________________________________________________________________________________________createTemporaryElement
@@ -147,7 +146,7 @@ export default class ElementDrawer {
    * Display error if needed ( showPlacementError() ), or add element to DataBase.
    * POST request to api/elements.
    * Then render permanent element with renderPlacedElement().
-   * And update objectives displau with updateObjectivesDisplay()
+   * And update objectives display with updateObjectivesDisplay()
    * @param {Object} point Object containing mouse coordinates {x, y}
    * @throws {Error} if request failed to post new element
    */
@@ -213,7 +212,7 @@ export default class ElementDrawer {
         this.renderPlacedElement(element)
 
         // Add to tracking array
-        this.placedElements.push({
+        this.planEditor.placedElements.push({
           id: element.id,
           type: element.type,
           x: parseFloat(element.vertex.positionX),
@@ -222,9 +221,10 @@ export default class ElementDrawer {
           height: parseFloat(element.height),
         })
 
+        console.log('placedElements in placeElement method : ' + this.planEditor.placedElements)
         // If objectives were returned, update their display
         if (data.objectives) {
-          this.updateObjectivesDisplay(data.objectives)
+          this.planEditor.enclosureService.updateObjectivesDisplay(data.objectives)
         }
 
         // Continue placing elements until tool is deselected
@@ -273,7 +273,7 @@ export default class ElementDrawer {
     }
 
     // Compare bounds to existing elements
-    for (const element of this.placedElements) {
+    for (const element of this.planEditor.placedElements) {
       // Convert string coordinates to numbers if needed
       const left = parseFloat(element.x)
       const top = parseFloat(element.y)
@@ -325,22 +325,6 @@ export default class ElementDrawer {
     setTimeout(() => {
       errorMessage.remove()
     }, 3000)
-  }
-
-  //_____________________________________________________________________________________________________________updateObjectivesDisplay
-  /**
-   * Update the textContent of the objectives
-   * Called in placeElement()
-   * @param {Object} objectives Object containing all relevant objective information {id, name, description, target_value, completion_percentage, unit}
-   */
-  updateObjectivesDisplay(objectives) {
-    objectives.forEach((objective) => {
-      // Finf the correct HTML element
-      const objectiveEl = document.querySelector(`#${objective.name}`)
-      if (objectiveEl) {
-        objectiveEl.textContent = objective.completion_percentage
-      }
-    })
   }
 
   //_____________________________________________________________________________________________________________wouldOverlapFence

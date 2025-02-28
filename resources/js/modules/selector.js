@@ -1,8 +1,7 @@
 export default class Selector {
-  constructor(canvas, planId, placedElementsRef, planEditor) {
+  constructor(canvas, planId, planEditor) {
     this.canvas = canvas // Get canvas element (from planEditor)
     this.planId = planId // Get planId (from planEditor)
-    this.placedElements = placedElementsRef // Get elements coordinates from planEditor
     this.planEditor = planEditor // Reference to planEditor
 
     // Default state
@@ -13,15 +12,21 @@ export default class Selector {
     this.menu = document.getElementById('elementMenu')
     this.initializeMenu()
   }
-  //
-  //
-  // Start selection process
+
+  //_____________________________________________________________________________________________________________startUsing
+  /**
+   * Change isUsing state
+   */
   startUsing() {
     this.isUsing = true
+    console.log('Selector ' + this.planEditor.placedElements)
   }
-  //
-  //
-  // Stop selection process
+
+  //_____________________________________________________________________________________________________________stopUsing
+  /**
+   * Deselect any selected element, and reset states to default
+   * @param {Object} point
+   */
   stopUsing() {
     if (this.selectedElement) {
       this.selectedElement.classList.remove('selected')
@@ -30,9 +35,12 @@ export default class Selector {
     this.isUsing = false
     this.selectedElement = null
   }
-  //
-  //
-  // Use event.target to select clicked-on element or fence
+
+  //_____________________________________________________________________________________________________________selectElement
+  /**
+   * Handle selection of targeted element, add style for better visualization
+   * @param {MouseEvent} event - sent by PlanEditor handleMouseDown
+   */
   selectElement(event) {
     if (!this.isUsing) return
 
@@ -55,9 +63,11 @@ export default class Selector {
       this.selectedElement = null
     }
   }
-  //
-  //
-  //
+
+  //_____________________________________________________________________________________________________________initializeMenu
+  /**
+   * Initialize event listener of delete menu
+   */
   initializeMenu() {
     // Handle delete button click
     const deleteBtn = this.menu.querySelector('.delete-btn')
@@ -65,32 +75,48 @@ export default class Selector {
       deleteBtn.addEventListener('click', this.handleDelete.bind(this))
     }
   }
-  //
-  //
-  showMenu(element) {
+
+  //_____________________________________________________________________________________________________________showMenu
+  /**
+   * Remove hidden class of menu when called
+   */
+  showMenu() {
     // Position menu near the selected element
     // this.menu.style.left = `25px`
     // this.menu.style.top = `${element.style.top}px`
     this.menu.classList.remove('hidden')
   }
-  //
-  //
+
+  //_____________________________________________________________________________________________________________hideMenu
+  /**
+   * Add the hidden class to menu when called
+   * @param {Object} point
+   */
   hideMenu() {
     this.menu.classList.add('hidden')
   }
-  //
-  //
-  //   Delete element from database and DOM
+
+  //_____________________________________________________________________________________________________________handleDelete
+  /**
+   * Delete element from Database and from DOM
+   * @throws {Error} error on deletion
+   */
   async handleDelete() {
+    // If no element selected, do nothing
     if (!this.selectedElement) {
       return
     }
 
     let response
+
     try {
+      // Check if selected element is a fence
       const isFence = this.selectedElement.classList.contains('fence')
 
+      // Act differently if a fence or an element is selected
+
       if (isFence) {
+        // If it's a fence, call api/fences/:id and delete
         const fenceId = this.selectedElement.dataset.fenceId
         response = await fetch(`/api/fences/${fenceId}`, {
           method: 'DELETE',
@@ -99,6 +125,7 @@ export default class Selector {
           },
         })
       } else {
+        // If it's an element, call api/elements/:id and delete
         const elementId = this.selectedElement.dataset.elementId
         response = await fetch(`/api/elements/${elementId}`, {
           method: 'DELETE',
@@ -108,17 +135,19 @@ export default class Selector {
         })
       }
 
+      // Return error if necessary
       if (!response.ok) {
         const errorData = await response.json()
         console.error('Delete failed:', errorData)
         return
       }
 
+      // Get response data
       const data = await response.json()
 
       // Update objectives display
       if (data.objectives) {
-        this.updateObjectivesDisplay(data.objectives)
+        this.planEditor.enclosureService.updateObjectivesDisplay(data.objectives)
       }
 
       // Handle plan state change if fence was deleted
@@ -144,7 +173,6 @@ export default class Selector {
         }
 
         // Send out event for fence deletion
-        console.log('sending fenceDeleted event')
         const event = new CustomEvent('fenceDeleted', {
           detail: {
             fenceId: this.selectedElement.dataset.fenceId,
@@ -156,11 +184,15 @@ export default class Selector {
 
       // Remove element from DOM
       this.selectedElement.remove()
+      console.log('placedElements before delete ' + this.planEditor.placedElements)
 
       // Update placedElements array for non-fence elements
       if (!isFence && this.selectedElement.dataset.elementId) {
         const elementId = this.selectedElement.dataset.elementId
-        this.placedElements = this.placedElements.filter((el) => el.id !== parseInt(elementId))
+        this.planEditor.placedElements = this.planEditor.placedElements.filter(
+          (el) => el.id !== parseInt(elementId)
+        )
+        console.log('placedElements after delete ' + this.planEditor.placedElements)
       }
 
       // Hide menu and reset selection
@@ -169,19 +201,5 @@ export default class Selector {
     } catch (error) {
       console.error('Error during delete:', error)
     }
-  }
-  //
-  //
-  // Update objective display via data from response
-  updateObjectivesDisplay(objectives) {
-    objectives.forEach((objective) => {
-      // Finf the correct HTML element
-      const objectiveEl = document.querySelector(`#${objective.name}`)
-      if (objectiveEl) {
-        console.log(objectiveEl)
-        console.log(objective.completion_percentage)
-        objectiveEl.textContent = objective.completion_percentage
-      }
-    })
   }
 }
