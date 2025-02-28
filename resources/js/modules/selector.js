@@ -19,7 +19,6 @@ export default class Selector {
    */
   startUsing() {
     this.isUsing = true
-    console.log('Selector ' + this.planEditor.placedElements)
   }
 
   //_____________________________________________________________________________________________________________stopUsing
@@ -56,13 +55,37 @@ export default class Selector {
     if (targetElement && targetElement.classList.contains('element')) {
       this.selectedElement = targetElement
       this.selectedElement.classList.add('selected')
-      console.log(this.selectedElement)
       this.showMenu(this.selectedElement)
     } else if (targetElement !== deleteBtn) {
       this.hideMenu()
       this.selectedElement = null
     }
   }
+
+  //_____________________________________________________________________________________________________________handleMouseMove
+  /**
+   * Handle movement of selected element
+   * @param {Object} point {x, y} coordinates of mouseEvent
+   */
+  handleMouseMove(point) {
+    if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
+      this.planEditor.elementDrawer.temporaryElement = this.selectedElement
+
+      this.planEditor.elementDrawer.handleMouseMove(point)
+    }
+  }
+
+  // //_____________________________________________________________________________________________________________updateTemporaryElementPosition
+  // /**
+  //  * Update position of selected element to follow mouse cursor
+  //  * @param {Object} point {x, y} coordinates of mouseEvent
+  //  */
+  // updateSelectedElementPosition(point) {
+  //   if (!this.selectedElement) return
+
+  //   this.selectedElement.style.left = `${point.x}px`
+  //   this.selectedElement.style.top = `${point.y}px`
+  // }
 
   //_____________________________________________________________________________________________________________initializeMenu
   /**
@@ -153,7 +176,7 @@ export default class Selector {
 
       // Update objectives display
       if (data.objectives) {
-        this.planEditor.enclosureService.updateObjectivesDisplay(data.objectives)
+        this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
       }
 
       // Handle plan state change if fence was deleted
@@ -190,7 +213,6 @@ export default class Selector {
 
       // Remove element from DOM
       this.selectedElement.remove()
-      console.log('placedElements before delete ' + this.planEditor.placedElements)
 
       // Update placedElements array for non-fence elements
       if (!isFence && this.selectedElement.dataset.elementId) {
@@ -198,7 +220,6 @@ export default class Selector {
         this.planEditor.placedElements = this.planEditor.placedElements.filter(
           (el) => el.id !== parseInt(elementId)
         )
-        console.log('placedElements after delete ' + this.planEditor.placedElements)
       }
 
       // Hide menu and reset selection

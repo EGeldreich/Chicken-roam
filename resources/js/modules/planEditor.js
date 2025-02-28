@@ -6,7 +6,7 @@ import ShrubDrawer from './shrubDrawer.js'
 import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
 import Selector from './selector.js'
-import EnclosureService from '../services/enclosureService'
+import EnclosureService from '../services/commonFunctionsService.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -35,7 +35,7 @@ export default class PlanEditor {
     this.selector = new Selector(this.canvas, this.planId, this)
 
     // Add EnclosureService instance
-    this.enclosureService = new EnclosureService(this.EPSILON)
+    this.commonFunctionsService = new EnclosureService(this.EPSILON)
 
     // Load all elements once
     this.loadAllElements()
@@ -360,11 +360,11 @@ export default class PlanEditor {
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler === this.selector) {
-      return
-    } else if (handler) {
-      handler.handleMouseMove(point)
-    }
+    // if (handler === this.selector) {
+    //   return
+    // } else if (handler) {
+    handler.handleMouseMove(point)
+    // }
   }
 
   //_____________________________________________________________________________________________________________handleMouseUp
@@ -395,7 +395,7 @@ export default class PlanEditor {
     if (enclosureVertices.length < 3) return false
 
     // Use service to check if point is inside
-    return this.enclosureService.isPointInPolygon(point, enclosureVertices)
+    return this.commonFunctionsService.isPointInPolygon(point, enclosureVertices)
   }
 
   //_____________________________________________________________________________________________________________getOrderedEnclosureVertices
@@ -406,7 +406,7 @@ export default class PlanEditor {
    */
   getOrderedEnclosureVertices() {
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
-    return this.enclosureService.getOrderedVertices(fenceElements)
+    return this.commonFunctionsService.getOrderedVertices(fenceElements)
   }
 
   //_____________________________________________________________________________________________________________isElementInEnclosure

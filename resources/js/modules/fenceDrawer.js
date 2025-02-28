@@ -1,9 +1,9 @@
-import EnclosureService from '../services/enclosureService'
+import EnclosureService from '../services/commonFunctionsService'
 
 export default class FenceDrawer {
   constructor(canvas, planId, planEditor) {
     // Add EnclosureService instance
-    this.enclosureService = new EnclosureService(this.EPSILON)
+    this.commonFunctionsService = new EnclosureService(this.EPSILON)
 
     // Get basic properties
     this.canvas = canvas // Defined in PlanEditor, drawing area HTML element
@@ -464,7 +464,7 @@ export default class FenceDrawer {
    * Calls enslosureService method
    */
   hasFormedEnclosure() {
-    return this.enclosureService.isEnclosureComplete(this.vertices)
+    return this.commonFunctionsService.isEnclosureComplete(this.vertices)
   }
 
   //_____________________________________________________________________________________________________________handleEnclosureComplete
@@ -601,10 +601,10 @@ export default class FenceDrawer {
     const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
 
     // Use the service to get ordered vertices
-    const orderedVertices = this.enclosureService.getOrderedVertices(fenceElements)
+    const orderedVertices = this.commonFunctionsService.getOrderedVertices(fenceElements)
 
     // Use the service to calculate area
-    const areaInSquareMeters = this.enclosureService.calculateArea(orderedVertices)
+    const areaInSquareMeters = this.commonFunctionsService.calculateArea(orderedVertices)
 
     console.log(`Area in square meters: ${areaInSquareMeters}`)
     return areaInSquareMeters
@@ -725,7 +725,7 @@ export default class FenceDrawer {
     // First, check angle
     // For each fence ...
     for (const fence of fences) {
-      const endpoints = this.enclosureService.getFenceEndpoints(fence) // Get endpoints
+      const endpoints = this.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
       // Check if the new fence start point is used by another fence
       // (Should always be the case except for the first fence)
       const sharesStartPoint =
@@ -759,7 +759,7 @@ export default class FenceDrawer {
     // Secondly, check for intersections
     // For each fence ...
     for (const fence of fences) {
-      const endpoints = this.enclosureService.getFenceEndpoints(fence) // Get endpoints
+      const endpoints = this.commonFunctionsService.getFenceEndpoints(fence) // Get endpoints
 
       // Check if we share an endpoint
       const sharesEndpoint =

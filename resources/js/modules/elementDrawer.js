@@ -61,7 +61,6 @@ export default class ElementDrawer {
   startUsing() {
     this.isUsing = true
     this.createTemporaryElement()
-    console.log('ElementDrawer ' + this.planEditor.placedElements)
   }
 
   //_____________________________________________________________________________________________________________createTemporaryElement
@@ -131,7 +130,7 @@ export default class ElementDrawer {
   //_____________________________________________________________________________________________________________updateTemporaryElementPosition
   /**
    * Update position of temporary element to follow mouse cursor
-   * @param {Object} point
+   * @param {Object} point {x, y} coordinates of mouseEvent
    */
   updateTemporaryElementPosition(point) {
     if (!this.temporaryElement) return
@@ -221,10 +220,9 @@ export default class ElementDrawer {
           height: parseFloat(element.height),
         })
 
-        console.log('placedElements in placeElement method : ' + this.planEditor.placedElements)
         // If objectives were returned, update their display
         if (data.objectives) {
-          this.planEditor.enclosureService.updateObjectivesDisplay(data.objectives)
+          this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
         }
 
         // Continue placing elements until tool is deselected
@@ -349,7 +347,7 @@ export default class ElementDrawer {
     // For each fence ...
     for (const fence of fences) {
       // Get endpoints
-      const endpoints = this.planEditor.enclosureService.getFenceEndpoints(fence)
+      const endpoints = this.planEditor.commonFunctionsService.getFenceEndpoints(fence)
 
       // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
       const fenceBounds = {
