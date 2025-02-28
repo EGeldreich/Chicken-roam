@@ -138,42 +138,20 @@ export default class ElementDrawer {
       y: point.y - this.elementSize.height / 2,
     }
 
-    // Check if the enclosure is complete
-    const isEnclosureComplete = this.planEditor.isEnclosureComplete
-    //  and if the element would be inside
-    const wouldBeInside =
-      !isEnclosureComplete ||
-      this.planEditor.isPointInEnclosure({
-        x: point.x,
-        y: point.y,
-      })
+    // Check placement validity
+    const placementErrorMessage = this.planEditor.commonFunctionsService.checkElementPlacement(
+      placementPoint,
+      this.temporaryElement,
+      this.elementSize.width,
+      this.elementSize.height
+    )
 
-    // First, check enclosure restriction
-    if (isEnclosureComplete && !wouldBeInside) {
-      this.showPlacementError('Elements must be placed inside the enclosure')
-      return
-    }
-
-    // Do not place the element if it would overlap with another element
-    if (
-      this.planEditor.commonFunctionsService.wouldOverlap(
-        placementPoint,
-        this.elementSize.width,
-        this.elementSize.height
+    // If there a is an error message, placement is not ok, show error and get out
+    if (placementErrorMessage) {
+      this.planEditor.commonFunctionsService.showPlacementError(
+        placementErrorMessage,
+        this.temporaryElement
       )
-    ) {
-      this.showPlacementError('Elements cannot overlap')
-      return
-    }
-    // Do not place the element if it would overlap with a fence
-    if (
-      this.planEditor.commonFunctionsService.wouldOverlapFence(
-        placementPoint,
-        this.elementSize.width,
-        this.elementSize.height
-      )
-    ) {
-      this.showPlacementError('Elements cannot overlap with fences')
       return
     }
 
@@ -245,31 +223,5 @@ export default class ElementDrawer {
     element.style.height = `${elementData.height}px`
 
     this.canvas.appendChild(element)
-  }
-
-  //_____________________________________________________________________________________________________________showPlacementError
-  /**
-   * Display an error feedback as an error toast
-   * Called in placeElement if necessary
-   * @param {String} message Text content of the message
-   */
-  showPlacementError(message) {
-    // Visual feedback
-    this.temporaryElement.classList.add('placement-error')
-    setTimeout(() => {
-      if (this.temporaryElement) {
-        this.temporaryElement.classList.remove('placement-error')
-      }
-    }, 1000)
-
-    // Optionally show a toast message
-    const errorMessage = document.createElement('div')
-    errorMessage.className = 'placement-error-toast'
-    errorMessage.textContent = message
-    document.body.appendChild(errorMessage)
-
-    setTimeout(() => {
-      errorMessage.remove()
-    }, 3000)
   }
 }

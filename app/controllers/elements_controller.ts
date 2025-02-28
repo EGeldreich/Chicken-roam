@@ -105,4 +105,47 @@ export default class ElementsController {
       })),
     })
   }
+  //
+  //
+  async updatePosition({ params, response, request }: HttpContext) {
+    const { positionX, positionY } = request.body()
+
+    try {
+      // Use transaction for whole DB interaction
+      const result = await db.transaction(async (trx) => {
+        // Find element
+        const element = await Element.findOrFail(params.id, { client: trx })
+
+        // Find linked vertex
+        element.useTransaction(trx)
+        await element.load('vertex')
+        // Update it
+        const vertex = element.vertex
+        vertex.positionX = positionX
+        vertex.positionY = positionY
+
+        // Save update
+        vertex.useTransaction(trx)
+        await vertex.save()
+
+        // Return relevant data
+        return {
+          id: element.id,
+          type: element.type,
+          position: { x: vertex.positionX, y: vertex.positionY },
+        }
+      })
+
+      return response.ok({
+        message: 'Element position updated successfully',
+        element: result,
+      })
+    } catch (error) {
+      console.error('Error updating element position:', error)
+      return response.internalServerError({
+        message: 'Failed to update element position',
+        error: error.message,
+      })
+    }
+  }
 }

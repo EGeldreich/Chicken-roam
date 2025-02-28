@@ -389,11 +389,11 @@ export default class CommonFunctionsService {
   //_____________________________________________________________________________________________________________checkElementPlacement
   /**
    * Check if an element placement pass tests and add classes accordingly
-   * @param {Object} point {x, y} coordinates of element center
+   * @param {Object} point Object containing top-left corner coordinates {x, y}
    * @param {Object} element HTML element
    * @param {Number} width width of the element in pixel
    * @param {Number} height height of the element in pixel
-   * @returns {Boolean} True if placement is correct
+   * @returns {String} error message, or null of placement is correct
    */
   checkElementPlacement(point, element, width, height) {
     // Check if the placement point would be inside the enclosure
@@ -403,24 +403,55 @@ export default class CommonFunctionsService {
         x: point.x,
         y: point.y,
       })
+
+    let message = null
     // First, check enclosure restriction
     if (!wouldBeInside) {
+      message = 'Elements must be placed inside the enclosure'
       element.classList.add('invalid-placement')
       element.classList.remove('valid-placement')
     }
     // Then check for collision with other elements
-    else if (this.wouldOverlap(point)) {
+    else if (this.wouldOverlap(point, width, height)) {
+      message = 'Elements cannot overlap'
       element.classList.add('invalid-placement')
       element.classList.remove('valid-placement')
     }
     // Finally check for collision with fences
     else if (this.wouldOverlapFence(point, width, height)) {
-      console.log('overlapFence checker')
+      message = 'Elements cannot overlap with fences'
       element.classList.add('invalid-placement')
       element.classList.remove('valid-placement')
     } else {
       element.classList.add('valid-placement')
       element.classList.remove('invalid-placement')
     }
+    return message
+  }
+
+  //_____________________________________________________________________________________________________________showPlacementError
+  /**
+   * Display an error feedback as an error toast
+   * @param {String} message Text content of the message
+   * @param {Object} element HTML element being placed or moved
+   */
+  showPlacementError(message, element) {
+    // Visual feedback
+    element.classList.add('placement-error')
+    setTimeout(() => {
+      if (element) {
+        element.classList.remove('placement-error')
+      }
+    }, 1000)
+
+    // Create error message dinv and display it for 3 seconds
+    const errorMessage = document.createElement('div')
+    errorMessage.className = 'placement-error-toast'
+    errorMessage.textContent = message
+    document.body.appendChild(errorMessage)
+
+    setTimeout(() => {
+      errorMessage.remove()
+    }, 3000)
   }
 }

@@ -74,6 +74,9 @@ body {
 .valid-placement {
   background-color: black;
 }
+.moving {
+  opacity: 0.4;
+}
 
 @keyframes shake {
   0%,

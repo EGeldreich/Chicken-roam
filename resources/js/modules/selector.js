@@ -7,6 +7,10 @@ export default class Selector {
     // Default state
     this.isUsing = true
     this.selectedElement = null
+    // Variables for deplacement
+    this.isDragging = false
+    this.elementIndex = null // store moved element index
+    this.draggedElement = null // Used to store element while it is out of placedElement
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
@@ -69,16 +73,42 @@ export default class Selector {
    */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
+      // Add styling class to element
       this.selectedElement.classList.add('moving')
+      console.log(this.selectedElement.dataset.elementId)
+      // Logic to avoid selected object having collision with itself
+      if (!this.isDragging) {
+        this.isDragging = true
 
+        // Get selected element dataset id
+        const elementId = parseInt(this.selectedElement.dataset.elementId)
+        // Find that same element in placedElements array
+        this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
+
+        if (this.elementIndex !== -1) {
+          // Remove element and store it as dragged element
+          this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
+        }
+      }
+
+      let width = parseFloat(this.selectedElement.style.width)
+      let height = parseFloat(this.selectedElement.style.height)
       // Get center point of element
       const placementPoint = {
-        x: point.x - this.selectedElement.style.width.replace('px', '') / 2,
-        y: point.y - this.selectedElement.style.height.replace('px', '') / 2,
+        x: point.x - width / 2,
+        y: point.y - height / 2,
       }
 
       // Constantly update selected element position
       this.updateSelectedElementPosition(placementPoint)
+
+      // Update visual display of moving element
+      this.planEditor.commonFunctionsService.checkElementPlacement(
+        placementPoint,
+        this.selectedElement,
+        width,
+        height
+      )
     }
   }
 
@@ -98,20 +128,113 @@ export default class Selector {
   /**
    * Handle new placement of element
    * @param {Object} point {x, y} coordinates of mouseEvent
+   * @throws {Error} if update failed
    */
   handleMouseUp(point) {
-    if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
-      // Get type of selected element
-      const type = this.selectedElement.dataset.elementType
-      console.log(type)
-      // Get center point of element
+    // If an element was being dragged
+    if (this.isDragging === true && this.selectedElement) {
+      // Get width and height
+      let width = parseFloat(this.selectedElement.style.width)
+      let height = parseFloat(this.selectedElement.style.height)
+
+      // Calculate placement point
       const placementPoint = {
-        x: point.x - this.selectedElement.style.width.replace('px', '') / 2,
-        y: point.y - this.selectedElement.style.height.replace('px', '') / 2,
+        x: point.x - width / 2,
+        y: point.y - height / 2,
       }
 
-      this.updateSelectedElementPosition(placementPoint)
+      // Check placement validity
+      const placementErrorMessage = this.planEditor.commonFunctionsService.checkElementPlacement(
+        placementPoint,
+        this.selectedElement,
+        width,
+        height
+      )
+
+      // If there is no error message, placement is ok
+      if (!placementErrorMessage && this.draggedElement) {
+        // -- Reinsert element to placed elements array
+        // Update coordinates
+        this.draggedElement.x = placementPoint.x
+        this.draggedElement.y = placementPoint.y
+
+        // Update database
+        this.updateElementPositionInBack(
+          this.selectedElement.dataset.elementId,
+          placementPoint.x,
+          placementPoint.y
+        )
+
+        // Reinsert into array
+        // (Replace the element currently at index 'this.elementIndex' by 'this.draggedElement')
+        this.planEditor.placedElements.splice(this.elementIndex, 0, this.draggedElement)
+
+        // Handle Front-end change
+        this.selectedElement.classList.remove('moving', 'valid-placement')
+        this.selectedElement.style.left = `${placementPoint.x}px`
+        this.selectedElement.style.top = `${placementPoint.y}px`
+
+        // Reset states
+        this.isDragging = false
+        this.draggedElement = null
+        this.elementIndex = null
+        this.selectedElement = null
+        this.hideMenu()
+      } else {
+        // If there a is an error message, placement is not ok, show error and reset placement
+
+        this.planEditor.commonFunctionsService.showPlacementError(
+          placementErrorMessage,
+          this.selectedElement
+        )
+        this.resetElementPlacement(this.selectedElement)
+        return
+      }
     }
+  }
+
+  async updateElementPositionInBack(elementId, x, y) {
+    try {
+      const response = await fetch(`/api/elements/${elementId}/position`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          positionX: x,
+          positionY: y,
+        }),
+      })
+      if (!response.ok) {
+        console.error('Failed to update element position:', await response.json())
+      }
+    } catch (error) {
+      console.error('Error updating element position:', error)
+    }
+  }
+  //_____________________________________________________________________________________________________________resetElementPlacement
+  /**
+   * Reset element placement in case of wrong new placement
+   * @param {Object} element dragged element that needs to reset
+   */
+  resetElementPlacement(element) {
+    // Put dragged element back into placed elements array
+    if (this.draggedElement && this.elementIndex !== null) {
+      this.planEditor.placedElements.splice(this.elementIndex, 0, this.draggedElement)
+    }
+
+    // Reset placement
+    element.style.left = `${this.draggedElement.x}px`
+    element.style.top = `${this.draggedElement.y}px`
+    element.classList.remove('moving', 'invalid-placement')
+
+    // Reset states
+    this.isDragging = false
+    this.selectedElement = null
+    this.draggedElement = null
+    this.elementIndex = null
+    this.hideMenu()
   }
 
   //_____________________________________________________________________________________________________________initializeMenu

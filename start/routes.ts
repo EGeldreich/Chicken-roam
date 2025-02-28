@@ -23,7 +23,7 @@ router.get('/home', [HomeController, 'homePage']).as('home')
 // ELEMENTS
 router.post('/api/elements', [ElementsController, 'create'])
 router.get('/api/elements/:planId', [ElementsController, 'getByPlan'])
-// router.patch('/api/elements/:id', [ElementsController, 'update'])
+router.patch('/api/elements/:id/position', [ElementsController, 'updatePosition'])
 router.delete('/api/elements/:id', [ElementsController, 'delete'])
 
 // FENCES
