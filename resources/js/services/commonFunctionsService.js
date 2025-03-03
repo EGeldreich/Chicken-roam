@@ -168,14 +168,21 @@ export default class CommonFunctionsService {
   //_____________________________________________________________________________________________________________isEnclosureComplete
   /**
    * Check if an enclosure is complete (all vertices have exactly 2 connections)
-   * @param {Map} vertexConnections  Map of vertex positions to connection counts
+   * @param {Map} vertexConnections  Map of vertex IDs to vertex data id => {x, y, connections}
    * @returns {Boolean} True if enclosure is complete
    */
   isEnclosureComplete(vertexConnections) {
+    // With less than 3 connections, cannot be complete
+    if (vertexConnections.size < 3) {
+      return false
+    }
+
     let hasOpenConnections = false
 
-    vertexConnections.forEach((connections) => {
-      if (connections !== 2) {
+    // For each vertex
+    vertexConnections.forEach((vertexData) => {
+      // Check for exactly 2 connections
+      if (vertexData.connections !== 2) {
         hasOpenConnections = true
       }
     })

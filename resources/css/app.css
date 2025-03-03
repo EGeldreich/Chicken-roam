@@ -50,6 +50,15 @@
   .selected {
     @apply border-3 border-green-800;
   }
+  /*  */
+  /* POINTS */
+  /*  */
+  .connection-point {
+    @apply h-3 w-3 rounded-full bg-blue-500 absolute transform -translate-x-1/2 -translate-y-1/2;
+  }
+  .movable-point {
+    @apply h-3 w-3 rounded-full bg-orange-500 absolute transform -translate-x-1/2 -translate-y-1/2;
+  }
 }
 
 body {

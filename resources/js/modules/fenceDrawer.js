@@ -6,7 +6,9 @@ export default class FenceDrawer {
     this.planEditor = planEditor // Reference planEditor for useful methods
 
     this.vertices = new Map() // Initialize Map() so we can store coordinates and number of fences linked
+    // (123, {x: 100, y: 200, connections: 2})  // id => {x, y, connections}
     this.connectionPoints = [] // Initialize empty array for connection points
+    this.movablePoints = [] // Initialize empty array for movable points
     this.enclosureSnapDistance = 50 // Distance in pixels to snap to first vertex
     this.EPSILON = 1 // Margin of error value
     this.MIN_ANGLE_DEG = 15 // Minimum angle between 2 consecutive fences
@@ -42,6 +44,8 @@ export default class FenceDrawer {
       this.vertices.clear()
       this.connectionPoints.forEach((point) => point.remove())
       this.connectionPoints = []
+      this.movablePoints.forEach((point) => point.remove())
+      this.movablePoints = []
 
       // Remove all existing fence elements from the DOM
       const existingFences = this.canvas.querySelectorAll('.fence')
@@ -56,7 +60,7 @@ export default class FenceDrawer {
         this.trackVertex(fence.vertexEnd)
       })
 
-      this.updateConnectionPoints()
+      this.updatePoints()
     }
   }
 
@@ -64,82 +68,82 @@ export default class FenceDrawer {
   /**
    * Fills up vertices Map() with (key,connections) in the form of ('100,200', 2)
    * Where '100' is X coords, '200' is Y coords, and '2' is the number of fences using that vertex
-   * @param {Object} vertex Object containing vertex coordinates {x, y}
+   * @param {Object} vertex Vertex Object {id: 126, positionX: '326.00', positionY: '530.00', planId: 9}
    */
   trackVertex(vertex) {
     // Normalize coordinates to integers
     const x = Math.round(parseFloat(vertex.positionX))
     const y = Math.round(parseFloat(vertex.positionY))
+    // Get Vertex id
+    const id = vertex.id
 
-    // Seek out 'almost indentical' vertex
-    let existingKey = null
-    this.vertices.forEach((connections, key) => {
-      // Get coordinates from the key
-      const [existingX, existingY] = key.split(',').map(Number)
-      // Compare existing Vertex and potential new one with epsilon
-      if (Math.abs(existingX - x) < this.EPSILON && Math.abs(existingY - y) < this.EPSILON) {
-        existingKey = key
-      }
-    })
-
-    // If we found a indentical Vertex
-    if (existingKey) {
-      // Use it and increment connections
-      const connections = this.vertices.get(existingKey)
-      this.vertices.set(existingKey, connections + 1)
+    // If the vertex is already in the map
+    if (this.vertices.has(id)) {
+      // Increment connection
+      const vertexData = this.vertices.get(id)
+      vertexData.connections += 1
     } else {
-      // Create new vertex
-      const key = `${x},${y}`
-      this.vertices.set(key, 1)
+      // If not, create new one
+      this.vertices.set(id, {
+        x,
+        y,
+        connections: 1,
+      })
     }
   }
-  //
-  //
-  //
-  //_____________________________________________________________________________________________________________updateConnectionPoints
+
+  //_____________________________________________________________________________________________________________updatePoints
   /**
-   * Update the connections points availability and number of connections
+   * Update the connections and movable points availability and number of connections
    * Connection points are used as starting point for any fence that isn't the first, and as closure point
-   * Calls addConnectionPoints() to render them
+   * Movable points are used to move fences
+   * Calls addConnectionPoints() and addMovablePoints() to render them
    */
-  updateConnectionPoints() {
-    // Remove connection points from html (point in an HTML element because that's what is pushed in the array)
+  updatePoints() {
+    // Remove connection points from html (point is an HTML element because that's what is pushed in the array)
     this.connectionPoints.forEach((point) => point.remove())
+    this.movablePoints.forEach((point) => point.remove())
     // Set connectionPoints as empty array
     this.connectionPoints = []
+    this.movablePoints = []
 
     // Check each vertex from the vertices Map()
-    this.vertices.forEach((connections, position) => {
-      // If there is less that 2 fences using a vertex
-      if (connections < 2) {
-        // Get x and Y coords from the vertex position
-        const [x, y] = position.split(',').map(Number)
-        // Call addConnectionPoint function with coordinates
-        this.addConnectionPoint(x, y)
-      }
+    this.vertices.forEach((vertexData, id) => {
+      // Get x and Y coords
+      const { x, y, connections } = vertexData
+
+      // Add point depending on connections
+      this.addPoint(x, y, connections, id)
     })
   }
 
-  //_____________________________________________________________________________________________________________addConnectionPoint
+  //_____________________________________________________________________________________________________________addPoint
   /**
-   * Create connection points HTML elements and style them
-   * Called in updateConnectionPoints()
+   * Create points HTML elements and style them
+   * Called in updatePoints()
    * @param {Number} x X coordinate of connection point
    * @param {Number} y Y coordinate of connection point
+   * @param {Number} connections number of connected fences to the point
+   * @param {Number} id vertex id in DB
    */
-  addConnectionPoint(x, y) {
+  addPoint(x, y, connections, id) {
     // Create div element
     const point = document.createElement('div')
-    // Give it classes
-    point.className =
-      'h-3 w-3 rounded-full bg-blue-500 absolute transform -translate-x-1/2 -translate-y-1/2'
+    // Add data attribute
+    point.dataset.vertexId = id
     // Set it's position
     point.style.left = `${x}px`
     point.style.top = `${y}px`
+    // Give it correct class, and push into correct array
+    if (connections < 2) {
+      point.className = 'connection-point'
+      this.connectionPoints.push(point)
+    } else {
+      point.className = 'movable-point selectable'
+      this.movablePoints.push(point)
+    }
     // Append to canvas
     this.canvas.appendChild(point)
-    // Push into connectionPoints array
-    this.connectionPoints.push(point)
   }
 
   //_____________________________________________________________________________________________________________findNearestConnectionPoint
@@ -158,11 +162,10 @@ export default class FenceDrawer {
     let minDistance = snapDistance
 
     // For each vertex
-    this.vertices.forEach((connections, position) => {
+    this.vertices.forEach((vertexData, id) => {
+      const { x, y, connections } = vertexData
       // If there is less than 2 connections
       if (connections < 2) {
-        // Get x and Y coords from the vertex position
-        const [x, y] = position.split(',').map(Number)
         // Calculate distance to vertex
         const distance = Math.sqrt(Math.pow(point.x - x, 2) + Math.pow(point.y - y, 2))
 
@@ -178,10 +181,7 @@ export default class FenceDrawer {
     // Return coordinates of nearest connection point
     return nearest
   }
-  //
-  //
-  //
-  //
+
   //_____________________________________________________________________________________________________________handleMouseDown
   /**
    * Handle mouse down event, mostly check conditions
@@ -379,20 +379,16 @@ export default class FenceDrawer {
           // Set isFirstFence to false
           this.isFirstFence = false
           // Handle newly created fence's vertices
-          this.trackVertex({
-            positionX: Math.round(this.drawStartPoint.x),
-            positionY: Math.round(this.drawStartPoint.y),
-          })
-          this.trackVertex({
-            positionX: Math.round(endPoint.x),
-            positionY: Math.round(endPoint.y),
-          })
-          // Upodate
-          this.updateConnectionPoints()
+          this.trackVertex(responseData.vertexStart)
+          this.trackVertex(responseData.vertexEnd)
+          // Upodate points
+          this.updatePoints()
           // Transform classes to permanent ones
-          this.temporaryFence.className = 'fence element'
+          this.temporaryFence.className = 'fence selectable'
           // Add a dataset id
           this.temporaryFence.dataset.fenceId = responseData.id
+          this.temporaryFence.dataset.vertexStartId = responseData.vertexStart.id
+          this.temporaryFence.dataset.vertexEndId = responseData.vertexEnd.id
 
           // Use hasFormedEnclosure to check if the enclosure is now closed
           if (this.hasFormedEnclosure()) {
@@ -428,8 +424,10 @@ export default class FenceDrawer {
     // Create a fence HTML element
     const fenceElement = document.createElement('div')
     // Add classes and dataset
-    fenceElement.className = 'fence element'
+    fenceElement.className = 'fence selectable'
     fenceElement.dataset.fenceId = fenceData.id
+    fenceElement.dataset.vertexStartId = fenceData.vertexStartId
+    fenceElement.dataset.vertexEndId = fenceData.vertexEndId
 
     // Get start and end positions from the fence data
     const startX = parseFloat(fenceData.vertexStart.positionX)

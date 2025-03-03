@@ -212,7 +212,7 @@ export default class ElementDrawer {
    */
   renderPlacedElement(elementData) {
     const element = document.createElement('div')
-    element.className = `${elementData.type} element`
+    element.className = `${elementData.type} selectable`
     element.dataset.elementId = elementData.id
     element.dataset.elementType = elementData.type
 

@@ -56,7 +56,7 @@ export default class Selector {
     // Get targeted element from event target
     const targetElement = event.target
     // If the targeted element is an element or a fence
-    if (targetElement && targetElement.classList.contains('element')) {
+    if (targetElement && targetElement.classList.contains('selectable')) {
       this.selectedElement = targetElement
       this.selectedElement.classList.add('selected')
       this.showMenu(this.selectedElement)
@@ -73,55 +73,156 @@ export default class Selector {
    */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
+      // Fence cannot be moved
+      if (this.selectedElement.classList.contains('fence')) {
+        return
+      }
+
       // Add styling class to element
       this.selectedElement.classList.add('moving')
 
-      // Logic to avoid selected object having collision with itself
-      if (!this.isDragging) {
-        this.isDragging = true
+      // ELEMENT ONLY
+      if (!this.selectedElement.classList.contains('movable-point')) {
+        // Get relevant data
+        let width = parseFloat(this.selectedElement.style.width)
+        let height = parseFloat(this.selectedElement.style.height)
 
-        // Get selected element dataset id
-        const elementId = parseInt(this.selectedElement.dataset.elementId)
-        // Find that same element in placedElements array
-        this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
-
-        if (this.elementIndex !== -1) {
-          // Remove element and store it as dragged element
-          this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
+        // Get center point of element
+        const placementPoint = {
+          x: point.x - width / 2,
+          y: point.y - height / 2,
         }
+
+        // Logic to avoid selected object having collision with itself
+        if (!this.isDragging) {
+          this.isDragging = true
+
+          // Get selected element dataset id
+          const elementId = parseInt(this.selectedElement.dataset.elementId)
+          // Find that same element in placedElements array
+          this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
+
+          if (this.elementIndex !== -1) {
+            // Remove element and store it as dragged element
+            this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
+          }
+        }
+        // Constantly update selected element position
+        this.updateSelectedElementPosition(placementPoint)
+
+        // Update visual display of moving element
+        this.planEditor.commonFunctionsService.checkElementPlacement(
+          placementPoint,
+          this.selectedElement,
+          width,
+          height
+        )
+        // FENCE INTERSECTIONS ONLY
+      } else {
+        if (!this.isDragging) {
+          this.isDragging = true
+          this.draggedElement = this.selectedElement
+        }
+        // Get vertex id
+        const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+
+        // Update visual display of fences
+        this.updateSelectedVertexPosition(vertexId, point)
       }
-
-      let width = parseFloat(this.selectedElement.style.width)
-      let height = parseFloat(this.selectedElement.style.height)
-      // Get center point of element
-      const placementPoint = {
-        x: point.x - width / 2,
-        y: point.y - height / 2,
-      }
-
-      // Constantly update selected element position
-      this.updateSelectedElementPosition(placementPoint)
-
-      // Update visual display of moving element
-      this.planEditor.commonFunctionsService.checkElementPlacement(
-        placementPoint,
-        this.selectedElement,
-        width,
-        height
-      )
     }
   }
 
   //_____________________________________________________________________________________________________________updateTemporaryElementPosition
   /**
    * Update position of selected element to follow mouse cursor
-   * @param {Object} point {x, y} coordinates of mouseEvent
+   * @param {Object} placementPoint {x, y} coordinates of mouseEvent taking width and height into account
    */
-  updateSelectedElementPosition(point) {
+  updateSelectedElementPosition(placementPoint) {
     if (!this.selectedElement) return
 
+    this.selectedElement.style.left = `${placementPoint.x}px`
+    this.selectedElement.style.top = `${placementPoint.y}px`
+  }
+
+  //_____________________________________________________________________________________________________________updateSelectedVertexPosition
+  /**
+   * Move selected vertex and linked fences
+   * @param {Number} vertexId Id of moved vertex
+   * @param {Object} point {x, y} coordinates of mouseEvent
+   */
+  updateSelectedVertexPosition(vertexId, point) {
+    if (!this.selectedElement) return
+    // Move point itself
     this.selectedElement.style.left = `${point.x}px`
     this.selectedElement.style.top = `${point.y}px`
+
+    // Find all linked fences
+    const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter((fence) => {
+      // Find fence's vertices
+      const vertexStartId = parseInt(fence.dataset.vertexStartId)
+      const vertexEndId = parseInt(fence.dataset.vertexEndId)
+
+      // Check for correspondance with selected vertex
+      return vertexStartId === vertexId || vertexEndId === vertexId
+    })
+
+    // For both linked fence
+    connectedFences.forEach((fence) => {
+      // Check if the vertex is the starting point of the fence
+      const isStartVertex = parseInt(fence.dataset.vertexStartId) === vertexId
+
+      if (isStartVertex) {
+        // If it is the start vertex, we need to
+        // 1. Get end point coordinates
+        // 2. Update starting point
+        // 3. Constantly update length and angle
+
+        // 1. Get end point coordinates
+        // Get relevant data from current style
+        const currentAngle = parseFloat(
+          fence.style.transform.replace('rotate(', '').replace('deg)', '')
+        )
+        const currentLength = parseFloat(fence.style.width)
+        const currentStartX = parseFloat(fence.style.left)
+        const currentStartY = parseFloat(fence.style.top)
+
+        // Calculate end point
+        const angleRad = currentAngle * (Math.PI / 180)
+        const endX = currentStartX + Math.cos(angleRad) * currentLength
+        const endY = currentStartY + Math.sin(angleRad) * currentLength
+
+        // Update starting point
+        fence.style.left = `${point.x}px`
+        fence.style.top = `${point.y}px`
+
+        // Recalculate length and angle
+        const deltaX = endX - point.x
+        const deltaY = endY - point.y
+        const newLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+        const newAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
+
+        // Constantly update length and angle
+        fence.style.width = `${newLength}px`
+        fence.style.transform = `rotate(${newAngle}deg)`
+        //
+      } else {
+        // If it's not the starting point, it is the end, just need to calculate new length and angle
+        const startX = parseFloat(fence.style.left)
+        const startY = parseFloat(fence.style.top)
+
+        // Calculate new length
+        const deltaX = point.x - startX
+        const deltaY = point.y - startY
+        const newLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
+
+        // Calculate new angle
+        const newAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
+
+        // Update with new datas
+        fence.style.width = `${newLength}px`
+        fence.style.transform = `rotate(${newAngle}deg)`
+      }
+    })
   }
 
   //_____________________________________________________________________________________________________________handleMouseUp
