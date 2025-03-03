@@ -232,9 +232,12 @@ export default class Selector {
    * @throws {Error} if update failed
    */
   handleMouseUp(point) {
-    // If an element was being dragged
-    if (this.isDragging === true && this.selectedElement) {
-      // Get width and height
+    // If not currentlu dragging, get out
+    if (!this.isDragging === true && !this.selectedElement) return
+
+    // ELEMENTS ONLY
+    if (!this.selectedElement.classList.contains('movable-point')) {
+      // Get width and height of selected element
       let width = parseFloat(this.selectedElement.style.width)
       let height = parseFloat(this.selectedElement.style.height)
 
@@ -291,9 +294,29 @@ export default class Selector {
         this.resetElementPlacement(this.selectedElement)
         return
       }
+    } else {
+      // FENCE INTERSECTION
+      this.updateVertexPositionInBack(this.selectedElement.dataset.vertexId, point.x, point.y)
+
+      // Handle Front-end change
+      this.selectedElement.classList.remove('moving')
+
+      // Reset states
+      this.isDragging = false
+      this.draggedElement = null
+      this.elementIndex = null
+      this.selectedElement = null
+      this.hideMenu()
     }
   }
 
+  //_____________________________________________________________________________________________________________updateElementPositionInBack
+  /**
+   * Patch the element position in DB
+   * @param {Number} elementId id of the element to update
+   * @param {Number} x new coordinate on x axis
+   * @param {Number} y new coordinate on y axis
+   */
   async updateElementPositionInBack(elementId, x, y) {
     try {
       const response = await fetch(`/api/elements/${elementId}/position`, {
@@ -314,6 +337,35 @@ export default class Selector {
       console.error('Error updating element position:', error)
     }
   }
+
+  //_____________________________________________________________________________________________________________updateVertexPositionInBack
+  /**
+   * Patch the vertex position in DB
+   * @param {Number} vertexId id of the vertex to update
+   * @param {Number} x new coordinate on x axis
+   * @param {Number} y new coordinate on y axis
+   */
+  async updateVertexPositionInBack(vertexId, x, y) {
+    try {
+      const response = await fetch(`/api/vertices/${vertexId}/position`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          positionX: x,
+          positionY: y,
+        }),
+      })
+      if (!response.ok) {
+        console.error('Failed to update vertex position:', await response.json())
+      }
+    } catch (error) {
+      console.error('Error updating vertex position:', error)
+    }
+  }
+
   //_____________________________________________________________________________________________________________resetElementPlacement
   /**
    * Reset element placement in case of wrong new placement

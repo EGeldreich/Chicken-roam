@@ -16,6 +16,7 @@ import HomeController from '#controllers/home_controller'
 import PlansController from '#controllers/plans_controller'
 import ElementsController from '#controllers/elements_controller'
 import FencesController from '#controllers/fences_controller'
+import VerticesController from '#controllers/vertices_controller'
 
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
@@ -31,6 +32,9 @@ router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
 router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
+
+// VERTICES
+router.patch('/api/vertices/:id/position', [VerticesController, 'updatePosition'])
 
 // NEED GUEST
 router
