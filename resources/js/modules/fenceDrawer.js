@@ -532,8 +532,6 @@ export default class FenceDrawer {
         const areaCompletion = responseData.areaCompletion
         const newState = responseData.newState || 'enclosed'
 
-        console.log('area Completion:' + areaCompletion)
-
         // Add visual feedback
         this.canvas.classList.add('enclosure-complete')
 

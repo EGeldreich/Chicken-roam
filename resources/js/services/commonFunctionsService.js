@@ -93,7 +93,6 @@ export default class CommonFunctionsService {
     return orderedVertices
   }
 
-  //_____________________________________________________________________________________________________________getFenceEndpoints
   /**
    * Get endpoints of a fence element
    * @param {Element} fence DOM element representing a fence
@@ -115,7 +114,6 @@ export default class CommonFunctionsService {
     }
   }
 
-  //_____________________________________________________________________________________________________________calculateEnclosedArea
   /**
    * Use service method to define fences order, and calculate enclosed area as a polygon
    * @returns {Number} area in square meters
@@ -134,7 +132,6 @@ export default class CommonFunctionsService {
     return areaInSquareMeters
   }
 
-  //_____________________________________________________________________________________________________________calculateArea
   /**
    * Calculate area of a polygon using Shoelace formula
    * @param {Array} vertices Array of [x, y] coordinates
@@ -158,7 +155,6 @@ export default class CommonFunctionsService {
     return area / (pixelsPerMeter * pixelsPerMeter)
   }
 
-  //_____________________________________________________________________________________________________________isPointInPolygon
   /**
    * Check if a point is inside a polygon
    * @param {Object} point Point to check {x, y}
@@ -184,7 +180,6 @@ export default class CommonFunctionsService {
     return inside
   }
 
-  //_____________________________________________________________________________________________________________isEnclosureComplete
   /**
    * Check if an enclosure is complete (all vertices have exactly 2 connections)
    * @param {Map} vertexConnections  Map of vertex IDs to vertex data id => {x, y, connections}
@@ -209,7 +204,6 @@ export default class CommonFunctionsService {
     return !hasOpenConnections && vertexConnections.size > 2
   }
 
-  //_____________________________________________________________________________________________________________updateObjectivesDisplay
   /**
    * Update the textContent of the objectives
    * Called in placeElement()
@@ -225,7 +219,6 @@ export default class CommonFunctionsService {
     })
   }
 
-  //_____________________________________________________________________________________________________________wouldOverlap
   /**
    * Method to avoid overlapping
    * Called in placeElement()
@@ -272,7 +265,6 @@ export default class CommonFunctionsService {
     return false // No collision
   }
 
-  //_____________________________________________________________________________________________________________checkLineIntersection
   /**
    * Helper method to  check if two lines intersect
    * @param {number} x1 - First segment starting point X coordinate
@@ -317,7 +309,6 @@ export default class CommonFunctionsService {
     )
   }
 
-  //_____________________________________________________________________________________________________________wouldOverlapFence
   /**
    * Check if an element would overlap with fences
    * Called in placeElement()
@@ -412,7 +403,6 @@ export default class CommonFunctionsService {
     return false // No collision
   }
 
-  //_____________________________________________________________________________________________________________checkElementPlacement
   /**
    * Check if an element placement pass tests and add classes accordingly
    * @param {Object} point Object containing top-left corner coordinates {x, y}
@@ -455,7 +445,6 @@ export default class CommonFunctionsService {
     return message
   }
 
-  //_____________________________________________________________________________________________________________showPlacementError
   /**
    * Display an error feedback as an error toast
    * @param {String} message Text content of the message

@@ -11,13 +11,14 @@ export default class Selector {
     this.isDragging = false
     this.elementIndex = null // store moved element index
     this.draggedElement = null // Used to store element while it is out of placedElement
+    this.mouseDownTime = null // Used to start dragging only after a certain time
+    this.dragDelay = 100 // Delay before dragging in ms
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
     this.initializeMenu()
   }
 
-  //_____________________________________________________________________________________________________________startUsing
   /**
    * Change isUsing state
    */
@@ -25,7 +26,6 @@ export default class Selector {
     this.isUsing = true
   }
 
-  //_____________________________________________________________________________________________________________stopUsing
   /**
    * Deselect any selected element, and reset states to default
    * @param {Object} point
@@ -39,7 +39,6 @@ export default class Selector {
     this.selectedElement = null
   }
 
-  //_____________________________________________________________________________________________________________selectElement
   /**
    * Handle selection of targeted element, add style for better visualization
    * @param {MouseEvent} event - sent by PlanEditor handleMouseDown
@@ -47,94 +46,119 @@ export default class Selector {
   selectElement(event) {
     if (!this.isUsing) return
 
-    console.log(this.selectedElement)
     // Remove previous selection
     if (this.selectedElement) {
       this.selectedElement.classList.remove('selected')
     }
 
+    // Get delete btn, needed to create exception
     const deleteBtn = this.menu.querySelector('.delete-btn')
+
     // Get targeted element from event target
     const targetElement = event.target
-    console.log('target: ' + targetElement)
+
     // If the targeted element is an element or a fence
     if (targetElement && targetElement.classList.contains('selectable')) {
+      // Set selected element
       this.selectedElement = targetElement
+      // Add styling class
       this.selectedElement.classList.add('selected')
-      this.showMenu(this.selectedElement)
+      // Store time
+      this.mouseDownTime = Date.now()
+
+      if (!this.selectedElement.classList.contains('movable-point')) {
+        // Do not display menu for movable points
+        this.showMenu(this.selectedElement)
+      }
     } else if (targetElement !== deleteBtn) {
+      // Deselect and hide menu if click on nothing
       this.hideMenu()
       this.selectedElement = null
     }
   }
 
-  //_____________________________________________________________________________________________________________handleMouseMove
   /**
    * Handle movement of selected element
    * @param {Object} point {x, y} coordinates of mouseEvent
    */
   handleMouseMove(point) {
+    // Check if in canvas, correct tool, and an element is selected
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
-      // Fence cannot be moved
+      //
+      // Fences cannot be moved
       if (this.selectedElement.classList.contains('fence')) {
         return
       }
 
-      // Add styling class to element
-      this.selectedElement.classList.add('moving')
+      // Check drag delay
+      if (!this.isDragging && this.mouseDownTime) {
+        const elapsedTime = Date.now() - this.mouseDownTime
 
-      // ELEMENT ONLY
+        // Get out if it's to soon to start moving
+        if (elapsedTime < this.dragDelay) {
+          return
+        }
+
+        // If here, delay is long enough
+
+        // Add styling class to element
+        this.selectedElement.classList.add('moving')
+        // change is dragging state
+        this.isDragging = true
+      }
+
+      // Set correct dragged element
+      // and if it's an element, remove it from placedElement array to avoid collision with itself
       if (!this.selectedElement.classList.contains('movable-point')) {
-        // Get relevant data
-        let width = parseFloat(this.selectedElement.style.width)
-        let height = parseFloat(this.selectedElement.style.height)
-
-        // Get center point of element
-        const placementPoint = {
-          x: point.x - width / 2,
-          y: point.y - height / 2,
+        // Get selected element dataset id
+        const elementId = parseInt(this.selectedElement.dataset.elementId)
+        // Find that same element in placedElements array
+        this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
+        // Remove element and store it as dragged element
+        if (this.elementIndex !== -1) {
+          this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
         }
-
-        // Logic to avoid selected object having collision with itself
-        if (!this.isDragging) {
-          this.isDragging = true
-
-          // Get selected element dataset id
-          const elementId = parseInt(this.selectedElement.dataset.elementId)
-          // Find that same element in placedElements array
-          this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
-
-          if (this.elementIndex !== -1) {
-            // Remove element and store it as dragged element
-            this.draggedElement = this.planEditor.placedElements.splice(this.elementIndex, 1)[0]
-          }
-        }
-        // Constantly update selected element position
-        this.updateSelectedElementPosition(placementPoint)
-
-        // Update visual display of moving element
-        this.planEditor.commonFunctionsService.checkElementPlacement(
-          placementPoint,
-          this.selectedElement,
-          width,
-          height
-        )
-        // FENCE INTERSECTIONS ONLY
       } else {
-        if (!this.isDragging) {
-          this.isDragging = true
-          this.draggedElement = this.selectedElement
-        }
-        // Get vertex id
-        const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+        // dragged element is a fence intersection
+        this.draggedElement = this.selectedElement
+      }
 
-        // Update visual display of fences
-        this.updateSelectedVertexPosition(vertexId, point)
+      if (this.isDragging) {
+        // BASIC ELEMENTS
+        if (!this.selectedElement.classList.contains('movable-point')) {
+          // Get relevant data
+          let width = parseFloat(this.selectedElement.style.width)
+          let height = parseFloat(this.selectedElement.style.height)
+          // Get center point of element
+          const placementPoint = {
+            x: point.x - width / 2,
+            y: point.y - height / 2,
+          }
+          // Constantly update selected element position
+          this.updateSelectedElementPosition(placementPoint)
+          // Update visual display of moving element
+          this.planEditor.commonFunctionsService.checkElementPlacement(
+            placementPoint,
+            this.selectedElement,
+            width,
+            height
+          )
+          // FENCE INTERSECTIONS
+        } else {
+          if (!this.isDragging) {
+            this.isDragging = true
+            this.draggedElement = this.selectedElement
+          }
+          // Get vertex id
+          const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+
+          // Update visual display of fences
+          this.updateSelectedVertexPosition(vertexId, point)
+        }
       }
     }
   }
 
-  //_____________________________________________________________________________________________________________updateTemporaryElementPosition
   /**
    * Update position of selected element to follow mouse cursor
    * @param {Object} placementPoint {x, y} coordinates of mouseEvent taking width and height into account
@@ -146,7 +170,6 @@ export default class Selector {
     this.selectedElement.style.top = `${placementPoint.y}px`
   }
 
-  //_____________________________________________________________________________________________________________updateSelectedVertexPosition
   /**
    * Move selected vertex and linked fences
    * @param {Number} vertexId Id of moved vertex
@@ -227,13 +250,14 @@ export default class Selector {
     })
   }
 
-  //_____________________________________________________________________________________________________________handleMouseUp
   /**
    * Handle new placement of element
    * @param {Object} point {x, y} coordinates of mouseEvent
    * @throws {Error} if update failed
    */
   handleMouseUp(point) {
+    // Reset drag delay
+    this.mouseDownTime = null
     // If not currently dragging, get out
     if (!this.isDragging === true || !this.selectedElement) return
 
@@ -314,7 +338,6 @@ export default class Selector {
     }
   }
 
-  //_____________________________________________________________________________________________________________updateElementPositionInBack
   /**
    * Patch the element position in DB
    * @param {Number} elementId id of the element to update
@@ -342,7 +365,6 @@ export default class Selector {
     }
   }
 
-  //_____________________________________________________________________________________________________________updateVertexPositionInBack
   /**
    * Patch the vertex position in DB
    * @param {Number} vertexId id of the vertex to update
@@ -372,7 +394,6 @@ export default class Selector {
     }
   }
 
-  //_____________________________________________________________________________________________________________resetElementPlacement
   /**
    * Reset element placement in case of wrong new placement
    * @param {Object} element dragged element that needs to reset
@@ -396,7 +417,6 @@ export default class Selector {
     this.hideMenu()
   }
 
-  //_____________________________________________________________________________________________________________initializeMenu
   /**
    * Initialize event listener of delete menu
    * Also initialize Del and Backspace keys to delete selected element
@@ -414,7 +434,6 @@ export default class Selector {
     }
   }
 
-  //_____________________________________________________________________________________________________________showMenu
   /**
    * Remove hidden class of menu when called
    */
@@ -425,7 +444,6 @@ export default class Selector {
     this.menu.classList.remove('hidden')
   }
 
-  //_____________________________________________________________________________________________________________hideMenu
   /**
    * Add the hidden class to menu when called
    * @param {Object} point
@@ -434,7 +452,6 @@ export default class Selector {
     this.menu.classList.add('hidden')
   }
 
-  //_____________________________________________________________________________________________________________handleDelete
   /**
    * Delete element from Database and from DOM
    * @throws {Error} error on deletion
