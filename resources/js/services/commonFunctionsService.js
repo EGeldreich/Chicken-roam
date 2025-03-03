@@ -334,73 +334,83 @@ export default class CommonFunctionsService {
       // Get endpoints
       const endpoints = this.getFenceEndpoints(fence)
 
-      // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
-      const fenceBounds = {
-        left: Math.min(endpoints.start.x, endpoints.end.x),
-        top: Math.min(endpoints.start.y, endpoints.end.y),
-        right: Math.max(endpoints.start.x, endpoints.end.x),
-        bottom: Math.max(endpoints.start.y, endpoints.end.y),
-      }
-
-      // If the element rectangle does not intersect with any fence-rectangles, obviously no overlap, skip more precise test
-      if (
-        newElement.right < fenceBounds.left ||
-        newElement.left > fenceBounds.right ||
-        newElement.bottom < fenceBounds.top ||
-        newElement.top > fenceBounds.bottom
-      ) {
-        continue
-      }
-
-      // Treat each side of the element rectangle as a line, and use commonFunctionsService method to check intersection
-      // A newElement.side is called twice because lines are horizontal or vertical, so either x or y is the same for both points
-      if (
-        this.checkLineIntersection(
-          newElement.left,
-          newElement.top,
-          newElement.right,
-          newElement.top,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.checkLineIntersection(
-          newElement.right,
-          newElement.top,
-          newElement.right,
-          newElement.bottom,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.checkLineIntersection(
-          newElement.right,
-          newElement.bottom,
-          newElement.left,
-          newElement.bottom,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        ) ||
-        this.checkLineIntersection(
-          newElement.left,
-          newElement.bottom,
-          newElement.left,
-          newElement.top,
-          endpoints.start.x,
-          endpoints.start.y,
-          endpoints.end.x,
-          endpoints.end.y
-        )
-      ) {
-        return true // Collision detected
-      }
+      // Check for collision between new element and each fences
+      this.checkElementFenceCollision(endpoints, newElement) // Return true if there is a collision
     }
 
     return false // No collision
+  }
+
+  /**
+   * Check collision between an element and a fence
+   * @param {Object} endpoints {start: {x, y}, end: {x, y}} coordinates of fence endpoints
+   * @param {Object} element HTML Element
+   */
+  checkElementFenceCollision(endpoints, element) {
+    // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
+    const fenceBounds = {
+      left: Math.min(endpoints.start.x, endpoints.end.x),
+      top: Math.min(endpoints.start.y, endpoints.end.y),
+      right: Math.max(endpoints.start.x, endpoints.end.x),
+      bottom: Math.max(endpoints.start.y, endpoints.end.y),
+    }
+
+    // If the element rectangle does not intersect with any fence-rectangles, obviously no overlap, skip more precise test
+    if (
+      element.right < fenceBounds.left ||
+      element.left > fenceBounds.right ||
+      element.bottom < fenceBounds.top ||
+      element.top > fenceBounds.bottom
+    ) {
+      return false // No overlap
+    }
+
+    // Treat each side of the element rectangle as a line, and use commonFunctionsService method to check intersection
+    // A element.side is called twice because lines are horizontal or vertical, so either x or y is the same for both points
+    if (
+      this.checkLineIntersection(
+        element.left,
+        element.top,
+        element.right,
+        element.top,
+        endpoints.start.x,
+        endpoints.start.y,
+        endpoints.end.x,
+        endpoints.end.y
+      ) ||
+      this.checkLineIntersection(
+        element.right,
+        element.top,
+        element.right,
+        element.bottom,
+        endpoints.start.x,
+        endpoints.start.y,
+        endpoints.end.x,
+        endpoints.end.y
+      ) ||
+      this.checkLineIntersection(
+        element.right,
+        element.bottom,
+        element.left,
+        element.bottom,
+        endpoints.start.x,
+        endpoints.start.y,
+        endpoints.end.x,
+        endpoints.end.y
+      ) ||
+      this.checkLineIntersection(
+        element.left,
+        element.bottom,
+        element.left,
+        element.top,
+        endpoints.start.x,
+        endpoints.start.y,
+        endpoints.end.x,
+        endpoints.end.y
+      )
+    ) {
+      return true // Collision detected
+    }
   }
 
   /**
@@ -424,25 +434,205 @@ export default class CommonFunctionsService {
     // First, check enclosure restriction
     if (!wouldBeInside) {
       message = 'Elements must be placed inside the enclosure'
-      element.classList.add('invalid-placement')
-      element.classList.remove('valid-placement')
+      this.invalidPlacement(element)
     }
     // Then check for collision with other elements
     else if (this.wouldOverlap(point, width, height)) {
       message = 'Elements cannot overlap'
-      element.classList.add('invalid-placement')
-      element.classList.remove('valid-placement')
+      this.invalidPlacement(element)
     }
     // Finally check for collision with fences
     else if (this.wouldOverlapFence(point, width, height)) {
       message = 'Elements cannot overlap with fences'
-      element.classList.add('invalid-placement')
-      element.classList.remove('valid-placement')
+      this.invalidPlacement(element)
     } else {
-      element.classList.add('valid-placement')
-      element.classList.remove('invalid-placement')
+      this.validPlacement(element)
     }
     return message
+  }
+
+  /**
+   * Check placement validity when moving fences
+   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   *
+   */
+  checkVertexPlacement(connectedFences) {
+    // Initialize reason message
+    let message = null
+
+    // 1. Check minimal length
+    if (!this.validateLength(connectedFences)) {
+      message = 'Fence is too short'
+      for (let fence of connectedFences) {
+        this.invalidPlacement(fence)
+      }
+    }
+    // 2. Check angles
+    else if (!this.validateAngle(connectedFences)) {
+      message = 'Angle between fences cannot be smaller than 15°'
+      for (let fence of connectedFences) {
+        this.invalidPlacement(fence)
+      }
+    }
+    // 3. Check fences intersections
+    else if (!this.validateIntersections(connectedFences)) {
+      message = 'Fences cannot intersect each other'
+      for (let fence of connectedFences) {
+        this.invalidPlacement(fence)
+      }
+    }
+    // 4. Check for element overlap
+    else if (!this.validateOverlap(connectedFences)) {
+      message = 'Fences and elements cannot overlap'
+      for (let fence of connectedFences) {
+        this.invalidPlacement(fence)
+      }
+    } else {
+      for (let fence of connectedFences) {
+        this.validPlacement(fence)
+      }
+    }
+
+    return message
+  }
+
+  /**
+   * Validate length
+   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   * @returns {Boolean} True if all fences have valid length
+   */
+  validateLength(connectedFences) {
+    for (const fence of connectedFences) {
+      if (parseFloat(fence.style.width) < 10) {
+        return false // Fence is too short
+      }
+    }
+    return true // All fences have valid length
+  }
+
+  /**
+   * Validate angle
+   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   * @returns {Boolean} True if all angles are valid
+   */
+  validateAngle(connectedFences) {
+    const MIN_ANGLE_DEG = 15
+
+    for (let i = 0; i < connectedFences.length; i++) {
+      for (let j = i + 1; j < connectedFences.length; j++) {
+        const endpoints1 = this.getFenceEndpoints(connectedFences[i])
+        const endpoints2 = this.getFenceEndpoints(connectedFences[j])
+
+        // Create vectors from endpoints
+        const vector1 = {
+          x: endpoints1.end.x - endpoints1.start.x,
+          y: endpoints1.end.y - endpoints1.start.y,
+        }
+        const vector2 = {
+          x: endpoints2.end.x - endpoints2.start.x,
+          y: endpoints2.end.y - endpoints2.start.y,
+        }
+
+        // Calculate dot product
+        const dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
+
+        // Calculate magnitudes
+        const magnitude1 = Math.sqrt(vector1.x * vector1.x + vector1.y * vector1.y)
+        const magnitude2 = Math.sqrt(vector2.x * vector2.x + vector2.y * vector2.y)
+
+        // Avoid dividing by 0
+        if (magnitude1 < this.EPSILON || magnitude2 < this.EPSILON) return false
+
+        // Calculate angle
+        const cosAngle = dotProduct / (magnitude1 * magnitude2)
+        const angleRad = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
+        const angleDeg = (angleRad * 180) / Math.PI
+
+        // Check minimal angle
+        if (angleDeg < MIN_ANGLE_DEG) return false
+      }
+    }
+
+    return true // All angles are valid
+  }
+
+  /**
+   * Validate intersections
+   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   * @returns {Boolean} True if no intersections
+   */
+  validateIntersections(connectedFences) {
+    // Get all fence
+    const allFences = Array.from(this.canvas.querySelectorAll('.fence'))
+    // Filter for only non connected fences
+    const nonConnectedFences = allFences.filter((fence) => !connectedFences.includes(fence))
+
+    // Get endpoints for each connected fence
+    for (const connectedFence of connectedFences) {
+      const endpoints1 = this.getFenceEndpoints(connectedFence)
+
+      // Get endpoints of non connected fences
+      for (const otherFence of nonConnectedFences) {
+        const endpoints2 = this.getFenceEndpoints(otherFence)
+
+        // Check intersection for each possibility
+        if (
+          this.checkLineIntersection(
+            endpoints1.start.x,
+            endpoints1.start.y,
+            endpoints1.end.x,
+            endpoints1.end.y,
+            endpoints2.start.x,
+            endpoints2.start.y,
+            endpoints2.end.x,
+            endpoints2.end.y
+          )
+        )
+          return false // Intersection detected
+      }
+    }
+
+    return true // No intersections
+  }
+
+  /**
+   * Validate element overlap
+   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   * @returns {Boolean} True if no overlap
+   */
+  validateOverlap(connectedFences) {
+    // For each element
+    for (const element of this.planEditor.placedElements) {
+      // For both connected fences
+      for (const fence of connectedFences) {
+        // Get endpoints
+        const endpoints = this.getFenceEndpoints(fence)
+
+        const collision = this.checkElementFenceCollision(endpoints, element)
+
+        if (collision) return false // Overlap detected
+      }
+    }
+
+    return true // No overlap
+  }
+
+  /**
+   * Add valid-placement and remove invalid-placement
+   * @param {Object} element HTML element to which add or remove class
+   */
+  validPlacement(element) {
+    element.classList.add('valid-placement')
+    element.classList.remove('invalid-placement')
+  }
+
+  /**
+   * Add invalid-placement and remove valid-placement
+   * @param {Object} element HTML element to which add or remove class
+   */
+  invalidPlacement(element) {
+    element.classList.add('invalid-placement')
+    element.classList.remove('valid-placement')
   }
 
   /**

@@ -152,8 +152,22 @@ export default class Selector {
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
-          // Update visual display of fences
+          // Update position of fences
           this.updateSelectedVertexPosition(vertexId, point)
+
+          // Visual indicators
+          const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter(
+            (fence) => {
+              // Find fence's vertices
+              const vertexStartId = parseInt(fence.dataset.vertexStartId)
+              const vertexEndId = parseInt(fence.dataset.vertexEndId)
+
+              // Check for correspondance with selected vertex
+              return vertexStartId === vertexId || vertexEndId === vertexId
+            }
+          )
+
+          this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
         }
       }
     }
@@ -189,6 +203,26 @@ export default class Selector {
 
       // Check for correspondance with selected vertex
       return vertexStartId === vertexId || vertexEndId === vertexId
+    })
+
+    // Save original positions for eventual reset
+    const originalPositions = {}
+    // Vertex
+    const vertexElement = document.querySelector(`[data-vertex-id="${vertexId}"]`)
+    if (vertexElement) {
+      originalPositions.vertex = {
+        left: vertexElement.style.left,
+        top: vertexElement.style.top,
+      }
+    }
+    // Fences
+    connectedFences.forEach((fence, index) => {
+      originalPositions[index] = {
+        left: fence.style.left,
+        top: fence.style.top,
+        width: fence.style.width,
+        transform: fence.style.transform,
+      }
     })
 
     // For both linked fence
@@ -322,8 +356,75 @@ export default class Selector {
       }
       // ___________FENCE INTERSECTION
     } else {
+      const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+
+      // Find all linked fences
+      const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter((fence) => {
+        // Find fence's vertices
+        const vertexStartId = parseInt(fence.dataset.vertexStartId)
+        const vertexEndId = parseInt(fence.dataset.vertexEndId)
+
+        // Check for correspondance with selected vertex
+        return vertexStartId === vertexId || vertexEndId === vertexId
+      })
+
+      // Save original positions for eventual reset
+      const originalPositions = {}
+      // Vertex
+      const vertexElement = document.querySelector(`[data-vertex-id="${vertexId}"]`)
+      if (vertexElement) {
+        originalPositions.vertex = {
+          left: vertexElement.style.left,
+          top: vertexElement.style.top,
+        }
+      }
+      // Fences
+      connectedFences.forEach((fence, index) => {
+        originalPositions[index] = {
+          left: fence.style.left,
+          top: fence.style.top,
+          width: fence.style.width,
+          transform: fence.style.transform,
+        }
+      })
+
+      // Check placement
+      const displacementErrorMsg =
+        this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
+
+      if (displacementErrorMsg) {
+        // Display error message
+        this.planEditor.commonFunctionsService.showPlacementError(
+          displacementErrorMsg,
+          this.selectedElement
+        )
+
+        // Reset placement
+        // Of vertex
+        if (vertexElement) {
+          vertexElement.style.left = originalPositions.vertex.left
+          vertexElement.style.top = originalPositions.vertex.top
+        }
+        // And fences
+        connectedFences.forEach((fence, index) => {
+          fence.style.left = originalPositions[index].left
+          fence.style.top = originalPositions[index].top
+          fence.style.width = originalPositions[index].width
+          fence.style.transform = originalPositions[index].transform
+        })
+
+        // Reset states
+        this.isDragging = false
+        this.draggedElement = null
+        this.elementIndex = null
+        this.selectedElement = null
+        this.hideMenu()
+        return
+      }
+
+      // If here, everything was validated
       // Update in DB
-      this.updateVertexPositionInBack(this.selectedElement.dataset.vertexId, point.x, point.y)
+      this.updateVertexPositionInBack(vertexId, point.x, point.y)
 
       this.planEditor.commonFunctionsService.calculateEnclosedArea()
       // Handle Front-end change
