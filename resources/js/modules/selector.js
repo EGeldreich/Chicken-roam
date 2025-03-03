@@ -47,6 +47,7 @@ export default class Selector {
   selectElement(event) {
     if (!this.isUsing) return
 
+    console.log(this.selectedElement)
     // Remove previous selection
     if (this.selectedElement) {
       this.selectedElement.classList.remove('selected')
@@ -55,6 +56,7 @@ export default class Selector {
     const deleteBtn = this.menu.querySelector('.delete-btn')
     // Get targeted element from event target
     const targetElement = event.target
+    console.log('target: ' + targetElement)
     // If the targeted element is an element or a fence
     if (targetElement && targetElement.classList.contains('selectable')) {
       this.selectedElement = targetElement
@@ -232,8 +234,8 @@ export default class Selector {
    * @throws {Error} if update failed
    */
   handleMouseUp(point) {
-    // If not currentlu dragging, get out
-    if (!this.isDragging === true && !this.selectedElement) return
+    // If not currently dragging, get out
+    if (!this.isDragging === true || !this.selectedElement) return
 
     // ELEMENTS ONLY
     if (!this.selectedElement.classList.contains('movable-point')) {
@@ -285,21 +287,23 @@ export default class Selector {
         this.selectedElement = null
         this.hideMenu()
       } else {
-        // If there a is an error message, placement is not ok, show error and reset placement
-
+        // If there a is an error message, placement is not ok, show error
         this.planEditor.commonFunctionsService.showPlacementError(
           placementErrorMessage,
           this.selectedElement
         )
+        // and reset placement
         this.resetElementPlacement(this.selectedElement)
         return
       }
+      // ___________FENCE INTERSECTION
     } else {
-      // FENCE INTERSECTION
+      // Update in DB
       this.updateVertexPositionInBack(this.selectedElement.dataset.vertexId, point.x, point.y)
 
+      this.planEditor.commonFunctionsService.calculateEnclosedArea()
       // Handle Front-end change
-      this.selectedElement.classList.remove('moving')
+      this.selectedElement.classList.remove('moving', 'selected')
 
       // Reset states
       this.isDragging = false
@@ -358,7 +362,9 @@ export default class Selector {
           positionY: y,
         }),
       })
-      if (!response.ok) {
+      if (response.ok) {
+        this.planEditor.fenceDrawer.handleEnclosureComplete()
+      } else {
         console.error('Failed to update vertex position:', await response.json())
       }
     } catch (error) {

@@ -115,6 +115,25 @@ export default class CommonFunctionsService {
     }
   }
 
+  //_____________________________________________________________________________________________________________calculateEnclosedArea
+  /**
+   * Use service method to define fences order, and calculate enclosed area as a polygon
+   * @returns {Number} area in square meters
+   */
+  calculateEnclosedArea() {
+    // Get all fences
+    const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
+
+    // Use the service to get ordered vertices
+    const orderedVertices = this.getOrderedVertices(fenceElements)
+
+    // Use the service to calculate area
+    const areaInSquareMeters = this.calculateArea(orderedVertices)
+
+    console.log(`Area in square meters: ${areaInSquareMeters}`)
+    return areaInSquareMeters
+  }
+
   //_____________________________________________________________________________________________________________calculateArea
   /**
    * Calculate area of a polygon using Shoelace formula

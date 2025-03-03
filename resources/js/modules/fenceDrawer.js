@@ -468,7 +468,7 @@ export default class FenceDrawer {
    */
   async handleEnclosureComplete() {
     // Calculate the area
-    const enclosedArea = this.calculateEnclosedArea()
+    const enclosedArea = this.planEditor.commonFunctionsService.calculateEnclosedArea()
 
     // Before sending to the backend, check existing elements if plan was previously broken
     const wasInBrokenState = this.planEditor.planState === 'broken'
@@ -582,25 +582,6 @@ export default class FenceDrawer {
     } catch (error) {
       console.error('Failed to complete enclosure:', error)
     }
-  }
-
-  //_____________________________________________________________________________________________________________calculateEnclosedArea
-  /**
-   * Use service method to define fences order, and calculate enclosed area as a polygon
-   * @returns {Number} area in square meters
-   */
-  calculateEnclosedArea() {
-    // Get all fences
-    const fenceElements = Array.from(this.canvas.querySelectorAll('.fence'))
-
-    // Use the service to get ordered vertices
-    const orderedVertices = this.planEditor.commonFunctionsService.getOrderedVertices(fenceElements)
-
-    // Use the service to calculate area
-    const areaInSquareMeters = this.planEditor.commonFunctionsService.calculateArea(orderedVertices)
-
-    console.log(`Area in square meters: ${areaInSquareMeters}`)
-    return areaInSquareMeters
   }
 
   //_____________________________________________________________________________________________________________arePointsEqual
