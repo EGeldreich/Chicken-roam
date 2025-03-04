@@ -67,7 +67,7 @@ export default class Selector {
       // Store time
       this.mouseDownTime = Date.now()
 
-      if (!this.selectedElement.classList.contains('movable-point')) {
+      if (!this.selectedElement.classList.contains('point')) {
         // Do not display menu for movable points
         this.showMenu(this.selectedElement)
       }
@@ -110,7 +110,7 @@ export default class Selector {
 
       // Set correct dragged element
       // and if it's an element, remove it from placedElement array to avoid collision with itself
-      if (!this.selectedElement.classList.contains('movable-point')) {
+      if (!this.selectedElement.classList.contains('point')) {
         // Get selected element dataset id
         const elementId = parseInt(this.selectedElement.dataset.elementId)
         // Find that same element in placedElements array
@@ -128,7 +128,7 @@ export default class Selector {
 
       if (this.isDragging) {
         // _____________________________________________________________ BASIC ELEMENTS
-        if (!this.selectedElement.classList.contains('movable-point')) {
+        if (!this.selectedElement.classList.contains('point')) {
           // Get relevant data
           let width = parseFloat(this.selectedElement.style.width)
           let height = parseFloat(this.selectedElement.style.height)
@@ -156,8 +156,27 @@ export default class Selector {
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
-          // Update position of vertex
-          this.updateSelectedVertexPosition(vertexId, point)
+          // If the point being moved is a connection point
+          if (this.selectedElement.classList.contains('connection-point')) {
+            // Check for a snap point
+            const snapPoint = this.findNearestOtherConnectionPoint(this.draggedElement, point)
+
+            // Si on a trouvé un point dans la zone de snap, l'utiliser
+            // Sinon utiliser la position de la souris
+            const targetPoint = snapPoint || point
+
+            // Ajouter un feedback visuel au point déplacé
+            if (snapPoint) {
+              this.selectedElement.classList.add('snapping-active')
+            } else {
+              this.selectedElement.classList.remove('snapping-active')
+            }
+            // Update position of vertex to snap
+            this.updateSelectedVertexPosition(vertexId, targetPoint)
+          } else {
+            // Update position of vertex to mouse point
+            this.updateSelectedVertexPosition(vertexId, point)
+          }
 
           // Visual indicators
           const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter(
@@ -170,10 +189,56 @@ export default class Selector {
               return vertexStartId === vertexId || vertexEndId === vertexId
             }
           )
-
-          this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences, vertexPoint)
         }
       }
+    }
+  }
+
+  /**
+   * Seek out the nearest connection point within snap distance
+   * @param {Object} movedPoint point being moved (DOM element)
+   * @param {Object} mousePoint current mouse coordinates {x, y}
+   * @returns {Object} nearest other connection point coordinates or null if none within range
+   */
+  findNearestOtherConnectionPoint(movedPoint, mousePoint) {
+    const snapDistance = 50 // pixels
+
+    // Get all connection points
+    const connectionPoints = Array.from(this.canvas.querySelectorAll('.connection-point'))
+
+    // Filter out the point currently being moved
+    const otherConnectionPoints = connectionPoints.filter((point) => point !== movedPoint)
+
+    // No other connection point found
+    if (otherConnectionPoints.length === 0) return null
+
+    // Seek nearest point
+    let nearestPoint = null
+    let minDistance = Infinity // First seek without limit
+
+    otherConnectionPoints.forEach((point) => {
+      const x = parseFloat(point.style.left)
+      const y = parseFloat(point.style.top)
+
+      // Calculate distance to mouse point
+      const distance = Math.sqrt(Math.pow(x - mousePoint.x, 2) + Math.pow(y - mousePoint.y, 2))
+
+      if (distance < minDistance) {
+        minDistance = distance
+        nearestPoint = {
+          element: point,
+          x: x,
+          y: y,
+          distance: distance,
+        }
+      }
+    })
+
+    // Return a nearest point only if it is in snapDistance
+    if (nearestPoint && nearestPoint.distance <= snapDistance) {
+      return { x: nearestPoint.x, y: nearestPoint.y }
+    } else {
+      return null
     }
   }
 
@@ -308,6 +373,7 @@ export default class Selector {
         fence.style.transform = `rotate(${newAngle}deg)`
       }
     })
+    this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences, point)
   }
 
   /**
@@ -322,7 +388,7 @@ export default class Selector {
     if (!this.isDragging === true || !this.selectedElement) return
 
     // ________________________________________________________________ ELEMENTS ONLY
-    if (!this.selectedElement.classList.contains('movable-point')) {
+    if (!this.selectedElement.classList.contains('point')) {
       // Get width and height of selected element
       let width = parseFloat(this.selectedElement.style.width)
       let height = parseFloat(this.selectedElement.style.height)

@@ -127,8 +127,6 @@ export default class CommonFunctionsService {
 
     // Use the service to calculate area
     const areaInSquareMeters = this.calculateArea(orderedVertices)
-
-    console.log(`Area in square meters: ${areaInSquareMeters}`)
     return areaInSquareMeters
   }
 
@@ -348,7 +346,6 @@ export default class CommonFunctionsService {
    */
   checkElementFenceCollision(endpoints, element) {
     // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
-    console.log('checking collision')
     const fenceBounds = {
       left: Math.min(endpoints.start.x, endpoints.end.x),
       top: Math.min(endpoints.start.y, endpoints.end.y),
@@ -525,7 +522,6 @@ export default class CommonFunctionsService {
   validateAngle(connectedFences, movedVertex) {
     const MIN_ANGLE_DEG = 15
 
-    console.log('moved vertex: ' + movedVertex)
     // 1. Check first angle, around moved vertex
     if (connectedFences.length >= 2) {
       // Vérifier l'angle entre les clôtures connectées au vertex déplacé

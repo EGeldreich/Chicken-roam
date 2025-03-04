@@ -132,10 +132,10 @@ export default class FenceDrawer {
     point.style.top = `${y}px`
     // Give it correct class, and push into correct array
     if (connections < 2) {
-      point.className = 'connection-point'
+      point.className = 'point connection-point selectable'
       this.connectionPoints.push(point)
     } else {
-      point.className = 'movable-point selectable'
+      point.className = 'point movable-point selectable'
       this.movablePoints.push(point)
     }
     // Append to canvas
