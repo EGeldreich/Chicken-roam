@@ -148,6 +148,11 @@ export default class Selector {
           )
           // _____________________________________________________________ FENCE INTERSECTIONS
         } else {
+          // Get vertex coordinates
+          const vertexPoint = {
+            x: parseFloat(this.selectedElement.style.left),
+            y: parseFloat(this.selectedElement.style.top),
+          }
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
@@ -166,7 +171,7 @@ export default class Selector {
             }
           )
 
-          this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
+          this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences, vertexPoint)
         }
       }
     }
@@ -373,14 +378,22 @@ export default class Selector {
       }
       // ______________________________________________________________________FENCE INTERSECTION
     } else {
+      // Get vertex coordinates
+      const vertexPoint = {
+        x: parseFloat(this.selectedElement.style.left),
+        y: parseFloat(this.selectedElement.style.top),
+      }
+      // Get vertex id
       const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
       // Find all linked fences
       const connectedFences = this.findConnectedFences(vertexId)
 
       // Check placement
-      const placementResult =
-        this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
+      const placementResult = this.planEditor.commonFunctionsService.checkVertexPlacement(
+        connectedFences,
+        vertexPoint
+      )
 
       if (placementResult.invalid) {
         // Display error message

@@ -570,18 +570,6 @@ export default class FenceDrawer {
   }
 
   /**
-   * Helper method to compare 2 points, with epsilon margin of error
-   * @param {Object} point1 {x, y} coordinates of first point
-   * @param {Object} point2 {x, y} coordinates of second point
-   * @returns {Boolean} True if equals, False if not
-   */
-  arePointsEqual(point1, point2) {
-    return (
-      Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
-    )
-  }
-
-  /**
    * Method to calculate angle between 2 fences. Used to avoid superposition
    * @param {Object} line1Start {x, y} start coordinates of first line
    * @param {Object} line1End {x, y} end coordinates of first line
@@ -647,13 +635,14 @@ export default class FenceDrawer {
       // Check if the new fence start point is used by another fence
       // (Should always be the case except for the first fence)
       const sharesStartPoint =
-        this.arePointsEqual(newStart, endpoints.start) ||
-        this.arePointsEqual(newStart, endpoints.end)
+        this.planEditor.commonFunctionsService.arePointsClose(newStart, endpoints.start) ||
+        this.planEditor.commonFunctionsService.arePointsClose(newStart, endpoints.end)
 
       // Check if the new fence end point is used by another fence
       // (Should be the case only on fence closure, or if a fence has been deleted)
       const sharesEndPoint =
-        this.arePointsEqual(newEnd, endpoints.start) || this.arePointsEqual(newEnd, endpoints.end)
+        this.planEditor.commonFunctionsService.arePointsClose(newEnd, endpoints.start) ||
+        this.planEditor.commonFunctionsService.arePointsClose(newEnd, endpoints.end)
 
       // If there is a shared point
       if (sharesStartPoint || sharesEndPoint) {
@@ -681,10 +670,10 @@ export default class FenceDrawer {
 
       // Check if we share an endpoint
       const sharesEndpoint =
-        this.arePointsEqual(newStart, endpoints.start) ||
-        this.arePointsEqual(newStart, endpoints.end) ||
-        this.arePointsEqual(newEnd, endpoints.start) ||
-        this.arePointsEqual(newEnd, endpoints.end)
+        this.planEditor.commonFunctionsService.arePointsClose(newStart, endpoints.start) ||
+        this.planEditor.commonFunctionsService.arePointsClose(newStart, endpoints.end) ||
+        this.planEditor.commonFunctionsService.arePointsClose(newEnd, endpoints.start) ||
+        this.planEditor.commonFunctionsService.arePointsClose(newEnd, endpoints.end)
 
       // If an endpoint is shared, intersection is tolerated
       if (sharesEndpoint) {

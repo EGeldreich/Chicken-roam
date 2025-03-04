@@ -456,9 +456,10 @@ export default class CommonFunctionsService {
   /**
    * Check placement validity when moving fences
    * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
-   *
+   * @param {Object} vertexPoint {x, y} coordinates of moved vector
+   * @returns {Object } result { invalid: bool, reason: string }
    */
-  checkVertexPlacement(connectedFences) {
+  checkVertexPlacement(connectedFences, vertexPoint) {
     const result = { invalid: false, reason: null } // Default result
 
     // 1. Check minimal length
@@ -470,7 +471,7 @@ export default class CommonFunctionsService {
       }
     }
     // 2. Check angles
-    else if (!this.validateAngle(connectedFences)) {
+    else if (!this.validateAngle(connectedFences, vertexPoint)) {
       result.invalid = true
       result.reason = 'angle'
       for (let fence of connectedFences) {
@@ -516,36 +517,128 @@ export default class CommonFunctionsService {
   }
 
   /**
-   * Validate angle
-   * @param {Array} connectedFences Contains both fences connected to the point being moved (HTML objects)
+   * Validate angle between connected fences and their connected neighbors
+   * @param {Array} connectedFences Contains fences connected to the point being moved (HTML objects)
+   * @param {Object} movedVertex Object containing the moved vertex coordinates
    * @returns {Boolean} True if all angles are valid
    */
-  validateAngle(connectedFences) {
+  validateAngle(connectedFences, movedVertex) {
     const MIN_ANGLE_DEG = 15
 
-    for (let i = 0; i < connectedFences.length; i++) {
-      for (let j = i + 1; j < connectedFences.length; j++) {
-        const endpoints1 = this.getFenceEndpoints(connectedFences[i])
-        const endpoints2 = this.getFenceEndpoints(connectedFences[j])
+    console.log('moved vertex: ' + movedVertex)
+    // 1. Check first angle, around moved vertex
+    if (connectedFences.length >= 2) {
+      // Vérifier l'angle entre les clôtures connectées au vertex déplacé
+      if (!this.checkAngleBetweenVectors(connectedFences, movedVertex, MIN_ANGLE_DEG)) {
+        return false
+      }
 
-        // Create vectors from endpoints
-        const vector1 = {
-          x: endpoints1.end.x - endpoints1.start.x,
-          y: endpoints1.end.y - endpoints1.start.y,
-        }
-        const vector2 = {
-          x: endpoints2.end.x - endpoints2.start.x,
-          y: endpoints2.end.y - endpoints2.start.y,
+      // 2. Check further angles (between each connected fence and their neighbor)
+      // For each fence connected to moved vertex
+      for (const fence of connectedFences) {
+        const endpoints = this.getFenceEndpoints(fence)
+
+        // Find the other end (the one not moving)
+        let otherEndpoint
+        if (this.arePointsClose(endpoints.start, movedVertex)) {
+          otherEndpoint = endpoints.end
+        } else {
+          otherEndpoint = endpoints.start
         }
 
-        // Calculate dot product
+        // Find fence connected on the other end
+        const connectedToEndpoint = this.findFencesConnectedToPoint(otherEndpoint)
+
+        // If a fence is found
+        if (connectedToEndpoint.length >= 2) {
+          // Check angle
+          if (!this.checkAngleBetweenVectors(connectedToEndpoint, otherEndpoint, MIN_ANGLE_DEG)) {
+            return false
+          }
+        }
+      }
+    }
+
+    return true // All angles are valid
+  }
+
+  /**
+   * Check if two points are close enough to be considered equal
+   * @param {Object} point1 first point {x, y}
+   * @param {Object} point2 2nd point {x, y}
+   * @returns {Boolean} True if points are close enough
+   */
+  arePointsClose(point1, point2) {
+    return (
+      Math.abs(point1.x - point2.x) < this.EPSILON && Math.abs(point1.y - point2.y) < this.EPSILON
+    )
+  }
+
+  /**
+   * Find all fences connected to a given point
+   * @param {Object} point Point to check {x, y}
+   * @returns {Array} Array of connected fences
+   */
+  findFencesConnectedToPoint(point) {
+    // Get all fences
+    const allFences = Array.from(this.canvas.querySelectorAll('.fence'))
+    // Filter to keep only fences with an endpoint equal to given point
+    return allFences.filter((fence) => {
+      const endpoints = this.getFenceEndpoints(fence)
+      return (
+        this.arePointsClose(endpoints.start, point) || this.arePointsClose(endpoints.end, point)
+      )
+    })
+  }
+
+  /**
+   * Check angle between two vectors (fences)
+   * @param {Array} fences Array of fences to check
+   * @param {Object} commonPoint Common endpoint {x,y}
+   * @param {Number} minAngle Minimum angle (below that, angle is invalid)
+   * @returns {Boolean} True if all angle are avlid
+   */
+  checkAngleBetweenVectors(fences, commonPoint, minAngle) {
+    // Initialise vectors
+    const vectors = []
+
+    // For each fence
+    for (const fence of fences) {
+      // Get endpoints
+      const endpoints = this.getFenceEndpoints(fence)
+
+      if (this.arePointsClose(endpoints.start, commonPoint)) {
+        // Common point is the START of this fence
+        vectors.push({
+          x: endpoints.end.x - commonPoint.x,
+          y: endpoints.end.y - commonPoint.y,
+          fence: fence,
+        })
+      } else if (this.arePointsClose(endpoints.end, commonPoint)) {
+        // Common point is the END of this fence
+        vectors.push({
+          x: endpoints.start.x - commonPoint.x,
+          y: endpoints.start.y - commonPoint.y,
+          fence: fence,
+        })
+      }
+    }
+
+    // Check angle between each pair of vector
+    // (currently overkill as there should be only 1 pair)
+    for (let i = 0; i < vectors.length; i++) {
+      for (let j = i + 1; j < vectors.length; j++) {
+        const vector1 = vectors[i]
+        const vector2 = vectors[j]
+
+        // Scalare product
         const dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
 
-        // Calculate magnitudes
+        // Magnitudes
         const magnitude1 = Math.sqrt(vector1.x * vector1.x + vector1.y * vector1.y)
         const magnitude2 = Math.sqrt(vector2.x * vector2.x + vector2.y * vector2.y)
 
-        // Avoid dividing by 0
+        // Avoid divinding by 0
         if (magnitude1 < this.EPSILON || magnitude2 < this.EPSILON) return false
 
         // Calculate angle
@@ -553,11 +646,12 @@ export default class CommonFunctionsService {
         const angleRad = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
         const angleDeg = (angleRad * 180) / Math.PI
 
-        // Check minimal angle
-        if (angleDeg < MIN_ANGLE_DEG) return false
+        // Check angle validity
+        if (angleDeg < minAngle) {
+          return false // Angle too small
+        }
       }
     }
-
     return true // All angles are valid
   }
 
