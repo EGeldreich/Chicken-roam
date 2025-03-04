@@ -331,9 +331,10 @@ export default class CommonFunctionsService {
     for (const fence of fences) {
       // Get endpoints
       const endpoints = this.getFenceEndpoints(fence)
-
       // Check for collision between new element and each fences
-      this.checkElementFenceCollision(endpoints, newElement) // Return true if there is a collision
+      if (this.checkElementFenceCollision(endpoints, newElement)) {
+        return true // Collision detected
+      }
     }
 
     return false // No collision
@@ -409,6 +410,8 @@ export default class CommonFunctionsService {
     ) {
       return true // Collision detected
     }
+
+    return false // No collision
   }
 
   /**
@@ -811,7 +814,6 @@ export default class CommonFunctionsService {
     // use categorizeElements to get all outside elements
     const { outside } = this.planEditor.categorizeElements()
 
-    console.table(outside)
     // If at least 1 element is outside, fail validation
     return outside.length === 0
   }

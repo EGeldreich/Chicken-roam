@@ -180,12 +180,6 @@ Se compose des méthodes suivantes :
 
 1. **create**, ajoute les éléments en base de données, et va chercher les informations liées à la complétion des objectifs.
 
-**MUST DO**
-**MUST DO**
-Ajout d'un validator pour les éléments
-**MUST DO**
-**MUST DO**
-
 L'ajout d'un élément en base de donnée se fait en récupérant les informations fournies par l'**ElementDrawer**.  
 Toute la logique d'ajout se fait avec un trx.
 Dans un premier temps, à l'aide des positions, on crée un nouveau vertex.
@@ -538,3 +532,8 @@ On utilise une valeur **epsilon**, qui définit une marge d'erreur acceptée.
 ## TO DO
 
 Pas satisfait par la gestion du 'plan state' (PlanEditor.js - updatePlanState)
+**MUST DO**
+**MUST DO**
+Ajout d'un validator pour les éléments
+**MUST DO**
+**MUST DO**
