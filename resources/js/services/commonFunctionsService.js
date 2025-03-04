@@ -611,7 +611,6 @@ export default class CommonFunctionsService {
         bottom: element.y + element.height,
       }
       // For both connected fences
-      console.table(this.planEditor.placedElements)
       for (const fence of connectedFences) {
         // Get endpoints
         const endpoints = this.getFenceEndpoints(fence)

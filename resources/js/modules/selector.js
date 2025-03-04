@@ -13,6 +13,7 @@ export default class Selector {
     this.draggedElement = null // Used to store element while it is out of placedElement
     this.mouseDownTime = null // Used to start dragging only after a certain time
     this.dragDelay = 100 // Delay before dragging in ms
+    this.originalVertexPositions = null // Used to reset position if necessary
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
@@ -121,6 +122,8 @@ export default class Selector {
       } else {
         // dragged element is a fence intersection
         this.draggedElement = this.selectedElement
+        const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+        this.saveOriginalVertexPositions(vertexId)
       }
 
       if (this.isDragging) {
@@ -145,10 +148,6 @@ export default class Selector {
           )
           // _____________________________________________________________ FENCE INTERSECTIONS
         } else {
-          if (!this.isDragging) {
-            this.isDragging = true
-            this.draggedElement = this.selectedElement
-          }
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
@@ -170,6 +169,37 @@ export default class Selector {
           this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
         }
       }
+    }
+  }
+
+  /**
+   * Store original positions of vertex and connected fences
+   * @param {Number} vertexId id of the vertex being moved
+   */
+  saveOriginalVertexPositions(vertexId) {
+    // Save only if not already set (since it's continually called of mouse move)
+    if (this.originalVertexPositions === null) {
+      this.originalVertexPositions = {}
+
+      // Save Vertex
+      const vertexElement = document.querySelector(`[data-vertex-id="${vertexId}"]`)
+      if (vertexElement) {
+        this.originalVertexPositions.vertex = {
+          left: vertexElement.style.left,
+          top: vertexElement.style.top,
+        }
+      }
+
+      // Save fences
+      const connectedFences = this.findConnectedFences(vertexId)
+      connectedFences.forEach((fence, index) => {
+        this.originalVertexPositions[index] = {
+          left: fence.style.left,
+          top: fence.style.top,
+          width: fence.style.width,
+          transform: fence.style.transform,
+        }
+      })
     }
   }
 
@@ -348,28 +378,6 @@ export default class Selector {
       // Find all linked fences
       const connectedFences = this.findConnectedFences(vertexId)
 
-      // Save original positions for eventual reset
-      const originalPositions = {}
-      // Vertex
-      const vertexElement = document.querySelector(`[data-vertex-id="${vertexId}"]`)
-      if (vertexElement) {
-        originalPositions.vertex = {
-          left: vertexElement.style.left,
-          top: vertexElement.style.top,
-        }
-      }
-      // Fences
-      connectedFences.forEach((fence, index) => {
-        originalPositions[index] = {
-          left: fence.style.left,
-          top: fence.style.top,
-          width: fence.style.width,
-          transform: fence.style.transform,
-        }
-      })
-      console.log('original positions: ')
-      console.table(originalPositions)
-
       // Check placement
       const displacementErrorMsg =
         this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
@@ -381,19 +389,26 @@ export default class Selector {
           this.selectedElement
         )
 
-        // Reset placement
-        // Of vertex
-        if (vertexElement) {
-          vertexElement.style.left = originalPositions.vertex.left
-          vertexElement.style.top = originalPositions.vertex.top
+        // Reset placement using saved original positions
+        if (this.originalVertexPositions) {
+          // Reset vertex position
+          if (this.originalVertexPositions.vertex) {
+            this.selectedElement.style.left = this.originalVertexPositions.vertex.left
+            this.selectedElement.style.top = this.originalVertexPositions.vertex.top
+          }
+
+          // Reset fence positions
+          connectedFences.forEach((fence, index) => {
+            fence.classList.remove('invalid-placement')
+            if (this.originalVertexPositions[index]) {
+              fence.style.left = this.originalVertexPositions[index].left
+              fence.style.top = this.originalVertexPositions[index].top
+              fence.style.width = this.originalVertexPositions[index].width
+              fence.style.transform = this.originalVertexPositions[index].transform
+            }
+          })
+          this.draggedElement.classList.remove('moving', 'selected')
         }
-        // And fences
-        connectedFences.forEach((fence, index) => {
-          fence.style.left = originalPositions[index].left
-          fence.style.top = originalPositions[index].top
-          fence.style.width = originalPositions[index].width
-          fence.style.transform = originalPositions[index].transform
-        })
 
         // Reset states
         this.resetStates()
