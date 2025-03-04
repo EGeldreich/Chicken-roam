@@ -65,7 +65,6 @@ export default class PlanEditor {
     })
   }
 
-  //_____________________________________________________________________________________________________________fetchPlanState
   /**
    * Send a GET request to fetch the current state of plan
    * Calls updatePlanState with that state
@@ -89,7 +88,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________updatePlanState
   /**
    * Update plan UI according to new state
    * Mainly disable and reable element btns, show message, and change color
@@ -156,7 +154,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________showGuidanceMessage
   /**
    * Update the guidance message
    * Useful to help users
@@ -177,7 +174,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________loadAllElements
   /**
    * Load all elements of the plan
    * GET request, response includes everything needed for element placement
@@ -212,29 +208,6 @@ export default class PlanEditor {
     }
   }
 
-  // //_____________________________________________________________________________________________________________renderElement
-  // /**
-  //  * Render all pre-existing elements
-  //  * Useful to help users
-  //  * @param {String} message - string with guidance message that will be displayed
-  //  */
-  // renderElement(element) {
-  //   const domElement = document.createElement('div')
-  //   domElement.className = `absolute ${element.type}`
-  //   domElement.dataset.elementId = element.id
-  //   domElement.dataset.elementType = element.type
-
-  //   domElement.style.left = `${element.vertex.positionX}px`
-  //   domElement.style.top = `${element.vertex.positionY}px`
-  //   domElement.style.width = `${element.width}px`
-  //   domElement.style.height = `${element.height}px`
-
-  //   this.canvas.appendChild(domElement)
-  // }
-  //
-  //
-  // Add mouse event listeners to our canvas
-  //_____________________________________________________________________________________________________________initializeCanvasEvents
   /**
    * Initialize the mouse events
    * Redirect to relevant methods
@@ -245,7 +218,6 @@ export default class PlanEditor {
     this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e))
   }
 
-  //_____________________________________________________________________________________________________________initializeTools
   /**
    * Setup event listeners for tools
    * Listen for a click and calls setCurrentTool
@@ -265,7 +237,6 @@ export default class PlanEditor {
     })
   }
 
-  //_____________________________________________________________________________________________________________setCurrentTool
   /**
    * Show guidance if a tool is disabled
    * Return previous tool to default state
@@ -304,7 +275,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________updateToolButtonStyles
   /**
    * Change tool btns bg and font color
    * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
@@ -321,7 +291,6 @@ export default class PlanEditor {
     })
   }
 
-  //_____________________________________________________________________________________________________________getCanvasPoint
   /**
    * Function to find canvas coordinates when called
    * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
@@ -337,7 +306,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________handleMouseDown
   /**
    * Get mouse coordinates and call correct tool method
    * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
@@ -354,7 +322,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________handleMouseMove
   /**
    * Get mouse coordinates and call correct tool method
    * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
@@ -369,7 +336,6 @@ export default class PlanEditor {
     // }
   }
 
-  //_____________________________________________________________________________________________________________handleMouseUp
   /**
    * Get mouse coordinates and call correct tool method
    * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
@@ -382,7 +348,6 @@ export default class PlanEditor {
     }
   }
 
-  //_____________________________________________________________________________________________________________isPointInEnclosure
   /**
    * Check if a given point is in enclosure (the enclosure must be complete)
    * @param {Object} point - Coordinates to check
@@ -400,7 +365,6 @@ export default class PlanEditor {
     return this.commonFunctionsService.isPointInPolygon(point, enclosureVertices)
   }
 
-  //_____________________________________________________________________________________________________________getOrderedEnclosureVertices
   /**
    * Get fences ordered vertices (as if walking along the fences)
    * Use CommonFunctionsService
@@ -411,7 +375,6 @@ export default class PlanEditor {
     return this.commonFunctionsService.getOrderedVertices(fenceElements)
   }
 
-  //_____________________________________________________________________________________________________________isElementInEnclosure
   /**
    * Check if an element is inside the enclosure
    * Calls isPointInEnclosure
@@ -426,7 +389,6 @@ export default class PlanEditor {
     return this.isPointInEnclosure({ x: centerX, y: centerY })
   }
 
-  //_____________________________________________________________________________________________________________categorizeElements
   /**
    * Set elements as either inside or outside
    * Calls isElementInEnclosure

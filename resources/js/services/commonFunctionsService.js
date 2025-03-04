@@ -495,6 +495,13 @@ export default class CommonFunctionsService {
       for (let fence of connectedFences) {
         this.invalidPlacement(fence)
       }
+      // 5. Check for element outside of enclosure
+    } else if (!this.validateEnclosedElements(connectedFences, vertexPoint)) {
+      result.invalid = true
+      result.reason = 'outside'
+      for (let fence of connectedFences) {
+        this.invalidPlacement(fence)
+      }
     } else {
       for (let fence of connectedFences) {
         this.validPlacement(fence)
@@ -789,6 +796,24 @@ export default class CommonFunctionsService {
     }
 
     return true // No overlap
+  }
+
+  /**
+   * Validate that all elements remain inside the enclosure after moving a vertex
+   * @returns {Boolean} True if all elements remain inside the enclosure
+   */
+  validateEnclosedElements() {
+    // If the enclosure is incomplete, or if there are no element, validation is always true
+    if (!this.planEditor.isEnclosureComplete || this.planEditor.placedElements.length === 0) {
+      return true
+    }
+
+    // use categorizeElements to get all outside elements
+    const { outside } = this.planEditor.categorizeElements()
+
+    console.table(outside)
+    // If at least 1 element is outside, fail validation
+    return outside.length === 0
   }
 
   /**
