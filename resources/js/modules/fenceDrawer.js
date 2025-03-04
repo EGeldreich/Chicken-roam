@@ -27,7 +27,6 @@ export default class FenceDrawer {
     })
   }
 
-  //_____________________________________________________________________________________________________________loadExistingFences
   /**
    * Get existing fences and update ConnectionPoints
    * calls updateConnectionPoints()
@@ -64,7 +63,6 @@ export default class FenceDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________trackVertex
   /**
    * Fills up vertices Map() with (key,connections) in the form of ('100,200', 2)
    * Where '100' is X coords, '200' is Y coords, and '2' is the number of fences using that vertex
@@ -92,7 +90,6 @@ export default class FenceDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________updatePoints
   /**
    * Update the connections and movable points availability and number of connections
    * Connection points are used as starting point for any fence that isn't the first, and as closure point
@@ -117,7 +114,6 @@ export default class FenceDrawer {
     })
   }
 
-  //_____________________________________________________________________________________________________________addPoint
   /**
    * Create points HTML elements and style them
    * Called in updatePoints()
@@ -146,7 +142,6 @@ export default class FenceDrawer {
     this.canvas.appendChild(point)
   }
 
-  //_____________________________________________________________________________________________________________findNearestConnectionPoint
   /**
    * Seek out nearest connection point to snap to it
    * If the connection point is closer than set snapDistance, automatically snap to it
@@ -182,7 +177,6 @@ export default class FenceDrawer {
     return nearest
   }
 
-  //_____________________________________________________________________________________________________________handleMouseDown
   /**
    * Handle mouse down event, mostly check conditions
    * Get point coordinates from PlanEditor
@@ -206,7 +200,6 @@ export default class FenceDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________startDrawing
   /**
    * Handle drawing state and creation of temporary fences HTML elements
    * @param {Object} point Object containing mouse coordinates or nearest connection point {x, y}
@@ -228,7 +221,6 @@ export default class FenceDrawer {
     this.canvas.appendChild(this.temporaryFence)
   }
 
-  //_____________________________________________________________________________________________________________stopPlacement
   /**
    * Remove temporary element and reset to default states
    */
@@ -241,7 +233,6 @@ export default class FenceDrawer {
     this.temporaryFence = null
   }
 
-  //_____________________________________________________________________________________________________________handleMouseMove
   /**
    * Handle temporary fence movement and styling
    * Constantly seek nearestPoint for potential snap
@@ -267,7 +258,7 @@ export default class FenceDrawer {
     }
 
     // Check validity
-    const isInvalid = this.checkPlacementValidity(
+    const isInvalid = this.checkFenceValidity(
       this.drawStartPoint.x,
       this.drawStartPoint.y,
       endPoint.x,
@@ -297,7 +288,6 @@ export default class FenceDrawer {
     this.temporaryFence.style.transform = `rotate(${angle}deg)`
   }
 
-  //_____________________________________________________________________________________________________________handleMouseUp
   /**
    * Handle creation of the fence, or error handling if placement is not possible
    * POST request to create fence
@@ -323,7 +313,7 @@ export default class FenceDrawer {
     // If we are far enough from the starting point
     if (this.drawStartPoint.x !== endPoint.x || this.drawStartPoint.y !== endPoint.y) {
       // Check for placement validity using helper method
-      const checkResult = this.checkPlacementValidity(
+      const checkResult = this.checkFenceValidity(
         this.drawStartPoint.x,
         this.drawStartPoint.y,
         endPoint.x,
@@ -415,7 +405,6 @@ export default class FenceDrawer {
     this.temporaryFence = null
   }
 
-  //_____________________________________________________________________________________________________________renderFence
   /**
    * Render fences on load, called in loadingExistingFences()
    * @param {Object} fenceData {type, planId, vertexStartId, vertexEndId}
@@ -451,7 +440,6 @@ export default class FenceDrawer {
     this.canvas.appendChild(fenceElement)
   }
 
-  //_____________________________________________________________________________________________________________hasFormedEnclosure
   /**
    * Used to check enclosure when adding a fence, called in handleMouseUp()
    * Calls enslosureService method
@@ -460,7 +448,6 @@ export default class FenceDrawer {
     return this.planEditor.commonFunctionsService.isEnclosureComplete(this.vertices)
   }
 
-  //_____________________________________________________________________________________________________________handleEnclosureComplete
   /**
    * Call back-end response to handle enclosure completion
    * Handle elements to update or remove if enclosure was previously broken
@@ -582,7 +569,6 @@ export default class FenceDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________arePointsEqual
   /**
    * Helper method to compare 2 points, with epsilon margin of error
    * @param {Object} point1 {x, y} coordinates of first point
@@ -595,7 +581,6 @@ export default class FenceDrawer {
     )
   }
 
-  //_____________________________________________________________________________________________________________calculateAngleBetweenLines
   /**
    * Method to calculate angle between 2 fences. Used to avoid superposition
    * @param {Object} line1Start {x, y} start coordinates of first line
@@ -637,7 +622,6 @@ export default class FenceDrawer {
     return 180 - angleDeg
   }
 
-  //_____________________________________________________________________________________________________________checkPlacementValidity
   /**
    * Check placement validity of fence being drawn
    * Need a correct angle and no intersection
@@ -647,7 +631,7 @@ export default class FenceDrawer {
    * @param {Number} endY Ending point Y coordinate
    * @returns {Object} result {invalid: Boolean, reason: String}
    */
-  checkPlacementValidity(startX, startY, endX, endY) {
+  checkFenceValidity(startX, startY, endX, endY) {
     // Get all fences
     const fences = Array.from(this.canvas.querySelectorAll('.fence'))
 
@@ -729,61 +713,4 @@ export default class FenceDrawer {
 
     return result // Valid placement
   }
-  //
-  //
-  //________________________________________________________________________________________________________
-  // debugIntersection(startX, startY, endX, endY) {
-  //   // Get all fences
-  //   const fences = Array.from(this.canvas.querySelectorAll('.fence'))
-  //   let intersectingFences = []
-
-  //   // Pour chaque clôture...
-  //   fences.forEach((fence, index) => {
-  //     const endpoints = this.getFenceEndpoints(fence)
-
-  //     // Vérifier si nous partageons une extrémité
-  //     const sharesEndpoint =
-  //       this.arePointsEqual({ x: startX, y: startY }, endpoints.start) ||
-  //       this.arePointsEqual({ x: startX, y: startY }, endpoints.end) ||
-  //       this.arePointsEqual({ x: endX, y: endY }, endpoints.start) ||
-  //       this.arePointsEqual({ x: endX, y: endY }, endpoints.end)
-
-  //     // Si nous partageons une extrémité, l'intersection est tolérée
-  //     if (sharesEndpoint) {
-  //       return
-  //     }
-
-  //     // Vérifier l'intersection
-  //     const intersects = this.planEditor.commonFunctionsService.checkLineIntersection(
-  //       startX,
-  //       startY,
-  //       endX,
-  //       endY,
-  //       endpoints.start.x,
-  //       endpoints.start.y,
-  //       endpoints.end.x,
-  //       endpoints.end.y
-  //     )
-
-  //     if (intersects) {
-  //       intersectingFences.push({
-  //         index,
-  //         fence,
-  //         endpoints,
-  //       })
-  //     }
-  //   })
-
-  //   if (intersectingFences.length > 0) {
-  //     console.log('=== INTERSECTIONS DÉTECTÉES ===')
-  //     console.log(`Nouvelle clôture: (${startX}, ${startY}) → (${endX}, ${endY})`)
-  //     intersectingFences.forEach(({ index, endpoints }) => {
-  //       console.log(
-  //         `Clôture #${index}: (${endpoints.start.x}, ${endpoints.start.y}) → (${endpoints.end.x}, ${endpoints.end.y})`
-  //       )
-  //     })
-  //   }
-
-  //   return intersectingFences.length > 0
-  // }
 }

@@ -344,10 +344,11 @@ export default class CommonFunctionsService {
   /**
    * Check collision between an element and a fence
    * @param {Object} endpoints {start: {x, y}, end: {x, y}} coordinates of fence endpoints
-   * @param {Object} element HTML Element
+   * @param {Object} element contain element sides element = {left: .., top: .., right: .., bottom: ..}
    */
   checkElementFenceCollision(endpoints, element) {
     // Create rectangle englobing the fence (for quick validation of obviously not overlaping elements)
+    console.log('checking collision')
     const fenceBounds = {
       left: Math.min(endpoints.start.x, endpoints.end.x),
       top: Math.min(endpoints.start.y, endpoints.end.y),
