@@ -14,6 +14,7 @@ export default class Selector {
     this.mouseDownTime = null // Used to start dragging only after a certain time
     this.dragDelay = 100 // Delay before dragging in ms
     this.originalVertexPositions = null // Used to reset position if necessary
+    this.snapped = false
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
@@ -148,11 +149,6 @@ export default class Selector {
           )
           // _____________________________________________________________ FENCE INTERSECTIONS
         } else {
-          // Get vertex coordinates
-          const vertexPoint = {
-            x: parseFloat(this.selectedElement.style.left),
-            y: parseFloat(this.selectedElement.style.top),
-          }
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
@@ -161,27 +157,16 @@ export default class Selector {
             // Check for a snap point
             const snapPoint = this.findNearestOtherConnectionPoint(this.draggedElement, point)
 
+            this.snapped = !!snapPoint
             // If we found a snap point, use it, if not, use mouse point
-            const targetPoint = snapPoint || point
+            const targetPoint = snapPoint ? { x: snapPoint.x, y: snapPoint.y } : point
 
             // Update position of vertex to snap
             this.updateSelectedVertexPosition(vertexId, targetPoint)
           } else {
-            // Update position of vertex to mouse point
+            // if it's a basic movable point, update with mouse coords directly
             this.updateSelectedVertexPosition(vertexId, point)
           }
-
-          // Visual indicators
-          const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter(
-            (fence) => {
-              // Find fence's vertices
-              const vertexStartId = parseInt(fence.dataset.vertexStartId)
-              const vertexEndId = parseInt(fence.dataset.vertexEndId)
-
-              // Check for correspondance with selected vertex
-              return vertexStartId === vertexId || vertexEndId === vertexId
-            }
-          )
         }
       }
     }
@@ -229,7 +214,7 @@ export default class Selector {
 
     // Return a nearest point only if it is in snapDistance
     if (nearestPoint && nearestPoint.distance <= snapDistance) {
-      return { x: nearestPoint.x, y: nearestPoint.y }
+      return { x: nearestPoint.x, y: nearestPoint.y, id: nearestPoint.element.dataset.vertexId }
     } else {
       return null
     }
@@ -488,15 +473,60 @@ export default class Selector {
       }
 
       // If here, everything was validated
+
+      // If we're dragging a connection point that is being snapped
+      if (this.draggedElement.classList.contains('connection-point') && this.snapped) {
+        const snapVertexId = this.findNearestOtherConnectionPoint(this.selectedElement, point).id
+        this.createFenceLinkInBack(vertexId, snapVertexId)
+      }
+
       // Update in DB
       this.updateVertexPositionInBack(vertexId, point.x, point.y)
 
-      this.planEditor.commonFunctionsService.calculateEnclosedArea()
       // Handle Front-end change
       this.selectedElement.classList.remove('moving', 'selected')
 
       // Reset states
       this.resetStates()
+    }
+  }
+
+  /**
+   * Make a back-end call to update vertex position, and link the two fences
+   * @param {Number} movedVertexId id of the vertex being moved
+   * @param {Number} snapVertexId id of the static vertex we're snapped to
+   */
+  async createFenceLinkInBack(vertexId, snapVertexId) {
+    // Find id of the fence we have to update
+    const connectedFence = this.findConnectedFences(vertexId)[0]
+    const fenceId = connectedFence.dataset.fenceId
+
+    try {
+      const response = await fetch(`/api/fences/${fenceId}/link`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({
+          oldVertex: vertexId,
+          newVertex: snapVertexId,
+        }),
+      })
+      if (!response.ok) {
+        console.error('Failed to link vertex position:', await response.json())
+      } else {
+        // Reload all fences, needed to check enclosure completion
+        await this.planEditor.fenceDrawer.loadExistingFences()
+
+        // Check enclosure
+        if (this.planEditor.fenceDrawer.hasFormedEnclosure()) {
+          // If enclosed, handle it
+          this.planEditor.fenceDrawer.handleEnclosureComplete()
+        }
+      }
+    } catch (error) {
+      console.error('Error updating fence / vertex position:', error)
     }
   }
 

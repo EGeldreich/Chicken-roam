@@ -60,6 +60,7 @@ export default class PlanEditor {
     // Listen for enclosure completion event
     this.canvas.addEventListener('enclosureComplete', (event) => {
       this.isEnclosureComplete = true
+      this.setCurrentTool('select')
       this.updatePlanState('enclosed')
     })
   }

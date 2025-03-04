@@ -31,6 +31,9 @@ router.delete('/api/elements/:id', [ElementsController, 'delete'])
 router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
 router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
+router.patch('/api/fences/:id/link', [FencesController, 'link'])
+
+// PLANS
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
 
 // VERTICES

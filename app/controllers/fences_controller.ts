@@ -167,4 +167,76 @@ export default class FencesController {
       })
     }
   }
+  //
+  //
+  async link({ params, request, response }: HttpContext) {
+    const { oldVertex, newVertex } = request.body()
+
+    try {
+      // Find the fence to update
+      const fence = await Fence.findOrFail(params.id)
+
+      // Load vertices
+      await fence.load('vertexStart')
+      await fence.load('vertexEnd')
+
+      // Find the oldVertex in relation to the fence
+      let isStartVertex = false
+      if (fence.vertexStartId === parseInt(oldVertex)) {
+        isStartVertex = true
+      } else if (fence.vertexEndId === parseInt(oldVertex)) {
+        isStartVertex = false
+      } else {
+        return response.badRequest({
+          error: 'Cannot find specified oldVertex',
+        })
+      }
+
+      // Replace the old vertex by the new one
+      if (isStartVertex) {
+        fence.vertexStartId = parseInt(newVertex)
+      } else {
+        fence.vertexEndId = parseInt(newVertex)
+      }
+
+      // Save Fence change
+      await fence.save()
+
+      // Find old vertex in DB
+      const vertexToDelete = await Vertex.find(oldVertex)
+
+      if (vertexToDelete) {
+        // Check if vertex is still in use
+        await vertexToDelete.load('startFences')
+        await vertexToDelete.load('endFences')
+        await vertexToDelete.load('elements')
+
+        // If not in use
+        if (
+          vertexToDelete.startFences.length === 0 &&
+          vertexToDelete.endFences.length === 0 &&
+          !vertexToDelete.elements
+        ) {
+          // Delete
+          await vertexToDelete.delete()
+        }
+      }
+
+      // Send response
+      return response.ok({
+        message: 'Clôture liée avec succès',
+        fence: {
+          id: fence.id,
+          vertexStartId: fence.vertexStartId,
+          vertexEndId: fence.vertexEndId,
+        },
+      })
+    } catch (error) {
+      console.error('Erreur lors de la liaison de clôture:', error)
+      return response.internalServerError({
+        error: 'Échec de la liaison de clôture',
+        details: error.message,
+      })
+    }
+  }
 }

@@ -443,6 +443,7 @@ export default class FenceDrawer {
   /**
    * Used to check enclosure when adding a fence, called in handleMouseUp()
    * Calls enslosureService method
+   * @returns {Boolean} True if enclosure is complete
    */
   hasFormedEnclosure() {
     return this.planEditor.commonFunctionsService.isEnclosureComplete(this.vertices)
