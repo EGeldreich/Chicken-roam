@@ -237,28 +237,6 @@ return response.created({
 
 2. **getByPlan()**, beaucoup plus simple, cette méthode se contente de chercher tous les éléments d'un plan dont on connait l'id. L'information est renvoyée au **_front_** pour être utilisée dans la méthode **loadElements()**
 
-## Système de detection des collisions AABB
-
-Se base sur la logique que 2 boîtes se chevauchent si et seulement si :
-
-> La droite de A est à droite de la gauche de B
-> La gauche de A est à gauche de la droite de B
-> Le bas de A est en-dessous du haut de B
-> Le haut de A est au-dessus du bas de B
-
-Ce qui devient dans **_ElementDrawer_** :
-
-```typescript
-if (
-  newElement.left < existingElement.right &&
-  newElement.right > existingElement.left &&
-  newElement.top < existingElement.bottom &&
-  newElement.bottom > existingElement.top
-) {
-  return true // Collision detectée
-}
-```
-
 ## Récupération en temps réel de la complétion des objectifs
 
 Afin de mettre à jour la complétion des objectifs, la logique est la suivante :
@@ -320,6 +298,27 @@ Retour dans le front, pour une clotûre, on envoit un évènement **_fenceDelete
 Pour un élément, on récupère les data lié aux objectives et on redirige vers la méthode **_updateObjectivesDisplay()_**. On retire également l'élément du tableau **_placedElements_** qui s'occupe des collisions.  
 Dans les deux cas, on **_remove()_** l'élément du **DOM**.
 
+## Etats du plan
+
+Le plan a 3 états possible.
+
+1. **'Construction'**
+2. **'Enclosed'**
+3. **'Broken'**
+
+Chaque état induit une logique.
+
+1. **'Construction'**
+   Dans cet état, la clôture n'a jamais été complète, il est uniquement possible de placer des clôtures.
+2. **'Enclosed'**
+   Dans cet état, la clôture est complète, il est possible de placer / supprimer des éléments, ou déplacer / supprimer des clôtures.  
+   Il est impossible d'ajouter de nouvelles clôtures
+3. **'Broken'**
+   Dans cet état, la clôture a détà été complète, mais au moins une clôture à été supprimée.  
+   Il est de nouveau uniquement possible de placer ou déplacer des clôtures jusqu'à une nouvelle complétion de l'enclos.  
+   Durant l'état **_broken_**, les éléments sont désactivés.  
+   Lorsque l'enclos est complété à nouveaux, les éléments qui ne sont plus à l'intérieur sont supprimés.
+
 ## Changement de position des éléments
 
 ### Déplacement de l'élément
@@ -372,7 +371,88 @@ vertex.useTransaction(trx)
 await vertex.save()
 ```
 
+## Changement de position des vertex
+
+### Selection des vertices
+
+Lors de la création d'une clôture dans le fenceDrawer, on ajoute systématiquement les sommets à la map this.vertices.  
+Si un point n'est lié qu'à une clôture, c'est un **_connection-point_**.  
+Si il est lié à 2 clôtures, c'est un **_movable-point_**.
+
+Ces points sont sélectionnables et déplacables. Ils ne peuvent pas être supprimé directement.
+
+### Validations lors du mouvement
+
+Peu importe le type de point, des validations sont à faire.  
+Ce sont les mêmes que lors de la création d'une nouvelle clôture.
+
+1. Pas d'intersection.
+2. Pas d'angle inférieur à 15°.
+3. Pas de collision avec les éléments.
+4. Pas d'élément en dehors de la clôture.
+
+Pour cela, on vérifie toutes les conditions dans **checkVertexPlacement()** du commonFunctionsService.
+
+### Snapping et fusion de vertex
+
+Lors du déplacement d'un **_connection-point_** sur un autre **_connection-point_** libre, ils "fusionnent".  
+C'est à dire que le vertex qui se fait déplacer est effacé, et son id (soit **vertexEnd** soit **vertexStart**) est remplacé par celui sur lequel il s'est déplacé.  
+De cette façon, le **_connection-point_** devient un **_movable-point_**, puisqu'il a deux connections.
+
+```typescript
+// Find the fence to update
+const fence = await Fence.findOrFail(params.id)
+
+// Load vertices
+await fence.load('vertexStart')
+await fence.load('vertexEnd')
+
+// Find the oldVertex in relation to the fence
+let isStartVertex = false
+if (fence.vertexStartId === parseInt(oldVertex)) {
+  isStartVertex = true
+} else if (fence.vertexEndId === parseInt(oldVertex)) {
+  isStartVertex = false
+} else {
+  return response.badRequest({
+    error: 'Cannot find specified oldVertex',
+  })
+}
+
+// Replace the old vertex by the new one
+if (isStartVertex) {
+  fence.vertexStartId = parseInt(newVertex)
+} else {
+  fence.vertexEndId = parseInt(newVertex)
+}
+
+// Save Fence change
+await fence.save()
+```
+
 ## Formules mathématiques utilisées
+
+### Système de detection des collisions AABB
+
+Se base sur la logique que 2 boîtes se chevauchent si et seulement si :
+
+> La droite de A est à droite de la gauche de B
+> La gauche de A est à gauche de la droite de B
+> Le bas de A est en-dessous du haut de B
+> Le haut de A est au-dessus du bas de B
+
+Ce qui devient dans **_ElementDrawer_** :
+
+```typescript
+if (
+  newElement.left < existingElement.right &&
+  newElement.right > existingElement.left &&
+  newElement.top < existingElement.bottom &&
+  newElement.bottom > existingElement.top
+) {
+  return true // Collision detectée
+}
+```
 
 ### Trouver la longueur et l'angle d'une clôture
 

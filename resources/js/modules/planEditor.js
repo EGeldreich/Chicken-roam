@@ -119,6 +119,7 @@ export default class PlanEditor {
       document.querySelectorAll('.element-tool-btn').forEach((btn) => {
         btn.classList.add('disabled')
       })
+      document.querySelector('.fence-tool-btn').classList.remove('disabled')
 
       // If current tool is an element tool, switch to fence or select
       if (this.currentTool !== 'fence' && this.currentTool !== 'select') {
@@ -143,6 +144,7 @@ export default class PlanEditor {
       document.querySelectorAll('.tool-btn').forEach((btn) => {
         btn.classList.remove('disabled')
       })
+      document.querySelector('.fence-tool-btn').classList.add('disabled')
 
       // Remove inactive indication from elements
       document.querySelectorAll('.inactive-element').forEach((element) => {
