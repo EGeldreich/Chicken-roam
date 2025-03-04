@@ -488,7 +488,8 @@ export default class Selector {
         }),
       })
       if (response.ok) {
-        this.planEditor.fenceDrawer.handleEnclosureComplete()
+        if (this.planEditor.planState === 'enclosed')
+          this.planEditor.fenceDrawer.handleEnclosureComplete()
       } else {
         console.error('Failed to update vertex position:', await response.json())
       }
