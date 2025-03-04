@@ -604,12 +604,19 @@ export default class CommonFunctionsService {
   validateOverlap(connectedFences) {
     // For each element
     for (const element of this.planEditor.placedElements) {
+      const elementSquare = {
+        left: element.x,
+        top: element.y,
+        right: element.x + element.width,
+        bottom: element.y + element.height,
+      }
       // For both connected fences
+      console.table(this.planEditor.placedElements)
       for (const fence of connectedFences) {
         // Get endpoints
         const endpoints = this.getFenceEndpoints(fence)
 
-        const collision = this.checkElementFenceCollision(endpoints, element)
+        const collision = this.checkElementFenceCollision(endpoints, elementSquare)
 
         if (collision) return false // Overlap detected
       }

@@ -124,7 +124,7 @@ export default class Selector {
       }
 
       if (this.isDragging) {
-        // BASIC ELEMENTS
+        // _____________________________________________________________ BASIC ELEMENTS
         if (!this.selectedElement.classList.contains('movable-point')) {
           // Get relevant data
           let width = parseFloat(this.selectedElement.style.width)
@@ -143,7 +143,7 @@ export default class Selector {
             width,
             height
           )
-          // FENCE INTERSECTIONS
+          // _____________________________________________________________ FENCE INTERSECTIONS
         } else {
           if (!this.isDragging) {
             this.isDragging = true
@@ -152,7 +152,7 @@ export default class Selector {
           // Get vertex id
           const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
-          // Update position of fences
+          // Update position of vertex
           this.updateSelectedVertexPosition(vertexId, point)
 
           // Visual indicators
@@ -180,8 +180,25 @@ export default class Selector {
   updateSelectedElementPosition(placementPoint) {
     if (!this.selectedElement) return
 
-    this.selectedElement.style.left = `${placementPoint.x}px`
-    this.selectedElement.style.top = `${placementPoint.y}px`
+    this.draggedElement.style.left = `${placementPoint.x}px`
+    this.draggedElement.style.top = `${placementPoint.y}px`
+  }
+
+  /**
+   * Find fences linked to movable point
+   * @param {Number} vertexId Id of the vertex represented by the movable point
+   * @returns {Array} Array of both fences, HTML element
+   */
+  findConnectedFences(vertexId) {
+    const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter((fence) => {
+      // Find fence's vertices
+      const vertexStartId = parseInt(fence.dataset.vertexStartId)
+      const vertexEndId = parseInt(fence.dataset.vertexEndId)
+
+      // Check for correspondance with selected vertex
+      return vertexStartId === vertexId || vertexEndId === vertexId
+    })
+    return connectedFences
   }
 
   /**
@@ -191,39 +208,13 @@ export default class Selector {
    */
   updateSelectedVertexPosition(vertexId, point) {
     if (!this.selectedElement) return
+
     // Move point itself
-    this.selectedElement.style.left = `${point.x}px`
-    this.selectedElement.style.top = `${point.y}px`
+    this.draggedElement.style.left = `${point.x}px`
+    this.draggedElement.style.top = `${point.y}px`
 
     // Find all linked fences
-    const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter((fence) => {
-      // Find fence's vertices
-      const vertexStartId = parseInt(fence.dataset.vertexStartId)
-      const vertexEndId = parseInt(fence.dataset.vertexEndId)
-
-      // Check for correspondance with selected vertex
-      return vertexStartId === vertexId || vertexEndId === vertexId
-    })
-
-    // Save original positions for eventual reset
-    const originalPositions = {}
-    // Vertex
-    const vertexElement = document.querySelector(`[data-vertex-id="${vertexId}"]`)
-    if (vertexElement) {
-      originalPositions.vertex = {
-        left: vertexElement.style.left,
-        top: vertexElement.style.top,
-      }
-    }
-    // Fences
-    connectedFences.forEach((fence, index) => {
-      originalPositions[index] = {
-        left: fence.style.left,
-        top: fence.style.top,
-        width: fence.style.width,
-        transform: fence.style.transform,
-      }
-    })
+    const connectedFences = this.findConnectedFences(vertexId)
 
     // For both linked fence
     connectedFences.forEach((fence) => {
@@ -295,7 +286,7 @@ export default class Selector {
     // If not currently dragging, get out
     if (!this.isDragging === true || !this.selectedElement) return
 
-    // ELEMENTS ONLY
+    // ________________________________________________________________ ELEMENTS ONLY
     if (!this.selectedElement.classList.contains('movable-point')) {
       // Get width and height of selected element
       let width = parseFloat(this.selectedElement.style.width)
@@ -339,11 +330,7 @@ export default class Selector {
         this.selectedElement.style.top = `${placementPoint.y}px`
 
         // Reset states
-        this.isDragging = false
-        this.draggedElement = null
-        this.elementIndex = null
-        this.selectedElement = null
-        this.hideMenu()
+        this.resetStates()
       } else {
         // If there a is an error message, placement is not ok, show error
         this.planEditor.commonFunctionsService.showPlacementError(
@@ -354,19 +341,12 @@ export default class Selector {
         this.resetElementPlacement(this.selectedElement)
         return
       }
-      // ___________FENCE INTERSECTION
+      // ______________________________________________________________________FENCE INTERSECTION
     } else {
       const vertexId = parseInt(this.selectedElement.dataset.vertexId)
 
       // Find all linked fences
-      const connectedFences = Array.from(this.canvas.querySelectorAll('.fence')).filter((fence) => {
-        // Find fence's vertices
-        const vertexStartId = parseInt(fence.dataset.vertexStartId)
-        const vertexEndId = parseInt(fence.dataset.vertexEndId)
-
-        // Check for correspondance with selected vertex
-        return vertexStartId === vertexId || vertexEndId === vertexId
-      })
+      const connectedFences = this.findConnectedFences(vertexId)
 
       // Save original positions for eventual reset
       const originalPositions = {}
@@ -387,6 +367,8 @@ export default class Selector {
           transform: fence.style.transform,
         }
       })
+      console.log('original positions: ')
+      console.table(originalPositions)
 
       // Check placement
       const displacementErrorMsg =
@@ -414,11 +396,7 @@ export default class Selector {
         })
 
         // Reset states
-        this.isDragging = false
-        this.draggedElement = null
-        this.elementIndex = null
-        this.selectedElement = null
-        this.hideMenu()
+        this.resetStates()
         return
       }
 
@@ -431,11 +409,7 @@ export default class Selector {
       this.selectedElement.classList.remove('moving', 'selected')
 
       // Reset states
-      this.isDragging = false
-      this.draggedElement = null
-      this.elementIndex = null
-      this.selectedElement = null
-      this.hideMenu()
+      this.resetStates()
     }
   }
 
@@ -496,6 +470,17 @@ export default class Selector {
   }
 
   /**
+   * Reset to default states
+   */
+  resetStates() {
+    this.isDragging = false
+    this.selectedElement = null
+    this.draggedElement = null
+    this.elementIndex = null
+    this.hideMenu()
+  }
+
+  /**
    * Reset element placement in case of wrong new placement
    * @param {Object} element dragged element that needs to reset
    */
@@ -511,11 +496,7 @@ export default class Selector {
     element.classList.remove('moving', 'invalid-placement')
 
     // Reset states
-    this.isDragging = false
-    this.selectedElement = null
-    this.draggedElement = null
-    this.elementIndex = null
-    this.hideMenu()
+    this.resetStates()
   }
 
   /**
