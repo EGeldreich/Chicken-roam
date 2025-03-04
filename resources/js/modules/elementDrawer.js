@@ -139,7 +139,7 @@ export default class ElementDrawer {
     }
 
     // Check placement validity
-    const placementErrorMessage = this.planEditor.commonFunctionsService.checkElementPlacement(
+    const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
       placementPoint,
       this.temporaryElement,
       this.elementSize.width,
@@ -147,9 +147,9 @@ export default class ElementDrawer {
     )
 
     // If there a is an error message, placement is not ok, show error and get out
-    if (placementErrorMessage) {
+    if (placementResult.invalid) {
       this.planEditor.commonFunctionsService.showPlacementError(
-        placementErrorMessage,
+        placementResult.reason,
         this.temporaryElement
       )
       return

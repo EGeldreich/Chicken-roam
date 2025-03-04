@@ -431,25 +431,26 @@ export default class CommonFunctionsService {
         y: point.y,
       })
 
-    let message = null
+    const result = { invalid: false, reason: null } // Default result
+
     // First, check enclosure restriction
     if (!wouldBeInside) {
-      message = 'Elements must be placed inside the enclosure'
+      result.invalid = true
+      result.reason = 'outside'
       this.invalidPlacement(element)
     }
     // Then check for collision with other elements
-    else if (this.wouldOverlap(point, width, height)) {
-      message = 'Elements cannot overlap'
-      this.invalidPlacement(element)
-    }
-    // Finally check for collision with fences
-    else if (this.wouldOverlapFence(point, width, height)) {
-      message = 'Elements cannot overlap with fences'
+    else if (
+      this.wouldOverlap(point, width, height) ||
+      this.wouldOverlapFence(point, width, height)
+    ) {
+      result.invalid = true
+      result.reason = 'overlap'
       this.invalidPlacement(element)
     } else {
       this.validPlacement(element)
     }
-    return message
+    return result
   }
 
   /**
@@ -458,33 +459,36 @@ export default class CommonFunctionsService {
    *
    */
   checkVertexPlacement(connectedFences) {
-    // Initialize reason message
-    let message = null
+    const result = { invalid: false, reason: null } // Default result
 
     // 1. Check minimal length
     if (!this.validateLength(connectedFences)) {
-      message = 'Fence is too short'
+      result.invalid = true
+      result.reason = 'length'
       for (let fence of connectedFences) {
         this.invalidPlacement(fence)
       }
     }
     // 2. Check angles
     else if (!this.validateAngle(connectedFences)) {
-      message = 'Angle between fences cannot be smaller than 15°'
+      result.invalid = true
+      result.reason = 'angle'
       for (let fence of connectedFences) {
         this.invalidPlacement(fence)
       }
     }
     // 3. Check fences intersections
     else if (!this.validateIntersections(connectedFences)) {
-      message = 'Fences cannot intersect each other'
+      result.invalid = true
+      result.reason = 'intersection'
       for (let fence of connectedFences) {
         this.invalidPlacement(fence)
       }
     }
     // 4. Check for element overlap
     else if (!this.validateOverlap(connectedFences)) {
-      message = 'Fences and elements cannot overlap'
+      result.invalid = true
+      result.reason = 'overlap'
       for (let fence of connectedFences) {
         this.invalidPlacement(fence)
       }
@@ -494,7 +498,7 @@ export default class CommonFunctionsService {
       }
     }
 
-    return message
+    return result
   }
 
   /**
@@ -644,10 +648,10 @@ export default class CommonFunctionsService {
 
   /**
    * Display an error feedback as an error toast
-   * @param {String} message Text content of the message
+   * @param {String} reason String containing reason
    * @param {Object} element HTML element being placed or moved
    */
-  showPlacementError(message, element) {
+  showPlacementError(reason, element) {
     // Visual feedback
     element.classList.add('placement-error')
     setTimeout(() => {
@@ -656,7 +660,21 @@ export default class CommonFunctionsService {
       }
     }, 1000)
 
-    // Create error message dinv and display it for 3 seconds
+    // Create correct error msg from reason
+    let message
+    if (reason === 'outside') {
+      message = 'Elements cannot be outside of the enclosure'
+    } else if (reason === 'overlap') {
+      message = 'Elements cannot overlap'
+    } else if (reason === 'length') {
+      message = 'Fence is too short'
+    } else if (reason === 'angle') {
+      message = 'Angle between fences cannot be smaller than 15°'
+    } else if (reason === 'intersection') {
+      message = 'Fences cannot intersect each other'
+    }
+
+    // Create error message div and display it for 3 seconds
     const errorMessage = document.createElement('div')
     errorMessage.className = 'placement-error-toast'
     errorMessage.textContent = message

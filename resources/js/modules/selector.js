@@ -210,8 +210,8 @@ export default class Selector {
   updateSelectedElementPosition(placementPoint) {
     if (!this.selectedElement) return
 
-    this.draggedElement.style.left = `${placementPoint.x}px`
-    this.draggedElement.style.top = `${placementPoint.y}px`
+    this.selectedElement.style.left = `${placementPoint.x}px`
+    this.selectedElement.style.top = `${placementPoint.y}px`
   }
 
   /**
@@ -240,8 +240,8 @@ export default class Selector {
     if (!this.selectedElement) return
 
     // Move point itself
-    this.draggedElement.style.left = `${point.x}px`
-    this.draggedElement.style.top = `${point.y}px`
+    this.selectedElement.style.left = `${point.x}px`
+    this.selectedElement.style.top = `${point.y}px`
 
     // Find all linked fences
     const connectedFences = this.findConnectedFences(vertexId)
@@ -329,7 +329,7 @@ export default class Selector {
       }
 
       // Check placement validity
-      const placementErrorMessage = this.planEditor.commonFunctionsService.checkElementPlacement(
+      const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
         placementPoint,
         this.selectedElement,
         width,
@@ -337,7 +337,7 @@ export default class Selector {
       )
 
       // If there is no error message, placement is ok
-      if (!placementErrorMessage && this.draggedElement) {
+      if (!placementResult.invalid && this.draggedElement) {
         // -- Reinsert element to placed elements array
         // Update coordinates
         this.draggedElement.x = placementPoint.x
@@ -362,9 +362,9 @@ export default class Selector {
         // Reset states
         this.resetStates()
       } else {
-        // If there a is an error message, placement is not ok, show error
+        // If placement is invalid, show error message
         this.planEditor.commonFunctionsService.showPlacementError(
-          placementErrorMessage,
+          placementResult.reason,
           this.selectedElement
         )
         // and reset placement
@@ -379,13 +379,13 @@ export default class Selector {
       const connectedFences = this.findConnectedFences(vertexId)
 
       // Check placement
-      const displacementErrorMsg =
+      const placementResult =
         this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences)
 
-      if (displacementErrorMsg) {
+      if (placementResult.invalid) {
         // Display error message
         this.planEditor.commonFunctionsService.showPlacementError(
-          displacementErrorMsg,
+          placementResult.reason,
           this.selectedElement
         )
 
