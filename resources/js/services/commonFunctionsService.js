@@ -459,6 +459,11 @@ export default class CommonFunctionsService {
   checkVertexPlacement(connectedFences, vertexPoint) {
     const result = { invalid: false, reason: null } // Default result
 
+    // Get out if no connected fences (should not happen)
+    if (connectedFences.length === 0) {
+      return result
+    }
+
     // 1. Check minimal length
     if (!this.validateLength(connectedFences)) {
       result.invalid = true
@@ -522,8 +527,9 @@ export default class CommonFunctionsService {
   validateAngle(connectedFences, movedVertex) {
     const MIN_ANGLE_DEG = 15
 
-    // 1. Check first angle, around moved vertex
+    // CASE 1 - 2 fences connected ______________________________________
     if (connectedFences.length >= 2) {
+      // 1. Check first angle, around moved vertex
       // Vérifier l'angle entre les clôtures connectées au vertex déplacé
       if (!this.checkAngleBetweenVectors(connectedFences, movedVertex, MIN_ANGLE_DEG)) {
         return false
@@ -550,6 +556,73 @@ export default class CommonFunctionsService {
           // Check angle
           if (!this.checkAngleBetweenVectors(connectedToEndpoint, otherEndpoint, MIN_ANGLE_DEG)) {
             return false
+          }
+        }
+      }
+    }
+
+    // CASE 2 - 1 fence connected ____________________________
+    else if (connectedFences.length === 1) {
+      // Get endpoints
+      const fence = connectedFences[0]
+      const endpoints = this.getFenceEndpoints(fence)
+
+      // Determine if moving point is end or start of fence
+      const isStartVertex = this.arePointsClose(endpoints.start, movedVertex)
+
+      // Get the other endpoint (the fixed one)
+      const fixedEndpoint = isStartVertex ? endpoints.end : endpoints.start
+
+      // Check for fences connected to this fixed point
+      const connectedToFixedPoint = this.findFencesConnectedToPoint(fixedEndpoint)
+
+      if (connectedToFixedPoint.length >= 2) {
+        // If 2 fences are connected to the fixed point, we need to check the angle
+        // Create vector for the moving fence
+        const movingVector = {
+          x: movedVertex.x - fixedEndpoint.x,
+          y: movedVertex.y - fixedEndpoint.y,
+          fence: fence,
+        }
+
+        // For each other fence connected (should be just one)
+        for (const otherFence of connectedToFixedPoint) {
+          // Ignore moving fence
+          if (otherFence === fence) continue
+
+          // Get the other endpoint of 2nd fence
+          const otherEndpoints = this.getFenceEndpoints(otherFence)
+          const otherEndpoint = this.arePointsClose(otherEndpoints.start, fixedEndpoint)
+            ? otherEndpoints.end
+            : otherEndpoints.start
+
+          // With both endpoints, calculate vector
+          const otherVector = {
+            x: otherEndpoint.x - fixedEndpoint.x,
+            y: otherEndpoint.y - fixedEndpoint.y,
+          }
+
+          // Calculate angle between 2 vectors
+          // Get scalar product and magnitudes
+          const dotProduct = movingVector.x * otherVector.x + movingVector.y * otherVector.y
+          const magnitude1 = Math.sqrt(
+            movingVector.x * movingVector.x + movingVector.y * movingVector.y
+          )
+          const magnitude2 = Math.sqrt(
+            otherVector.x * otherVector.x + otherVector.y * otherVector.y
+          )
+
+          // Avoid dividing by 0
+          if (magnitude1 < this.EPSILON || magnitude2 < this.EPSILON) return false
+
+          // Get angle
+          const cosAngle = dotProduct / (magnitude1 * magnitude2)
+          const angleRad = Math.acos(Math.max(-1, Math.min(1, cosAngle)))
+          const angleDeg = (angleRad * 180) / Math.PI
+
+          // Check angle validity
+          if (angleDeg < MIN_ANGLE_DEG) {
+            return false // Angle too small
           }
         }
       }

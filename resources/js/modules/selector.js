@@ -161,16 +161,9 @@ export default class Selector {
             // Check for a snap point
             const snapPoint = this.findNearestOtherConnectionPoint(this.draggedElement, point)
 
-            // Si on a trouvé un point dans la zone de snap, l'utiliser
-            // Sinon utiliser la position de la souris
+            // If we found a snap point, use it, if not, use mouse point
             const targetPoint = snapPoint || point
 
-            // Ajouter un feedback visuel au point déplacé
-            if (snapPoint) {
-              this.selectedElement.classList.add('snapping-active')
-            } else {
-              this.selectedElement.classList.remove('snapping-active')
-            }
             // Update position of vertex to snap
             this.updateSelectedVertexPosition(vertexId, targetPoint)
           } else {
