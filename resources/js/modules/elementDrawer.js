@@ -13,10 +13,20 @@ export default class ElementDrawer {
     // Default states
     this.isUsing = false
     this.temporaryElement = null
+    this.lastMousePosition = null
+
+    // For offset adjustment
+    this.offsetAdjustment = { x: 0, y: 0 }
+
+    // Set up event listeners for canvas transformations
+    this.canvas.addEventListener('canvas:transform', this.handleCanvasTransform.bind(this))
+
+    // Getters to access zoom and pan values
+    this.getZoom = () => this.planEditor.zoom || 1
+    this.getPanX = () => this.planEditor.panX || 0
+    this.getPanY = () => this.planEditor.panY || 0
   }
-  //
-  // COMMON METHODS
-  //_____________________________________________________________________________________________________________loadElements
+
   /**
    * Called in constructor to load each type of elements
    * In turn, calls renderPlacedElement
@@ -39,20 +49,40 @@ export default class ElementDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________stopUsing
+  /**
+   * Handle canvas transform custom events (zoom/pan changes)
+   * @param {CustomEvent} event - The transform event with zoom and pan details, sent by planEditor
+   */
+  handleCanvasTransform(event) {
+    // Calculate the new offset adjustment
+    const rect = this.canvas.getBoundingClientRect()
+    const containerRect = this.canvas.parentElement.getBoundingClientRect()
+
+    this.offsetAdjustment = {
+      x: (containerRect.left - rect.left) / event.detail.zoom,
+      y: (containerRect.top - rect.top) / event.detail.zoom,
+    }
+    console.log(this.offsetAdjustment)
+
+    // If there's an active element placement happening, update its position
+    if (this.lastMousePosition) {
+      this.updateTemporaryElementPosition(this.lastMousePosition)
+    }
+  }
+
   /**
    * Stop placing elements (when tool is deselected)
    *
    */
   stopUsing() {
     this.isUsing = false
+    this.lastMousePosition = null
     if (this.temporaryElement) {
       this.temporaryElement.remove()
       this.temporaryElement = null
     }
   }
 
-  //_____________________________________________________________________________________________________________startUsing
   /**
    * Start the placement process - create temporary element that follows mouse
    * Called in PlanEditor setCurrentTool()
@@ -63,7 +93,6 @@ export default class ElementDrawer {
     this.createTemporaryElement()
   }
 
-  //_____________________________________________________________________________________________________________createTemporaryElement
   /**
    * Create temporary visual element that follows mouse
    * Called in startUsing()
@@ -76,13 +105,10 @@ export default class ElementDrawer {
     this.temporaryElement.style.width = `${this.elementSize.width}px`
     this.temporaryElement.style.height = `${this.elementSize.height}px`
 
-    // Center the element on cursor
-    this.temporaryElement.style.transform = 'translate(-50%, -50%)'
-
+    // Append to DOM
     this.canvas.appendChild(this.temporaryElement)
   }
 
-  //_____________________________________________________________________________________________________________handleMouseMove
   /**
    * Handle placement of temporary element according to mouse with updateTemporaryElementPosition()
    * Check if element is in enclosure with isPointInEnclosure()
@@ -91,6 +117,10 @@ export default class ElementDrawer {
    */
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.temporaryElement) {
+      // Store the current mouse position for potential updates after zoom/pan
+      this.lastMousePosition = point
+
+      // Update position of the element according to the mouse
       this.updateTemporaryElementPosition(point)
 
       // Calculate placement position
@@ -108,7 +138,6 @@ export default class ElementDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________updateTemporaryElementPosition
   /**
    * Update position of temporary element to follow mouse cursor
    * @param {Object} point {x, y} coordinates of mouseEvent
@@ -116,11 +145,14 @@ export default class ElementDrawer {
   updateTemporaryElementPosition(point) {
     if (!this.temporaryElement) return
 
-    this.temporaryElement.style.left = `${point.x}px`
-    this.temporaryElement.style.top = `${point.y}px`
+    // Calculate centered position (on mouse) with offset adjustment
+    const centeredX = point.x - this.elementSize.width / 2
+    const centeredY = point.y - this.elementSize.height / 2
+
+    this.temporaryElement.style.left = `${centeredX}px`
+    this.temporaryElement.style.top = `${centeredY}px`
   }
 
-  //_____________________________________________________________________________________________________________placeElement
   /**
    * Check if element is in enclosure ( isPointInEnclosure () ), and is not overlaping ( wouldOverlap() ).
    * Display error if needed ( showPlacementError() ), or add element to DataBase.
@@ -205,7 +237,6 @@ export default class ElementDrawer {
     }
   }
 
-  //_____________________________________________________________________________________________________________renderPlacedElement
   /**
    * Create permanent DOM version of added element
    * @param {Object} elementData Object containing all relevant element information (id, type, x, y, width, height)

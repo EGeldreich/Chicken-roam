@@ -151,11 +151,8 @@ export default class PlanEditor {
         const mouseY = e.clientY - rect.top
 
         // Adjust pan, so zoom is centered on mouse position
-        this.panX += mouseX / oldZoom - mouseX / this.zoom
-        this.panY += mouseY / oldZoom - mouseY / this.zoom
-        // mouseX / oldZoom correspond to mouse coordinates before the zoom occurs
-        // mouseX / this.zoom correspont to the new coordinates where the mouse should be
-        // By doing panX = oldPositionX - newPositionX, we actively pan the canvas as much as needed to avoid mouving the mouse
+        this.panX += (mouseX * (oldZoom - this.zoom)) / oldZoom
+        this.panY += (mouseY * (oldZoom - this.zoom)) / oldZoom
 
         // Call to apply transformation with updated zoom and pan
         this.applyTransform()
@@ -293,6 +290,7 @@ export default class PlanEditor {
 
   // ZOOM AND PAN________
   //_____________________
+
   /**
    * Apply changes in zoom or pan
    */
@@ -308,6 +306,18 @@ export default class PlanEditor {
 
     // Update zoom-dependent values
     this.updateZoomDependentValues()
+
+    // Dispatch custom event containing transformation data
+    const transformEvent = new CustomEvent('canvas:transform', {
+      detail: {
+        zoom: this.zoom,
+        panX: this.panX,
+        panY: this.panY,
+      },
+      bubbles: true,
+    })
+
+    this.canvas.dispatchEvent(transformEvent)
   }
 
   /**
