@@ -7,6 +7,7 @@ export default class Selector {
     // Default state
     this.isUsing = true
     this.selectedElement = null
+
     // Variables for deplacement
     this.isDragging = false
     this.elementIndex = null // store moved element index
@@ -14,7 +15,8 @@ export default class Selector {
     this.mouseDownTime = null // Used to start dragging only after a certain time
     this.dragDelay = 100 // Delay before dragging in ms
     this.originalVertexPositions = null // Used to reset position if necessary
-    this.snapped = false
+    this.snapped = false // Snap state, used to know if a connection point is merging or not
+    this.snapDistance = 50 // snap distance in pixel
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
@@ -179,8 +181,6 @@ export default class Selector {
    * @returns {Object} nearest other connection point coordinates or null if none within range
    */
   findNearestOtherConnectionPoint(movedPoint, mousePoint) {
-    const snapDistance = 50 // pixels
-
     // Get all connection points
     const connectionPoints = Array.from(this.canvas.querySelectorAll('.connection-point'))
 
@@ -213,7 +213,7 @@ export default class Selector {
     })
 
     // Return a nearest point only if it is in snapDistance
-    if (nearestPoint && nearestPoint.distance <= snapDistance) {
+    if (nearestPoint && nearestPoint.distance <= this.snapDistance) {
       return { x: nearestPoint.x, y: nearestPoint.y, id: nearestPoint.element.dataset.vertexId }
     } else {
       return null

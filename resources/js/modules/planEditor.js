@@ -16,7 +16,16 @@ export default class PlanEditor {
     this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
     this.EPSILON = 1 // Margin of error
 
-    // Plan state property
+    // Zoom and pan related properties
+    this.zoom = 1
+    this.panX = 0
+    this.panY = 0
+    this.isPanning = false
+    this.lastPanPoint = { x: 0, y: 0 }
+    this.ZOOM_MAX = 3
+    this.ZOOM_MIN = 0.3
+
+    // Plan state properties
     this.planState = 'construction' // Default state: construction, enclosed, broken
     this.isEnclosureComplete = false
     // Get initial plan state from the server
@@ -54,8 +63,9 @@ export default class PlanEditor {
     }
 
     // Set up event listeners
-    this.initializeTools()
-    this.initializeCanvasEvents()
+    this.initializeTools() // Tool selection
+    this.initializeCanvasEvents() // Mouse events on canvas
+    this.initializeZoomPanControls() // Zoom and pan controls
 
     // Listen for enclosure completion event
     this.canvas.addEventListener('enclosureComplete', (event) => {
@@ -64,6 +74,236 @@ export default class PlanEditor {
       this.updatePlanState('enclosed')
     })
   }
+
+  // INITIALIZERS________
+  //_____________________
+
+  /**
+   * Set up mouse event listeners on canvas
+   * Redirect to relevant methods
+   */
+  initializeCanvasEvents() {
+    this.canvas.addEventListener('mousedown', (e) => {
+      // only listen to left clicks
+      if (e.button === 0) {
+        this.handleMouseDown(e)
+      }
+    })
+
+    this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e))
+
+    this.canvas.addEventListener('mouseup', (e) => {
+      // only listen to left clicks
+      if (e.button === 0) {
+        this.handleMouseUp(e)
+      }
+    })
+  }
+
+  /**
+   * Setup event listeners for tools
+   * Listen for a click and calls setCurrentTool
+   */
+  initializeTools() {
+    // Find tool btns
+    const toolButtons = document.querySelectorAll('.tool-btn')
+    // For each of them
+    toolButtons.forEach((button) => {
+      // Add click event listener
+      button.addEventListener('click', () => {
+        // Get information from dataset
+        const tool = button.dataset.tool
+        // Set clicked tool as current tool
+        this.setCurrentTool(tool)
+      })
+    })
+  }
+
+  /**
+   * Set up event listeners related to zooms and pan
+   */
+  initializeZoomPanControls() {
+    //____
+    // Zoom with mouse wheel
+    this.canvas.addEventListener('wheel', (e) => {
+      e.preventDefault() // Disable default behavior of wheel clicks
+
+      const delta = -Math.sign(e.deltaY) * 0.1
+      // e.deltaY get scroll value
+      // Math.sign(value) returns either 1, 0 or -1 depending on the (value)
+      // -Math.sign(e.deltaY) returns -1 for a scroll down, 1 for a scroll up
+
+      const oldZoom = this.zoom // Store current zoom value
+
+      this.zoom = Math.max(this.ZOOM_MIN, Math.min(this.ZOOM_MAX, this.zoom + delta))
+      // Set new zoom value
+      // Math.min(5, this.zoom + delta) returns the lowest value between 5 and the zoom value change
+      // Math.max(0.5, ...) returns the highest value between 0.5 and the lowest value above
+      // This set a minimal zoom of 0.5, and a max of 5, as those will always be chosen if the zoom is outside this range
+
+      // If there is a zoom change
+      if (this.zoom !== oldZoom) {
+        // Get new bounding datas
+        const rect = this.canvas.getBoundingClientRect()
+
+        // Get mouse coordinates relative to viewport and canvas
+        const mouseX = e.clientX - rect.left
+        const mouseY = e.clientY - rect.top
+
+        // Adjust pan, so zoom is centered on mouse position
+        this.panX += mouseX / oldZoom - mouseX / this.zoom
+        this.panY += mouseY / oldZoom - mouseY / this.zoom
+        // mouseX / oldZoom correspond to mouse coordinates before the zoom occurs
+        // mouseX / this.zoom correspont to the new coordinates where the mouse should be
+        // By doing panX = oldPositionX - newPositionX, we actively pan the canvas as much as needed to avoid mouving the mouse
+
+        // Call to apply transformation with updated zoom and pan
+        this.applyTransform()
+      }
+    })
+
+    //____
+    // Move with wheel button or right click
+
+    // Go into panning mode
+    this.canvas.addEventListener('mousedown', (e) => {
+      // Allow usage of wheel or right clic to move canvas
+      if (e.button === 1 || e.button === 2) {
+        e.preventDefault() // Disable default behavior for right and wheel mouse events
+
+        this.isPanning = true // Change default state
+        this.lastPanPoint = { x: e.clientX, y: e.clientY } // Store current pan point
+
+        // Change cursor by adding a class to viewport container
+        const container = document.querySelector('.viewport-container')
+        if (container) container.classList.add('panning') // Panning class change cursor to grabbing
+      }
+    })
+
+    // Move
+    document.addEventListener('mousemove', (e) => {
+      // Only act if currently panning
+      if (this.isPanning) {
+        // Every time the move is registered
+        // get the displacement values related to last pan point
+        const dx = e.clientX - this.lastPanPoint.x
+        const dy = e.clientY - this.lastPanPoint.y
+
+        // Update pan values
+        this.panX += dx
+        this.panY += dy
+
+        // Update last pan point
+        this.lastPanPoint = { x: e.clientX, y: e.clientY }
+
+        // Apply transformation with new values
+        this.applyTransform()
+      }
+    })
+
+    // Deactivate panning mode
+    document.addEventListener('mouseup', (e) => {
+      // If wheel or right click
+      if (e.button === 1 || e.button === 2) {
+        // Change panning state
+        this.isPanning = false
+        // Remove class
+        const container = document.querySelector('.viewport-container')
+        if (container) container.classList.remove('panning')
+      }
+    })
+
+    //___
+    // Deactivate right click menu
+    this.canvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault() // Added security to avoid right click menu appearing
+    })
+
+    //___
+    // Zoom control buttons
+
+    // Get elements
+    const zoomIn = document.getElementById('zoomIn')
+    const zoomOut = document.getElementById('zoomOut')
+    const resetView = document.getElementById('resetView')
+
+    // Event listener on zoom in
+    if (zoomIn) {
+      zoomIn.addEventListener('click', () => {
+        // Zoom by 0.1 increments, cannot go above 5
+        this.zoom = Math.min(this.ZOOM_MAX, this.zoom + 0.1)
+
+        // Call for changes
+        this.applyTransform()
+      })
+    }
+
+    // Event listener on zoom out
+    if (zoomOut) {
+      zoomOut.addEventListener('click', () => {
+        // Unzoom by 0.1 increments, cannot go below 0.5
+        this.zoom = Math.max(this.ZOOM_MIN, this.zoom - 0.1)
+
+        // Call for changes
+        this.applyTransform()
+      })
+    }
+
+    // Event listener or reset
+    if (resetView) {
+      resetView.addEventListener('click', () => {
+        // Set zoom to 1
+        this.zoom = 1
+        // Reset position
+        this.panX = 0
+        this.panY = 0
+
+        // Call for changes
+        this.applyTransform()
+      })
+    }
+  }
+  ///////////////////////
+
+  // ZOOM AND PAN________
+  //_____________________
+  /**
+   * Apply changes in zoom or pan
+   */
+  applyTransform() {
+    // Change canvas style with new values
+    this.canvas.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`
+
+    // Update zoom level display
+    const zoomLevel = document.getElementById('zoomLevel')
+    if (zoomLevel) {
+      zoomLevel.textContent = `${Math.round(this.zoom * 100)}%`
+    }
+
+    // Update zoom-dependent values
+    this.updateZoomDependentValues()
+  }
+
+  /**
+   * Update EPSILON in planEditor and CommonFunctionsService
+   * Update Snap Distances
+   */
+  updateZoomDependentValues() {
+    // Update EPSILON according to zoom level
+    this.EPSILON = 1 / this.zoom
+    if (this.commonFunctionsService) {
+      this.commonFunctionsService.EPSILON = this.EPSILON
+    }
+
+    // Update snap distances
+    if (this.fenceDrawer && this.selector) {
+      this.fenceDrawer.enclosureSnapDistance = 50 / this.zoom
+      this.fenceDrawer.EPSILON = this.EPSILON
+
+      this.selector.snapDistance = 50 / this.zoom
+    }
+  }
+  ///////////////////////
 
   /**
    * Send a GET request to fetch the current state of plan
@@ -211,35 +451,6 @@ export default class PlanEditor {
   }
 
   /**
-   * Initialize the mouse events
-   * Redirect to relevant methods
-   */
-  initializeCanvasEvents() {
-    this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e))
-    this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e))
-    this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e))
-  }
-
-  /**
-   * Setup event listeners for tools
-   * Listen for a click and calls setCurrentTool
-   */
-  initializeTools() {
-    // Find tool btns
-    const toolButtons = document.querySelectorAll('.tool-btn')
-    // For each of them
-    toolButtons.forEach((button) => {
-      // Add click event listener
-      button.addEventListener('click', () => {
-        // Get information from dataset
-        const tool = button.dataset.tool
-        // Set clicked tool as current tool
-        this.setCurrentTool(tool)
-      })
-    })
-  }
-
-  /**
    * Show guidance if a tool is disabled
    * Return previous tool to default state
    * Change display according to tool selection
@@ -303,8 +514,9 @@ export default class PlanEditor {
     const rect = this.canvas.getBoundingClientRect()
     return {
       // Get canvas coordinate by getting page coordinates - canvas displacement
-      x: Math.round(event.clientX - rect.left),
-      y: Math.round(event.clientY - rect.top),
+      // Take zoom and pan into account
+      x: Math.round((event.clientX - rect.left) / this.zoom - this.panX),
+      y: Math.round((event.clientY - rect.top) / this.zoom - this.panY),
     }
   }
 
