@@ -331,6 +331,8 @@ export default class PlanEditor {
   }
   ///////////////////////
 
+  // PLAN STATE__________
+  //_____________________
   /**
    * Send a GET request to fetch the current state of plan
    * Calls updatePlanState with that state
@@ -421,7 +423,10 @@ export default class PlanEditor {
       this.showGuidanceMessage('Enclosure complete! You can now place elements')
     }
   }
+  ///////////////////////
 
+  // USER INTERFACE______
+  //_____________________
   /**
    * Update the guidance message
    * Useful to help users
@@ -442,6 +447,25 @@ export default class PlanEditor {
     }
   }
 
+  /**
+   * Change tool btns bg and font color
+   * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
+   */
+  updateToolButtonStyles(currentTool) {
+    document.querySelectorAll('.tool-btn').forEach((btn) => {
+      if (btn.dataset.tool === currentTool) {
+        btn.classList.add('bg-gray-800', 'text-gray-200')
+        btn.classList.remove('bg-gray-200', 'text-gray-800')
+      } else {
+        btn.classList.add('bg-gray-200', 'text-gray-800')
+        btn.classList.remove('bg-gray-800', 'text-gray-200')
+      }
+    })
+  }
+  ///////////////////////
+
+  // GENERAL USE_________
+  //_____________________
   /**
    * Load all elements of the plan
    * GET request, response includes everything needed for element placement
@@ -473,6 +497,22 @@ export default class PlanEditor {
       }
     } catch (error) {
       console.error('Failed to load elements:', error)
+    }
+  }
+
+  /**
+   * Function to find canvas coordinates when called
+   * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
+   * @returns {Object} Coordinates of the mouse on the canvas
+   */
+  getCanvasPoint(event) {
+    // getBoundingClientRect() gets position of the canvas in the page
+    const rect = this.canvas.getBoundingClientRect()
+    return {
+      // Get canvas coordinate by getting page coordinates - canvas displacement
+      // Take zoom and pan into account
+      x: Math.round((event.clientX - rect.left) / this.zoom - this.panX),
+      y: Math.round((event.clientY - rect.top) / this.zoom - this.panY),
     }
   }
 
@@ -513,39 +553,10 @@ export default class PlanEditor {
       newHandler.startUsing()
     }
   }
+  ///////////////////////
 
-  /**
-   * Change tool btns bg and font color
-   * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
-   */
-  updateToolButtonStyles(currentTool) {
-    document.querySelectorAll('.tool-btn').forEach((btn) => {
-      if (btn.dataset.tool === currentTool) {
-        btn.classList.add('bg-gray-800', 'text-gray-200')
-        btn.classList.remove('bg-gray-200', 'text-gray-800')
-      } else {
-        btn.classList.add('bg-gray-200', 'text-gray-800')
-        btn.classList.remove('bg-gray-800', 'text-gray-200')
-      }
-    })
-  }
-
-  /**
-   * Function to find canvas coordinates when called
-   * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
-   * @returns {Object} Coordinates of the mouse on the canvas
-   */
-  getCanvasPoint(event) {
-    // getBoundingClientRect() gets position of the canvas in the page
-    const rect = this.canvas.getBoundingClientRect()
-    return {
-      // Get canvas coordinate by getting page coordinates - canvas displacement
-      // Take zoom and pan into account
-      x: Math.round((event.clientX - rect.left) / this.zoom - this.panX),
-      y: Math.round((event.clientY - rect.top) / this.zoom - this.panY),
-    }
-  }
-
+  // EVENTS REDIRECTION__
+  //_____________________
   /**
    * Get mouse coordinates and call correct tool method
    * @param {MouseEvent} event - Mouse event, initially defined in InitializeCanvasEvents
@@ -587,7 +598,10 @@ export default class PlanEditor {
       handler.handleMouseUp(point)
     }
   }
+  ///////////////////////
 
+  // OUTSIDE INSIDE______
+  //_____________________
   /**
    * Check if a given point is in enclosure (the enclosure must be complete)
    * @param {Object} point - Coordinates to check
@@ -650,4 +664,5 @@ export default class PlanEditor {
 
     return result
   }
+  ///////////////////////
 }

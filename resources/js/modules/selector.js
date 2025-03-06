@@ -16,7 +16,8 @@ export default class Selector {
     this.dragDelay = 100 // Delay before dragging in ms
     this.originalVertexPositions = null // Used to reset position if necessary
     this.snapped = false // Snap state, used to know if a connection point is merging or not
-    this.snapDistance = 50 // snap distance in pixel
+    this.snapDistance = 50 / this.planEditor.zoom // snap distance in pixel
+    this.dragStartOffset = null // Used to compensate pan offset on drag
 
     // Selected element menu
     this.menu = document.getElementById('elementMenu')
@@ -32,7 +33,6 @@ export default class Selector {
 
   /**
    * Deselect any selected element, and reset states to default
-   * @param {Object} point
    */
   stopUsing() {
     if (this.selectedElement) {
@@ -107,8 +107,13 @@ export default class Selector {
 
         // Add styling class to element
         this.selectedElement.classList.add('moving')
-        // change is dragging state
+        // Change is dragging state
         this.isDragging = true
+        // Define offset
+        this.dragStartOffset = {
+          x: parseFloat(this.selectedElement.style.left) - point.x,
+          y: parseFloat(this.selectedElement.style.top) - point.y,
+        }
       }
 
       // Set correct dragged element
@@ -141,7 +146,7 @@ export default class Selector {
             y: point.y - height / 2,
           }
           // Constantly update selected element position
-          this.updateSelectedElementPosition(placementPoint)
+          this.updateSelectedElementPosition(point)
           // Update visual display of moving element
           this.planEditor.commonFunctionsService.checkElementPlacement(
             placementPoint,
@@ -253,13 +258,17 @@ export default class Selector {
 
   /**
    * Update position of selected element to follow mouse cursor
-   * @param {Object} placementPoint {x, y} coordinates of mouseEvent taking width and height into account
+   * @param {Object} point {x, y} coordinates of mouseEvent taking width and height into account
    */
-  updateSelectedElementPosition(placementPoint) {
+  updateSelectedElementPosition(point) {
     if (!this.selectedElement) return
 
-    this.selectedElement.style.left = `${placementPoint.x}px`
-    this.selectedElement.style.top = `${placementPoint.y}px`
+    // Account for offset
+    const effectiveX = point.x + this.dragStartOffset.x
+    const effectiveY = point.y + this.dragStartOffset.y
+
+    this.selectedElement.style.left = `${effectiveX}px`
+    this.selectedElement.style.top = `${effectiveY}px`
   }
 
   /**
@@ -287,9 +296,13 @@ export default class Selector {
   updateSelectedVertexPosition(vertexId, point) {
     if (!this.selectedElement) return
 
+    // Account for offset
+    const effectiveX = point.x + this.dragStartOffset.x
+    const effectiveY = point.y + this.dragStartOffset.y
+
     // Move point itself
-    this.selectedElement.style.left = `${point.x}px`
-    this.selectedElement.style.top = `${point.y}px`
+    this.selectedElement.style.left = `${effectiveX}px`
+    this.selectedElement.style.top = `${effectiveY}px`
 
     // Find all linked fences
     const connectedFences = this.findConnectedFences(vertexId)
@@ -320,12 +333,12 @@ export default class Selector {
         const endY = currentStartY + Math.sin(angleRad) * currentLength
 
         // Update starting point
-        fence.style.left = `${point.x}px`
-        fence.style.top = `${point.y}px`
+        fence.style.left = `${effectiveX}px`
+        fence.style.top = `${effectiveY}px`
 
         // Recalculate length and angle
-        const deltaX = endX - point.x
-        const deltaY = endY - point.y
+        const deltaX = endX - effectiveX
+        const deltaY = endY - effectiveY
         const newLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
         const newAngle = Math.atan2(deltaY, deltaX) * (180 / Math.PI)
 
@@ -339,8 +352,8 @@ export default class Selector {
         const startY = parseFloat(fence.style.top)
 
         // Calculate new length
-        const deltaX = point.x - startX
-        const deltaY = point.y - startY
+        const deltaX = effectiveX - startX
+        const deltaY = effectiveY - startY
         const newLength = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
 
         // Calculate new angle
@@ -351,7 +364,8 @@ export default class Selector {
         fence.style.transform = `rotate(${newAngle}deg)`
       }
     })
-    this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences, point)
+    const effectivePoint = { x: effectiveX, y: effectiveY }
+    this.planEditor.commonFunctionsService.checkVertexPlacement(connectedFences, effectivePoint)
   }
 
   /**
@@ -376,6 +390,9 @@ export default class Selector {
         x: point.x - width / 2,
         y: point.y - height / 2,
       }
+      // Account for offset
+      const effectiveX = point.x + this.dragStartOffset.x
+      const effectiveY = point.y + this.dragStartOffset.y
 
       // Check placement validity
       const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
@@ -388,15 +405,11 @@ export default class Selector {
       // If there is no error message, placement is ok
       if (!placementResult.invalid && this.draggedElement) {
         // -- Reinsert element to placed elements array
-        // Update coordinates
-        this.draggedElement.x = placementPoint.x
-        this.draggedElement.y = placementPoint.y
-
         // Update database
         this.updateElementPositionInBack(
           this.selectedElement.dataset.elementId,
-          placementPoint.x,
-          placementPoint.y
+          effectiveX,
+          effectiveY
         )
 
         // Reinsert into array
@@ -405,8 +418,8 @@ export default class Selector {
 
         // Handle Front-end change
         this.selectedElement.classList.remove('moving', 'valid-placement')
-        this.selectedElement.style.left = `${placementPoint.x}px`
-        this.selectedElement.style.top = `${placementPoint.y}px`
+        this.selectedElement.style.left = `${effectiveX}px`
+        this.selectedElement.style.top = `${effectiveY}px`
 
         // Reset states
         this.resetStates()
@@ -595,6 +608,7 @@ export default class Selector {
     this.selectedElement = null
     this.draggedElement = null
     this.elementIndex = null
+    this.dragStartOffset = null
     this.hideMenu()
   }
 

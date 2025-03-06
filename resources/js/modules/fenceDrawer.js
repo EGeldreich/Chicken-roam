@@ -9,7 +9,7 @@ export default class FenceDrawer {
     // (123, {x: 100, y: 200, connections: 2})  // id => {x, y, connections}
     this.connectionPoints = [] // Initialize empty array for connection points
     this.movablePoints = [] // Initialize empty array for movable points
-    this.enclosureSnapDistance = 50 // Distance in pixels to snap to first vertex
+    this.enclosureSnapDistance = 50 / this.planEditor.zoom // Distance in pixels to snap to first vertex
     this.EPSILON = 1 // Margin of error value
     this.MIN_ANGLE_DEG = 15 // Minimum angle between 2 consecutive fences
 
