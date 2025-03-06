@@ -86,16 +86,6 @@ body {
   height: 100%;
 }
 
-/* Ajustements pour les boutons de zoom */
-.zoom-controls {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 0.5rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-}
-
 .btn-sm {
   font-size: 0.875rem;
   line-height: 1;

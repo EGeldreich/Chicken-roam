@@ -226,6 +226,10 @@ export default class PlanEditor {
     const zoomIn = document.getElementById('zoomIn')
     const zoomOut = document.getElementById('zoomOut')
     const resetView = document.getElementById('resetView')
+    const moveUp = document.getElementById('moveUp')
+    const moveLeft = document.getElementById('moveLeft')
+    const moveRight = document.getElementById('moveRight')
+    const moveDown = document.getElementById('moveDown')
 
     // Event listener on zoom in
     if (zoomIn) {
@@ -241,15 +245,12 @@ export default class PlanEditor {
     // Event listener on zoom out
     if (zoomOut) {
       zoomOut.addEventListener('click', () => {
-        // Unzoom by 0.1 increments, cannot go below 0.5
         this.zoom = Math.max(this.ZOOM_MIN, this.zoom - 0.1)
-
-        // Call for changes
         this.applyTransform()
       })
     }
 
-    // Event listener or reset
+    // Event listener on reset
     if (resetView) {
       resetView.addEventListener('click', () => {
         // Set zoom to 1
@@ -258,7 +259,32 @@ export default class PlanEditor {
         this.panX = 0
         this.panY = 0
 
-        // Call for changes
+        this.applyTransform()
+      })
+    }
+
+    // Event listener on movements
+    if (moveUp) {
+      moveUp.addEventListener('click', () => {
+        this.panY -= 50
+        this.applyTransform()
+      })
+    }
+    if (moveDown) {
+      moveDown.addEventListener('click', () => {
+        this.panY += 50
+        this.applyTransform()
+      })
+    }
+    if (moveRight) {
+      moveRight.addEventListener('click', () => {
+        this.panX -= 50
+        this.applyTransform()
+      })
+    }
+    if (moveLeft) {
+      moveLeft.addEventListener('click', () => {
+        this.panX += 50
         this.applyTransform()
       })
     }
