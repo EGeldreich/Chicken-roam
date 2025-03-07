@@ -781,7 +781,7 @@ export default class Selector {
       return
 
     let response
-    // If fence
+    // Fence ___________
     if (this.selectedElement.classList.contains('fence')) {
       try {
         // Get fence id
@@ -802,7 +802,7 @@ export default class Selector {
       }
     }
 
-    // If perch or shrub
+    // Perch or shrub __________________
     if (
       this.selectedElement.classList.contains('perch') ||
       this.selectedElement.classList.contains('shrub')

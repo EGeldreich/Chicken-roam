@@ -134,7 +134,7 @@ if (tempPlanId) {
 
 ## Plan
 
-### PlanEditor
+#### PlanEditor
 
 Pour la partie **Front-end** du plan, tout transite par la classe javascript **PlanEditor**.  
 Cette classe sert de base d'appel pour initialiser tous les outils.  
@@ -142,7 +142,7 @@ Elle sert également à gérer les évènements (mouse up, move et down) et à a
 
 En plus de cela, c'est ici que ce gère tout ce qui est lié au plan en dehors de la zone de dessin. Comme la boite à outil, le nom du plan, la capacité à zoomer ...
 
-### PlanController
+#### PlanController
 
 Pour la partie **Back-end** du plan, cela se passe dans le plan controller pour les manoeuvres générales.
 
@@ -152,7 +152,7 @@ Pour la partie **Back-end** du plan, cela se passe dans le plan controller pour 
 
 ## Elements
 
-### ElementDrawer
+#### ElementDrawer
 
 C'est ici que se passe la partie **Front-end** des éléments.  
 J'y définie les informations et les méthodes générales, puis fait hériter ces valeurs aux éléments plus spécifiques.
@@ -175,7 +175,7 @@ l'ElementDrawer s'occupe de :
 10. **showPlacementError()**, renvoie un signal visuel si l'utilisateur tente de placer incorrectement un élément
 11. **updateObjectivesDisplay()**, s'occupe de mettre à jour le contenu textuel des objectifs.
 
-### ElementController
+#### ElementController
 
 Gère la partie **Back-end** des éléments du plan.  
 Se compose des méthodes suivantes :
@@ -317,7 +317,7 @@ Chaque état induit une logique.
 
 ## Changement de position des éléments
 
-### Déplacement de l'élément
+#### Déplacement de l'élément
 
 Avec la même logique que lors du placement, l'élément selectionné se place en fonction de la souris en mettant constament à jour le style.
 
@@ -330,7 +330,7 @@ updateSelectedElementPosition(point) {
   }
 ```
 
-### Vérification de la validité
+#### Vérification de la validité
 
 Encore une fois même logique que lors du placement, on appelle d'ailleurs la même fonction.  
 Petite subtilité tout de même, il faut temporairement supprimé l'élément selectionné du tableau de l'ensemble des éléments qui est utilisé pour detecter les collisions.
@@ -345,7 +345,7 @@ On le replace une fois le déplacement terminé.
 this.planEditor.placedElements.splice(this.elementIndex, 0, this.draggedElement)
 ```
 
-### Update dans la database
+#### Update dans la database
 
 La seule chose à changer en base de donnée est finalement les coordonnées du vertex lié à l'élément.  
 On trouve le vertex via l'élément, puis on modifie le vertex et on sauvegarde les changements.
@@ -369,7 +369,7 @@ await vertex.save()
 
 ## Changement de position des vertex
 
-### Selection des vertices
+#### Selection des vertices
 
 Lors de la création d'une clôture dans le fenceDrawer, on ajoute systématiquement les sommets à la map this.vertices.  
 Si un point n'est lié qu'à une clôture, c'est un **_connection-point_**.  
@@ -377,7 +377,7 @@ Si il est lié à 2 clôtures, c'est un **_movable-point_**.
 
 Ces points sont sélectionnables et déplacables. Ils ne peuvent pas être supprimé directement.
 
-### Validations lors du mouvement
+#### Validations lors du mouvement
 
 Peu importe le type de point, des validations sont à faire.  
 Ce sont les mêmes que lors de la création d'une nouvelle clôture.
@@ -389,7 +389,7 @@ Ce sont les mêmes que lors de la création d'une nouvelle clôture.
 
 Pour cela, on vérifie toutes les conditions dans **checkVertexPlacement()** du commonFunctionsService.
 
-### Snapping et fusion de vertex
+#### Snapping et fusion de vertex
 
 Lors du déplacement d'un **_connection-point_** sur un autre **_connection-point_** libre, ils "fusionnent".  
 C'est à dire que le vertex qui se fait déplacer est effacé, et son id (soit **vertexEnd** soit **vertexStart**) est remplacé par celui sur lequel il s'est déplacé.  
@@ -428,7 +428,7 @@ await fence.save()
 
 ## Formules mathématiques utilisées
 
-### Système de detection des collisions AABB
+#### Système de detection des collisions AABB
 
 Se base sur la logique que 2 boîtes se chevauchent si et seulement si :
 
@@ -450,7 +450,7 @@ if (
 }
 ```
 
-### Trouver la longueur et l'angle d'une clôture
+#### Trouver la longueur et l'angle d'une clôture
 
 ```javascript
 // Calculate length and angle
@@ -466,7 +466,7 @@ Utilisation de Pythagore pour la longueur.
 
 Pour l'angle, calcule de l'arc tangente avec Math.atan2, puis transformation en degrés avec \* (180 / Math.pi)
 
-### Trouver le point le plus proche
+#### Trouver le point le plus proche
 
 ```javascript
 // In fenceDrawer.js
@@ -478,7 +478,7 @@ Comparaison de la distance avec chaque point déjà présent.
 
 > Distance entre A et B est égal à Racine carrée de ((Ax - Bx)² + (Ay - By)²)
 
-### Détection d'intersection pour les clôtures
+#### Détection d'intersection pour les clôtures
 
 ```javascript
 checkLineIntersection(x1, y1, x2, y2, x3, y3, x4, y4) {
@@ -501,7 +501,7 @@ Les paramètres ua et ub indiquent où l'intersection se produit le long de chaq
 
 > Une intersection existe si et seulement si 0 ≤ ua ≤ 1 et 0 ≤ ub ≤ 1
 
-### Calcul de la surface d'un enclos
+#### Calcul de la surface d'un enclos
 
 ```javascript
 // Apply Shoelace formula
@@ -520,7 +520,7 @@ La valeur absolue et la division par 2 sont nécessaires pour obtenir l'aire cor
 
 > Aire = (1/2) × |∑(x₁y₂ - x₂y₁ + x₂y₃ - x₃y₂ + ... + xₙy₁ - x₁yₙ)|
 
-### EPSILON
+#### EPSILON
 
 Afin d'éviter des problèmes liés à la précision limitée des chiffres en mémoire :
 
@@ -530,6 +530,184 @@ Afin d'éviter des problèmes liés à la précision limitée des chiffres en m�
 ```
 
 On utilise une valeur **epsilon**, qui définit une marge d'erreur acceptée.
+
+## Différence Espace de l'écran et espace du canvas
+
+Puisque la zone de travail n'est pas fixe (possibilité de zoomer et de la déplacer), il faut différencier deux espaces :
+
+1. L'écran
+2. Le canvas
+
+Les évènements lié à la souris renvoient des coordonnées dans l'espace **écran**.  
+Pour les transformer en coordonnées **espace de travail**, il faut faire quelques opérations.
+
+```javascript
+getCanvasPoint(event) {
+    // getBoundingClientRect() gets position of the canvas in the page
+    const rect = this.canvas.getBoundingClientRect()
+
+    // Calculate mouse position relative to canvas offset
+    const transformedX = event.clientX - rect.left
+    const transformedY = event.clientY - rect.top
+    // Take zoom into account
+    const worldX = transformedX / this.zoom
+    const worldY = transformedY / this.zoom
+
+    return {
+      x: Math.round(worldX),
+      y: Math.round(worldY),
+    }
+  }
+```
+
+Grâce à cette méthode, le point retourné (qui sera envoyé dans les diverses autres méthodes comme variable) correspond aux coordonnées du canvas, et non plus de l'écran.
+
+## Amélioration d'élement
+
+Les clôtures, buissons et perchoirs peuvent être améliorés.  
+Lors d'une amélioration, ils deviennent autre chose.
+
+> Clôture -> **Porte**
+
+> Buisson / Perchoir -> **Arbre**
+
+Une porte ne sert que pour l'utilisateur, pour mieux se projeter.  
+Un arbre quant à lui, fait avancer les objectifs autant qu'un perchoir et un buisson réunis.
+
+#### Système d'amélioration
+
+Lorsqu'un élément qui peut être améliorer est selectionné, le boutton **_upgrade_** est disponible.  
+L'amélioration se passe avec la méthode **_handleUpgrade_** du **Selector**.
+
+Exemple pour une amélioration en arbre, une amélioration en porte étant plus simple :
+
+1. Vérifier que l'agrandissement de l'élément ne va pas causer de superposition
+
+```javascript
+// Check for space availability
+// Get position
+let elementPosition = {
+  x: parseFloat(this.selectedElement.style.left),
+  y: parseFloat(this.selectedElement.style.top),
+}
+// Check placement
+const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
+  elementPosition,
+  this.selectedElement,
+  200,
+  200
+)
+
+// handle unavailability
+if (placementResult.invalid) {
+  this.planEditor.commonFunctionsService.showPlacementError(
+    placementResult.reason,
+    this.selectedElement
+  )
+  this.selectedElement.classList.remove('invalid-placement')
+
+  // Place available :
+} else {...}
+```
+
+2. Appeler le back-end, avec l'id de l'objet selectionné en paramètre.
+
+```javascript
+// Get element id
+const elementId = parseInt(this.selectedElement.dataset.elementId)
+// Call back for upgrade
+response = await fetch(`/api/elements/${elementId}/upgrade`, {
+  method: 'PATCH',
+  headers: {
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+  },
+})
+```
+
+3. Dans le back, effectuer les changements nécessaires
+
+```typescript
+// Find element to upgrade
+const elementToUpgrade = await Element.findOrFail(params.id)
+// Change it's type
+elementToUpgrade.type = 'tree'
+// Change it's objective value
+elementToUpgrade.objectiveValue = 0
+// Change Size
+elementToUpgrade.width = 200
+elementToUpgrade.height = 200
+// Save
+await elementToUpgrade.save()
+```
+
+4. Recalculer l'avancée des objectifs.
+
+```typescript
+// Recalculate objectives for this plan
+await ObjectiveService.recalculateForPlan(planId)
+// Get plan with new objectives values for the response
+const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+```
+
+5. Envoyer une réponse avec les éléments nécessaire à la suite
+
+```typescript
+return response.status(200).json({
+  objectives: plan.objectives.map((objective) => ({
+    id: objective.id,
+    name: objective.name,
+    description: objective.description,
+    target_value: objective.$extras.pivot_target_value,
+    completion_percentage: objective.$extras.pivot_completion_percentage,
+    unit: objective.unit,
+  })),
+  element: elementData,
+})
+```
+
+6. En front, récupérer la réponse et faire les changement nécessaires
+   C'est à dire :
+
+- Mettre à jour le tableau des éléments en place
+- Mettre à jour les objectifs
+- Mettre à jour les classes et le style de l'élément
+- Mettre à jour le menu contextuel
+
+```javascript
+// Get response data
+const data = await response.json()
+
+// Update placedElements for new size
+// Find the index
+this.elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
+// Update it
+if (this.elementIndex !== -1) {
+  this.planEditor.placedElements[this.elementIndex] = {
+    id: data.element.id,
+    type: data.element.type,
+    x: parseFloat(data.element.vertexPositionX),
+    y: parseFloat(data.element.vertexPositionY),
+    width: parseFloat(data.element.width),
+    height: parseFloat(data.element.height),
+  }
+}
+
+// Update objectives display
+if (data.objectives) {
+  this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+}
+
+// Update element display
+this.selectedElement.classList.remove('perch')
+this.selectedElement.classList.remove('shrub')
+this.selectedElement.classList.add('tree')
+this.selectedElement.style.width = `${data.element.width}px`
+this.selectedElement.style.height = `${data.element.width}px`
+// Remove helper class
+this.selectedElement.classList.remove('valid-placement')
+// Update menu to remove upgrade btn
+this.showMenu()
+```
 
 ## TO DO
 
