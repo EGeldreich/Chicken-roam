@@ -239,4 +239,28 @@ export default class FencesController {
       })
     }
   }
+  //
+  //
+  async upgradeFence({ params, response }: HttpContext) {
+    try {
+      // Find fence to upgrade
+      const fence = await Fence.findOrFail(params.id)
+
+      // Change it's type
+      fence.type = 'door'
+
+      // Save
+      await fence.save()
+
+      return response.ok({
+        message: 'fence upgraded successfully',
+      })
+    } catch (error) {
+      console.error('Error upgrading fence element: ', error)
+      return response.internalServerError({
+        message: 'Failed to upgrade fence element',
+        error: error.message,
+      })
+    }
+  }
 }

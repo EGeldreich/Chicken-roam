@@ -87,16 +87,17 @@
   {{-- Main Canvas Area --}}
   <div class="flex-1 relative">
     <div class="viewport-container h-full">
+      <div id="currentTool" class="absolute top-4 right-4 bg-gray-100 p-2 rounded z-20">
+        Current Tool: <span id="toolDisplay">select</span>
+      </div>
+      <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
+        <button class="btn btn-danger delete-btn">Delete</button>
+        <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
+      </div>
       <div
         id="planCanvas"
         class="canvas-content w-full h-full bg-white relative border-2 state-{{ plan.state || 'construction' }}"
       >
-        <div id="currentTool" class="absolute top-4 right-4 bg-gray-100 p-2 rounded z-20">
-          Current Tool: <span id="toolDisplay">select</span>
-        </div>
-        <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
-          <button class="btn btn-danger delete-btn">Delete</button>
-        </div>
       </div>
 
       {{-- Zoom controls --}}

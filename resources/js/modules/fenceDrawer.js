@@ -413,7 +413,11 @@ export default class FenceDrawer {
     // Create a fence HTML element
     const fenceElement = document.createElement('div')
     // Add classes and dataset
-    fenceElement.className = 'fence selectable'
+    if (fenceData.type === 'standard') {
+      fenceElement.className = 'fence selectable'
+    } else {
+      fenceElement.className = 'door selectable'
+    }
     fenceElement.dataset.fenceId = fenceData.id
     fenceElement.dataset.vertexStartId = fenceData.vertexStartId
     fenceElement.dataset.vertexEndId = fenceData.vertexEndId

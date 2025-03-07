@@ -628,16 +628,26 @@ export default class Selector {
         }
       })
     }
+    const upgradeBtn = this.menu.querySelector('.upgrade-btn')
+    if (upgradeBtn) {
+      upgradeBtn.addEventListener('click', () => this.handleUpgrade())
+    }
   }
 
   /**
    * Remove hidden class of menu when called
    */
   showMenu() {
-    // Position menu near the selected element
-    // this.menu.style.left = `25px`
-    // this.menu.style.top = `${element.style.top}px`
     this.menu.classList.remove('hidden')
+
+    // Display upgrade btn only for fence or perch
+    this.menu.querySelector('.upgrade-btn').classList.add('hidden')
+    if (
+      this.selectedElement.classList.contains('fence') ||
+      this.selectedElement.classList.contains('perch')
+    ) {
+      this.menu.querySelector('.upgrade-btn').classList.remove('hidden')
+    }
   }
 
   /**
@@ -646,6 +656,7 @@ export default class Selector {
    */
   hideMenu() {
     this.menu.classList.add('hidden')
+    this.menu.querySelector('.upgrade-btn').classList.add('hidden')
   }
 
   /**
@@ -749,6 +760,73 @@ export default class Selector {
       this.selectedElement = null
     } catch (error) {
       console.error('Error during delete:', error)
+    }
+  }
+
+  /**
+   * Upgrade fence into door or perch into tree
+   * @throws {Error} error on upgrade
+   */
+  async handleUpgrade() {
+    // Get out if neither fence nor perch
+    if (
+      !this.selectedElement.classList.contains('fence') &&
+      !this.selectedElement.classList.contains('perch')
+    )
+      return
+
+    let response
+    // If fence
+    if (this.selectedElement.classList.contains('fence')) {
+      try {
+        // Get fence id
+        const fenceId = this.selectedElement.dataset.fenceId
+        response = await fetch(`/api/fences/${fenceId}/upgrade`, {
+          method: 'PATCH',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+          },
+        })
+        if (!response.ok) {
+          console.error('Failed to upgrade fence: ', await response.json())
+        } else {
+          this.selectedElement.classList.remove('fence')
+          this.selectedElement.classList.add('door')
+        }
+      } catch (error) {
+        console.error('Error: ', error)
+      }
+    }
+
+    // If perch
+    if (this.selectedElement.classList.contains('perch')) {
+      try {
+        // Get element id
+        const elementId = this.selectedElement.dataset.elementId
+        response = await fetch(`/api/elements/${elementId}/upgrade`, {
+          method: 'PATCH',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+          },
+        })
+        if (!response.ok) {
+          console.error('Failed to upgrade perch: ', await response.json())
+        } else {
+          // Get response data
+          const data = await response.json()
+
+          // Update objectives display
+          if (data.objectives) {
+            this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+          }
+
+          // Update perch display
+          this.selectedElement.classList.remove('perch')
+          this.selectedElement.classList.add('tree')
+        }
+      } catch (error) {
+        console.error('Error: ', error)
+      }
     }
   }
 }

@@ -26,6 +26,9 @@
   .fence {
     @apply absolute h-1 bg-black transform origin-left;
   }
+  .door {
+    @apply absolute h-1 border-black border-2 border-dotted transform origin-left;
+  }
   .shelter {
     @apply absolute bg-gray-700;
   }
@@ -43,6 +46,9 @@
   }
   .dustbath {
     @apply absolute bg-gray-500;
+  }
+  .tree {
+    @apply absolute bg-green-300;
   }
   /*  */
   /* SELECTION */

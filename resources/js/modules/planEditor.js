@@ -5,6 +5,8 @@ import PerchDrawer from './perchDrawer.js'
 import ShrubDrawer from './shrubDrawer.js'
 import InsectaryDrawer from './insectaryDrawer.js'
 import DustbathDrawer from './dustbathDrawer.js'
+import TreeDrawer from './treeDrawer.js'
+import DoorDrawer from './doorDrawer.js'
 import Selector from './selector.js'
 import CommonFunctionsService from '../services/commonFunctionsService.js'
 
@@ -44,6 +46,8 @@ export default class PlanEditor {
     this.shrubDrawer = new ShrubDrawer(this.canvas, this.planId, this)
     this.insectaryDrawer = new InsectaryDrawer(this.canvas, this.planId, this)
     this.dustbathDrawer = new DustbathDrawer(this.canvas, this.planId, this)
+    this.treeDrawer = new TreeDrawer(this.canvas, this.planId, this)
+    this.doorDrawer = new DoorDrawer(this.canvas, this.planId, this)
     this.selector = new Selector(this.canvas, this.planId, this)
 
     // Add CommonFunctionsService instance
@@ -62,6 +66,8 @@ export default class PlanEditor {
       insectary: this.insectaryDrawer,
       dustbath: this.dustbathDrawer,
       select: this.selector,
+      tree: this.treeDrawer,
+      door: this.doorDrawer,
     }
 
     // Set up event listeners
@@ -495,9 +501,12 @@ export default class PlanEditor {
    */
   async loadAllElements() {
     try {
+      // fetch all element from DB
       const response = await fetch(`/api/elements/${this.planId}`)
+
       if (response.ok) {
         const elements = await response.json()
+        // Add each element from the response into placedElements array for collisions
         elements.forEach((element) => {
           // Add to the shared tracking array
           this.placedElements.push({

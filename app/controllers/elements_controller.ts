@@ -127,13 +127,6 @@ export default class ElementsController {
         // Save update
         vertex.useTransaction(trx)
         await vertex.save()
-
-        // Return relevant data
-        return {
-          id: element.id,
-          type: element.type,
-          position: { x: vertex.positionX, y: vertex.positionY },
-        }
       })
 
       return response.ok({
@@ -141,9 +134,45 @@ export default class ElementsController {
         element: result,
       })
     } catch (error) {
-      console.error('Error updating element position:', error)
+      console.error('Error updating element position: ', error)
       return response.internalServerError({
         message: 'Failed to update element position',
+        error: error.message,
+      })
+    }
+  }
+  //
+  //
+  async upgradePerch({ params, response }: HttpContext) {
+    try {
+      // Find perch to upgrade
+      const perch = await Element.findOrFail(params.id)
+      // Change it's type
+      perch.type = 'tree'
+      // Save
+      await perch.save()
+
+      // Find Plan
+      const planId = perch.planId
+      // Recalculate objectives for this plan
+      await ObjectiveService.recalculateForPlan(planId)
+
+      const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+
+      return response.status(200).json({
+        objectives: plan.objectives.map((objective) => ({
+          id: objective.id,
+          name: objective.name,
+          description: objective.description,
+          target_value: objective.$extras.pivot_target_value,
+          completion_percentage: objective.$extras.pivot_completion_percentage,
+          unit: objective.unit,
+        })),
+      })
+    } catch (error) {
+      console.error('Error upgrading perch element: ', error)
+      return response.internalServerError({
+        message: 'Failed to upgrade perch element',
         error: error.message,
       })
     }
