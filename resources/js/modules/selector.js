@@ -72,9 +72,14 @@ export default class Selector {
       if (!this.selectedElement.classList.contains('point')) {
         // Do not display menu for movable points
         this.showMenu(this.selectedElement)
+      } else {
+        // Selected element is a point, save position
+        const vertexId = parseInt(this.selectedElement.dataset.vertexId)
+        this.saveOriginalVertexPositions(vertexId)
       }
     } else if (targetElement !== deleteBtn) {
       // Deselect and hide menu if click on nothing
+
       this.hideMenu()
       this.selectedElement = null
     }
@@ -125,8 +130,6 @@ export default class Selector {
       } else {
         // dragged element is a fence intersection
         this.draggedElement = this.selectedElement
-        const vertexId = parseInt(this.selectedElement.dataset.vertexId)
-        this.saveOriginalVertexPositions(vertexId)
       }
 
       if (this.isDragging) {
@@ -591,6 +594,7 @@ export default class Selector {
     this.isDragging = false
     this.draggedElement = null
     this.elementIndex = null
+    this.originalVertexPositions = null
   }
 
   /**
@@ -849,8 +853,6 @@ export default class Selector {
             this.elementIndex = this.planEditor.placedElements.findIndex(
               (el) => el.id === elementId
             )
-            console.table(this.planEditor.placedElements)
-            console.log('element index: ', this.elementIndex)
             // Update it
             if (this.elementIndex !== -1) {
               this.planEditor.placedElements[this.elementIndex] = {
@@ -862,7 +864,6 @@ export default class Selector {
                 height: parseFloat(data.element.height),
               }
             }
-            console.table(this.planEditor.placedElements)
 
             // Update objectives display
             if (data.objectives) {
