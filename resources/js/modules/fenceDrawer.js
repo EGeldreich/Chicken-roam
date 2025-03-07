@@ -416,7 +416,7 @@ export default class FenceDrawer {
     if (fenceData.type === 'standard') {
       fenceElement.className = 'fence selectable'
     } else {
-      fenceElement.className = 'door selectable'
+      fenceElement.className = 'fence door selectable'
     }
     fenceElement.dataset.fenceId = fenceData.id
     fenceElement.dataset.vertexStartId = fenceData.vertexStartId

@@ -27,7 +27,7 @@
     @apply absolute h-1 bg-black transform origin-left;
   }
   .door {
-    @apply absolute h-1 border-black border-2 border-dotted transform origin-left;
+    @apply outline-2 outline-dashed outline-gray-500;
   }
   .shelter {
     @apply absolute bg-gray-700;

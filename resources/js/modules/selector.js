@@ -644,7 +644,8 @@ export default class Selector {
     this.menu.querySelector('.upgrade-btn').classList.add('hidden')
     if (
       this.selectedElement.classList.contains('fence') ||
-      this.selectedElement.classList.contains('perch')
+      this.selectedElement.classList.contains('perch') ||
+      this.selectedElement.classList.contains('shrub')
     ) {
       this.menu.querySelector('.upgrade-btn').classList.remove('hidden')
     }
@@ -768,10 +769,11 @@ export default class Selector {
    * @throws {Error} error on upgrade
    */
   async handleUpgrade() {
-    // Get out if neither fence nor perch
+    // Get out if neither fence, shrub nor perch
     if (
       !this.selectedElement.classList.contains('fence') &&
-      !this.selectedElement.classList.contains('perch')
+      !this.selectedElement.classList.contains('perch') &&
+      !this.selectedElement.classList.contains('shrub')
     )
       return
 
@@ -790,7 +792,6 @@ export default class Selector {
         if (!response.ok) {
           console.error('Failed to upgrade fence: ', await response.json())
         } else {
-          this.selectedElement.classList.remove('fence')
           this.selectedElement.classList.add('door')
         }
       } catch (error) {
@@ -798,8 +799,11 @@ export default class Selector {
       }
     }
 
-    // If perch
-    if (this.selectedElement.classList.contains('perch')) {
+    // If perch or shrub
+    if (
+      this.selectedElement.classList.contains('perch') ||
+      this.selectedElement.classList.contains('shrub')
+    ) {
       try {
         // Get element id
         const elementId = this.selectedElement.dataset.elementId
@@ -822,6 +826,7 @@ export default class Selector {
 
           // Update perch display
           this.selectedElement.classList.remove('perch')
+          this.selectedElement.classList.remove('shrub')
           this.selectedElement.classList.add('tree')
         }
       } catch (error) {

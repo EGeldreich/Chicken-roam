@@ -146,14 +146,14 @@ export default class ElementsController {
   async upgradePerch({ params, response }: HttpContext) {
     try {
       // Find perch to upgrade
-      const perch = await Element.findOrFail(params.id)
+      const elementToUpgrade = await Element.findOrFail(params.id)
       // Change it's type
-      perch.type = 'tree'
+      elementToUpgrade.type = 'tree'
       // Save
-      await perch.save()
+      await elementToUpgrade.save()
 
       // Find Plan
-      const planId = perch.planId
+      const planId = elementToUpgrade.planId
       // Recalculate objectives for this plan
       await ObjectiveService.recalculateForPlan(planId)
 
@@ -170,9 +170,9 @@ export default class ElementsController {
         })),
       })
     } catch (error) {
-      console.error('Error upgrading perch element: ', error)
+      console.error('Error upgrading element: ', error)
       return response.internalServerError({
-        message: 'Failed to upgrade perch element',
+        message: 'Failed to upgrade element',
         error: error.message,
       })
     }
