@@ -20,6 +20,9 @@ export default class ObjectiveService {
 
     // For each objective, caculate percentage
     for (const objective of plan.objectives) {
+      // Skip area objective as fences are not elements
+      if (objective.name === 'area') continue
+
       // Get pivot data ($extras.pivot_ is necessary to access pivot column data)
       // Checking if target value exists
       // If it does, create object with (targetValue: nb) and (completionPercentage: nb)
@@ -37,15 +40,14 @@ export default class ObjectiveService {
       // Check for correspondance between current loop objective and elements
       const relevantElements = elements.filter((element) => {
         // Only keep wanted elements for each loop
-        if (objective.name === 'area' && element.type === 'area') return true
-        if (objective.name === 'shrubs' && element.type === 'shrub') return true
+        if (objective.name === 'shrubs' && (element.type === 'shrub' || element.type === 'tree'))
+          return true
         if (objective.name === 'shelter' && element.type === 'shelter') return true
-        if (objective.name === 'perch' && element.type === 'perch') return true
+        if (objective.name === 'perch' && (element.type === 'perch' || element.type === 'tree'))
+          return true
         if (objective.name === 'insectary' && element.type === 'insectary') return true
         if (objective.name === 'dustbath' && element.type === 'dustbath') return true
         if (objective.name === 'waterer' && element.type === 'waterer') return true
-        if (objective.name === 'shrubs' && element.type === 'tree') return true
-        if (objective.name === 'perch' && element.type === 'tree') return true
         return false
       })
 
@@ -90,11 +92,7 @@ export default class ObjectiveService {
 
     if (areaObjective) {
       const targetValue = areaObjective.$extras.pivot_target_value
-      console.log('Area:', area)
-      console.log('Target:', targetValue)
-      console.log('Raw percentage:', (area / targetValue) * 100)
       const percentage = Math.min(Math.round((area / targetValue) * 100), 100)
-      console.log('Final percentage:', percentage)
 
       // Update the area objective
       await plan
