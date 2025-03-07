@@ -804,6 +804,8 @@ export default class Selector {
       this.selectedElement.classList.contains('perch') ||
       this.selectedElement.classList.contains('shrub')
     ) {
+      // ADD SPACE AVAILIBILITY CHECK HERE
+
       try {
         // Get element id
         const elementId = this.selectedElement.dataset.elementId
@@ -828,6 +830,8 @@ export default class Selector {
           this.selectedElement.classList.remove('perch')
           this.selectedElement.classList.remove('shrub')
           this.selectedElement.classList.add('tree')
+          this.selectedElement.style.width = '200px'
+          this.selectedElement.style.height = '200px'
         }
       } catch (error) {
         console.error('Error: ', error)

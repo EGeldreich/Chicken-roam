@@ -151,6 +151,9 @@ export default class ElementsController {
       elementToUpgrade.type = 'tree'
       // Change it's objective value
       elementToUpgrade.objectiveValue = 0
+      // Change Size
+      elementToUpgrade.width = 200
+      elementToUpgrade.height = 200
       // Save
       await elementToUpgrade.save()
 
