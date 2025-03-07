@@ -18,8 +18,8 @@ export default class PlanEditor {
 
     // Zoom and pan related properties
     this.zoom = 1
-    this.panX = 0
-    this.panY = 0
+    this.panX = -4500
+    this.panY = -4500
     this.isPanning = false
     this.lastPanPoint = { x: 0, y: 0 }
     this.ZOOM_MAX = 3
@@ -68,6 +68,9 @@ export default class PlanEditor {
     this.initializeTools() // Tool selection
     this.initializeCanvasEvents() // Mouse events on canvas
     this.initializeZoomPanControls() // Zoom and pan controls
+
+    // Apply first transform to get in the middle of canvas
+    this.applyTransform()
 
     // Listen for enclosure completion event
     this.canvas.addEventListener('enclosureComplete', (event) => {

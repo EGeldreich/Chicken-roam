@@ -82,8 +82,8 @@ body {
 .canvas-content {
   transform-origin: 0 0;
   position: absolute;
-  width: 1000%;
-  height: 1000%;
+  width: 10000px;
+  height: 10000px;
 }
 
 .btn-sm {
