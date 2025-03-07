@@ -85,6 +85,7 @@ export default class Selector {
    * @param {Object} point {x, y} coordinates of mouseEvent
    */
   handleMouseMove(point) {
+    if (!this.selectedElement) return
     // Check if in canvas, correct tool, and an element is selected
     if (point.x > 0 && point.y > 0 && this.isUsing && this.selectedElement) {
       //
@@ -112,7 +113,7 @@ export default class Selector {
 
       // Set correct dragged element
       // and if it's an element, remove it from placedElement array to avoid collision with itself
-      if (!this.selectedElement.classList.contains('point')) {
+      if (this.isDragging && !this.selectedElement.classList.contains('point')) {
         // Get selected element dataset id
         const elementId = parseInt(this.selectedElement.dataset.elementId)
         // Find that same element in placedElements array
@@ -588,10 +589,8 @@ export default class Selector {
    */
   resetStates() {
     this.isDragging = false
-    this.selectedElement = null
     this.draggedElement = null
     this.elementIndex = null
-    this.hideMenu()
   }
 
   /**
@@ -804,37 +803,86 @@ export default class Selector {
       this.selectedElement.classList.contains('perch') ||
       this.selectedElement.classList.contains('shrub')
     ) {
-      // ADD SPACE AVAILIBILITY CHECK HERE
+      // Check for space availability
+      // Get position
+      let elementPosition = {
+        x: parseFloat(this.selectedElement.style.left),
+        y: parseFloat(this.selectedElement.style.top),
+      }
+      // Check placement
+      const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
+        elementPosition,
+        this.selectedElement,
+        200,
+        200
+      )
 
-      try {
-        // Get element id
-        const elementId = this.selectedElement.dataset.elementId
-        response = await fetch(`/api/elements/${elementId}/upgrade`, {
-          method: 'PATCH',
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-          },
-        })
-        if (!response.ok) {
-          console.error('Failed to upgrade perch: ', await response.json())
-        } else {
-          // Get response data
-          const data = await response.json()
+      // handle unavailability
+      if (placementResult.invalid) {
+        this.planEditor.commonFunctionsService.showPlacementError(
+          placementResult.reason,
+          this.selectedElement
+        )
+        this.selectedElement.classList.remove('invalid-placement')
 
-          // Update objectives display
-          if (data.objectives) {
-            this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+        // Place available :
+      } else {
+        try {
+          // Get element id
+          const elementId = parseInt(this.selectedElement.dataset.elementId)
+
+          // Call back for upgrade
+          response = await fetch(`/api/elements/${elementId}/upgrade`, {
+            method: 'PATCH',
+            headers: {
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            },
+          })
+          if (!response.ok) {
+            console.error('Failed to upgrade perch: ', await response.json())
+          } else {
+            // Get response data
+            const data = await response.json()
+
+            // Update placedElements for new size
+            // Find the index
+            this.elementIndex = this.planEditor.placedElements.findIndex(
+              (el) => el.id === elementId
+            )
+            console.table(this.planEditor.placedElements)
+            console.log('element index: ', this.elementIndex)
+            // Update it
+            if (this.elementIndex !== -1) {
+              this.planEditor.placedElements[this.elementIndex] = {
+                id: data.element.id,
+                type: data.element.type,
+                x: parseFloat(data.element.vertexPositionX),
+                y: parseFloat(data.element.vertexPositionY),
+                width: parseFloat(data.element.width),
+                height: parseFloat(data.element.height),
+              }
+            }
+            console.table(this.planEditor.placedElements)
+
+            // Update objectives display
+            if (data.objectives) {
+              this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+            }
+
+            // Update element display
+            this.selectedElement.classList.remove('perch')
+            this.selectedElement.classList.remove('shrub')
+            this.selectedElement.classList.add('tree')
+            this.selectedElement.style.width = `${data.element.width}px`
+            this.selectedElement.style.height = `${data.element.width}px`
+            // Remove helper class
+            this.selectedElement.classList.remove('valid-placement')
+            // Update menu to remove upgrade btn
+            this.showMenu()
           }
-
-          // Update perch display
-          this.selectedElement.classList.remove('perch')
-          this.selectedElement.classList.remove('shrub')
-          this.selectedElement.classList.add('tree')
-          this.selectedElement.style.width = '200px'
-          this.selectedElement.style.height = '200px'
+        } catch (error) {
+          console.error('Error: ', error)
         }
-      } catch (error) {
-        console.error('Error: ', error)
       }
     }
   }

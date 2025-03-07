@@ -161,8 +161,21 @@ export default class ElementsController {
       const planId = elementToUpgrade.planId
       // Recalculate objectives for this plan
       await ObjectiveService.recalculateForPlan(planId)
-
+      // Get plan with new objectives values for the response
       const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+
+      // Charger explicitement le vertex associé
+      await elementToUpgrade.load('vertex')
+
+      // Préparer une réponse avec toutes les données nécessaires
+      const elementData = {
+        id: elementToUpgrade.id,
+        type: elementToUpgrade.type,
+        width: elementToUpgrade.width,
+        height: elementToUpgrade.height,
+        vertexPositionX: elementToUpgrade.vertex.positionX,
+        vertexPositionY: elementToUpgrade.vertex.positionY,
+      }
 
       return response.status(200).json({
         objectives: plan.objectives.map((objective) => ({
@@ -173,6 +186,7 @@ export default class ElementsController {
           completion_percentage: objective.$extras.pivot_completion_percentage,
           unit: objective.unit,
         })),
+        element: elementData,
       })
     } catch (error) {
       console.error('Error upgrading element: ', error)
