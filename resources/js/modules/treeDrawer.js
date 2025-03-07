@@ -5,7 +5,7 @@ export default class TreeDrawer extends ElementDrawer {
     super(canvas, planId, planEditor)
     this.elementType = 'tree'
     this.elementSize = { width: 100, height: 100 }
-    this.objectiveValue = null
+    this.objectiveValue = 0
   }
   // Override original method to create element-specific temporary appearance
   // createTemporaryElement() {

@@ -44,15 +44,26 @@ export default class ObjectiveService {
         if (objective.name === 'insectary' && element.type === 'insectary') return true
         if (objective.name === 'dustbath' && element.type === 'dustbath') return true
         if (objective.name === 'waterer' && element.type === 'waterer') return true
+        if (objective.name === 'shrubs' && element.type === 'tree') return true
+        if (objective.name === 'perch' && element.type === 'tree') return true
         return false
       })
 
       // Calculate current loop objective elements contribution
       // adds up each element objectiveValue
-      const currentValue = relevantElements.reduce(
-        (sum, element) => sum + element.objectiveValue,
-        0
-      )
+      const currentValue = relevantElements.reduce((sum, element) => {
+        // Special case for trees
+        if (element.type === 'tree') {
+          if (objective.name === 'perch') {
+            return sum + 50 // Add 50 to perches
+          } else if (objective.name === 'shrubs') {
+            return sum + 1 // Add 1 to shrubs
+          }
+        }
+
+        // For basic elements, use objectiveValue
+        return sum + element.objectiveValue
+      }, 0)
 
       // Calculate percentage (capped at 100%)
       const percentage = Math.min(Math.round((currentValue / pivotData.targetValue) * 100), 100)

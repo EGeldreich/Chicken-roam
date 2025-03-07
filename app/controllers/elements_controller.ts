@@ -143,12 +143,14 @@ export default class ElementsController {
   }
   //
   //
-  async upgradePerch({ params, response }: HttpContext) {
+  async upgradeElement({ params, response }: HttpContext) {
     try {
-      // Find perch to upgrade
+      // Find element to upgrade
       const elementToUpgrade = await Element.findOrFail(params.id)
       // Change it's type
       elementToUpgrade.type = 'tree'
+      // Change it's objective value
+      elementToUpgrade.objectiveValue = 0
       // Save
       await elementToUpgrade.save()
 
