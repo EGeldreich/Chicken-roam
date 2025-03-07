@@ -24,6 +24,8 @@ export default class PlanEditor {
     this.lastPanPoint = { x: 0, y: 0 }
     this.ZOOM_MAX = 3
     this.ZOOM_MIN = 0.3
+    // For offset adjustment
+    this.offsetAdjustment = { x: 0, y: 0 }
 
     // Plan state properties
     this.planState = 'construction' // Default state: construction, enclosed, broken
@@ -317,6 +319,13 @@ export default class PlanEditor {
       bubbles: true,
     })
 
+    const rect = this.canvas.getBoundingClientRect()
+    const containerRect = this.canvas.parentElement.getBoundingClientRect()
+
+    this.offsetAdjustment = {
+      x: (containerRect.left - rect.left) / this.zoom,
+      y: (containerRect.top - rect.top) / this.zoom,
+    }
     this.canvas.dispatchEvent(transformEvent)
   }
 
@@ -518,11 +527,17 @@ export default class PlanEditor {
   getCanvasPoint(event) {
     // getBoundingClientRect() gets position of the canvas in the page
     const rect = this.canvas.getBoundingClientRect()
+
+    // Calculate mouse position relative to canvas offset
+    const transformedX = event.clientX - rect.left
+    const transformedY = event.clientY - rect.top
+    // Take zoom into account
+    const worldX = transformedX / this.zoom
+    const worldY = transformedY / this.zoom
+
     return {
-      // Get canvas coordinate by getting page coordinates - canvas displacement
-      // Take zoom and pan into account
-      x: Math.round((event.clientX - rect.left) / this.zoom - this.panX),
-      y: Math.round((event.clientY - rect.top) / this.zoom - this.panY),
+      x: Math.round(worldX),
+      y: Math.round(worldY),
     }
   }
 

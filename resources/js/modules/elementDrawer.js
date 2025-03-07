@@ -13,18 +13,6 @@ export default class ElementDrawer {
     // Default states
     this.isUsing = false
     this.temporaryElement = null
-    this.lastMousePosition = null
-
-    // For offset adjustment
-    this.offsetAdjustment = { x: 0, y: 0 }
-
-    // Set up event listeners for canvas transformations
-    this.canvas.addEventListener('canvas:transform', this.handleCanvasTransform.bind(this))
-
-    // Getters to access zoom and pan values
-    this.getZoom = () => this.planEditor.zoom || 1
-    this.getPanX = () => this.planEditor.panX || 0
-    this.getPanY = () => this.planEditor.panY || 0
   }
 
   /**
@@ -50,33 +38,11 @@ export default class ElementDrawer {
   }
 
   /**
-   * Handle canvas transform custom events (zoom/pan changes)
-   * @param {CustomEvent} event - The transform event with zoom and pan details, sent by planEditor
-   */
-  handleCanvasTransform(event) {
-    // Calculate the new offset adjustment
-    const rect = this.canvas.getBoundingClientRect()
-    const containerRect = this.canvas.parentElement.getBoundingClientRect()
-
-    this.offsetAdjustment = {
-      x: (containerRect.left - rect.left) / event.detail.zoom,
-      y: (containerRect.top - rect.top) / event.detail.zoom,
-    }
-    console.log(this.offsetAdjustment)
-
-    // If there's an active element placement happening, update its position
-    if (this.lastMousePosition) {
-      this.updateTemporaryElementPosition(this.lastMousePosition)
-    }
-  }
-
-  /**
    * Stop placing elements (when tool is deselected)
    *
    */
   stopUsing() {
     this.isUsing = false
-    this.lastMousePosition = null
     if (this.temporaryElement) {
       this.temporaryElement.remove()
       this.temporaryElement = null
@@ -118,7 +84,6 @@ export default class ElementDrawer {
   handleMouseMove(point) {
     if (point.x > 0 && point.y > 0 && this.isUsing && this.temporaryElement) {
       // Store the current mouse position for potential updates after zoom/pan
-      this.lastMousePosition = point
 
       // Update position of the element according to the mouse
       this.updateTemporaryElementPosition(point)
@@ -145,7 +110,7 @@ export default class ElementDrawer {
   updateTemporaryElementPosition(point) {
     if (!this.temporaryElement) return
 
-    // Calculate centered position (on mouse) with offset adjustment
+    // Calculate centered position (on mouse)
     const centeredX = point.x - this.elementSize.width / 2
     const centeredY = point.y - this.elementSize.height / 2
 

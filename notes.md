@@ -2,7 +2,9 @@
 
 ## Initialisation sur une nouvelle machine
 
-Récupérer les modules nécessaires.
+Installer node.js si nécessaire
+
+Récupérer les modules du projet.
 
 ```bash
 npm install
