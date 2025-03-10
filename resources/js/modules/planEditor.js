@@ -264,8 +264,8 @@ export default class PlanEditor {
         // Set zoom to 1
         this.zoom = 1
         // Reset position
-        this.panX = 0
-        this.panY = 0
+        this.panX = -4500
+        this.panY = -4500
 
         this.applyTransform()
       })
