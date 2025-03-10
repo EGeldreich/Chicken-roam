@@ -83,11 +83,18 @@ export default class ElementsController {
   //
   //
   async delete({ params, response }: HttpContext) {
+    // Find element
     const element = await Element.findOrFail(params.id)
+    // Get vertex
+    const vertex = await Vertex.findOrFail(element.vertexId)
 
+    // Get plan id
     const planId = element.planId
 
+    // Delete element
     await element.delete()
+    // Delete vertex
+    await vertex.delete()
 
     // Recalculate objectives for this plan
     await ObjectiveService.recalculateForPlan(planId)

@@ -37,6 +37,7 @@ export default class PlanEditor {
 
     // Single shared array for all elements to avoid overlapping
     this.placedElements = []
+    this.disabledElements = []
 
     // Initialize tool managers
     this.fenceDrawer = new FenceDrawer(this.canvas, this.planId, this)
@@ -431,6 +432,8 @@ export default class PlanEditor {
 
       // If in broken state, add visual indication to elements
       if (newState === 'broken') {
+        this.disabledElements = this.placedElements
+        this.placedElements = []
         document.querySelectorAll('.element:not(.fence)').forEach((element) => {
           element.classList.add('inactive-element')
         })
@@ -443,6 +446,10 @@ export default class PlanEditor {
       document.querySelector('.fence-tool-btn').classList.add('disabled')
 
       // Remove inactive indication from elements
+      if (this.disabledElements.length > 0) {
+        this.placedElements = this.disabledElements
+        this.disabledElements = []
+      }
       document.querySelectorAll('.inactive-element').forEach((element) => {
         element.classList.remove('inactive-element')
       })
@@ -691,7 +698,7 @@ export default class PlanEditor {
       outside: [],
     }
 
-    this.placedElements.forEach((element) => {
+    this.disabledElements.forEach((element) => {
       if (this.isElementInEnclosure(element)) {
         result.inside.push(element)
       } else {

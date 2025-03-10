@@ -25,6 +25,10 @@ export default class FenceDrawer {
     this.canvas.addEventListener('fenceDeleted', (event) => {
       this.loadExistingFences()
     })
+    // Listen for vertex movements
+    this.canvas.addEventListener('vertexMoved', (event) => {
+      this.loadExistingFences()
+    })
   }
 
   /**

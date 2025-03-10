@@ -577,6 +577,17 @@ export default class Selector {
         }),
       })
       if (response.ok) {
+        // Send custom event for the fenceDrawer
+        const event = new CustomEvent('vertexMoved', {
+          detail: {
+            vertexId: vertexId,
+            x: x,
+            y: y,
+          },
+        })
+        this.canvas.dispatchEvent(event)
+
+        // Handle enclosure if necessary
         if (this.planEditor.planState === 'enclosed')
           this.planEditor.fenceDrawer.handleEnclosureComplete()
       } else {
