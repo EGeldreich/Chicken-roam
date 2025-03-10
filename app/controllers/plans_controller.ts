@@ -119,4 +119,29 @@ export default class PlansController {
       })
     }
   }
+  //
+  //
+  //
+  async delete({ params, response, session, auth }: HttpContext) {
+    try {
+      // Find user
+      const user = auth.user!
+      // Find plan
+      const plan = await Plan.findOrFail(params.id)
+
+      // Security check to see if plan belongs to user
+      if (plan.userId === user.id) {
+        // Delete plan
+        await plan.delete()
+        session.flash('success', 'Plan deleted successfully')
+      } else {
+        session.flash('error', 'You do not have permission to delete this plan')
+      }
+      return response.redirect().toRoute('user-page')
+    } catch (error) {
+      console.error('Error deleting the plan; ', error)
+      session.flash('error', 'An error occurred while deleting the plan')
+      return response.redirect().toRoute('user-page')
+    }
+  }
 }

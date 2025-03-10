@@ -81,6 +81,7 @@ router
     router.post('/plan', [HomeController, 'userLanding'])
 
     router.get('/plan/:id', [PlansController, 'plan']).as('plan')
+    router.post('/plan/:id/delete', [PlansController, 'delete']).as('delete-plan')
   })
   .use(middleware.auth())
 

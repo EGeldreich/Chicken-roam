@@ -1,6 +1,7 @@
 @let(title = 'User page')
 @include('partials/header')
 
+{{-- User info --}}
 <table>
   <thead>
     <tr>
@@ -34,14 +35,42 @@
     </tr>
   </tbody>
 </table>
-<ul>
-  @each(plan in user.plans)
-    <li>
-      <a href="{{ route('plan', { id: plan.id }) }}">{{ plan.name }}</a>
-    </li>
-  @end
-</ul>
 
+{{-- Plan list --}}
+@if(user.plans.length > 0)
+  <table>
+    <thead>
+      <th>
+        Plans
+      </th>
+      <th>
+        Delete
+      </th>
+    </thead>
+    <tbody>
+      @each(plan in user.plans)
+        <tr>
+          <td>
+            <a href="{{ route('plan', { id: plan.id }) }}">{{ plan.name }}</a>
+          </td>
+          <td>
+            @component('components/delete_form', {
+              name: 'Delete plan',
+              action: route('delete-plan', { id: plan.id}),
+              sentenceEnd: `the plan: ${plan.name}`
+            })
+            @end
+          </td>
+        </tr>
+      @end
+    </tbody>
+  </table>
+@else
+  <p>
+    You have no plans yet.
+  </p>
+@end
+  
 @component('components/delete_form', {
   name: 'Delete account',
   action: route('user-destroy'),
@@ -49,5 +78,5 @@
 })
 
 @end
-
+  
 @include('partials/footer')
