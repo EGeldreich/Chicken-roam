@@ -3,6 +3,7 @@ import Plan from '#models/plan'
 import ObjectiveService from '#services/objective_service'
 import type { HttpContext } from '@adonisjs/core/http'
 import { PlanState } from '#models/plan'
+import { planNameValidator } from '#validators/plan'
 
 export default class PlansController {
   async guestPlan({ response, session, view }: HttpContext) {
@@ -50,12 +51,6 @@ export default class PlansController {
       // Find plan
       const plan = await Plan.findOrFail(params.planId)
 
-      console.log('Plan found:', plan.id)
-      console.log('Area received:', area)
-
-      // Get previous state for later logic
-      // const previousState = plan.state || 'construction'
-
       // Update plan status or perform any necessary calculations
       plan.isEnclosed = true
       plan.state = PlanState.ENCLOSED
@@ -68,8 +63,6 @@ export default class PlansController {
       if (elementsToRemove.length > 0) {
         // Delete elements that are now outside the enclosure
         await Element.query().whereIn('id', elementsToRemove).delete()
-
-        console.log(`Removed ${elementsToRemove.length} elements outside the enclosure`)
       }
 
       await plan.load('objectives')
@@ -82,8 +75,6 @@ export default class PlansController {
           message: 'Area objective not found',
         })
       }
-      console.log('target area: ' + areaObjective.$extras.pivot_target_value)
-      console.log('areaCompletion: ' + areaObjective.$extras.pivot_completion_percentage)
       return response.ok({
         message: 'Enclosure completed successfully',
         areaCompletion: areaObjective.$extras.pivot_completion_percentage,
@@ -139,9 +130,37 @@ export default class PlansController {
       }
       return response.redirect().toRoute('user-page')
     } catch (error) {
-      console.error('Error deleting the plan; ', error)
+      console.error('Error deleting the plan: ', error)
       session.flash('error', 'An error occurred while deleting the plan')
       return response.redirect().toRoute('user-page')
+    }
+  }
+  //
+  //
+  //
+  async rename({ params, response, auth, request, session }: HttpContext) {
+    const { newName } = await request.validateUsing(planNameValidator)
+
+    try {
+      // Find user
+      const user = auth.user!
+      // Find plan
+      const plan = await Plan.findOrFail(params.id)
+
+      // Security check to see if plan belongs to user
+      if (plan.userId === user.id) {
+        // Rename plan
+        plan.name = newName
+        plan.save()
+        session.flash('success', 'Plan renamed successfully')
+      } else {
+        session.flash('error', 'You do not have permission to rename this plan')
+      }
+      return response.redirect().toRoute('plan', { id: params.id })
+    } catch (error) {
+      console.error('Error updating plan name: ', error)
+      session.flash('error', 'An error occurred while updating the plan name')
+      return response.redirect().toRoute('plan', { id: params.id })
     }
   }
 }

@@ -11,6 +11,13 @@
   window.IS_ENCLOSED = {{ plan.isEnclosed ? 'true' : 'false' }};
 </script>
 
+@if(auth.user)
+  <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
+    {{ csrfField() }}
+    <input type="text" name="newName" value="{{ plan.name }}" />
+    <button type="submit">Rename</button>
+  </form>
+@end
 <div class="flex h-screen overflow-hidden">
   {{-- Toolbox Panel --}}
   <div class="w-64 bg-gray-100 p-4 h-screen overflow-y-auto flex-shrink-0">
