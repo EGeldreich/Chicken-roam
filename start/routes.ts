@@ -32,14 +32,17 @@ router.delete('/api/elements/:id', [ElementsController, 'delete'])
 router.get('/api/fences/:planId', [FencesController, 'getByPlan'])
 router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
+router.patch('/api/fences/:id', [FencesController, 'update'])
 router.patch('/api/fences/:id/link', [FencesController, 'link'])
 router.patch('/api/fences/:id/upgrade', [FencesController, 'upgradeFence'])
 router.patch('/api/fences/:id/downgrade', [FencesController, 'downgradeFence'])
+router.post('/api/fences/create-from-vertices', [FencesController, 'createFromVertices'])
 
 // PLANS
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
 
 // VERTICES
+router.post('/api/vertices', [VerticesController, 'create'])
 router.patch('/api/vertices/:id/position', [VerticesController, 'updatePosition'])
 
 // NEED GUEST

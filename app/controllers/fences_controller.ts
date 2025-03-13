@@ -271,18 +271,72 @@ export default class FencesController {
       const fence = await Fence.findOrFail(params.id)
 
       // Change it's type
-      fence.type = 'fence'
+      fence.type = 'standard'
 
       // Save
       await fence.save()
 
       return response.ok({
-        message: 'door downgraded successfully',
+        message: 'Door downgraded successfully',
       })
     } catch (error) {
       console.error('Error downgrading door element: ', error)
       return response.internalServerError({
         message: 'Failed to downgrade door element',
+        error: error.message,
+      })
+    }
+  }
+  //
+  //
+  async update({ params, request, response }: HttpContext) {
+    const { vertexStartId, vertexEndId } = request.body()
+
+    const fence = await Fence.findOrFail(params.id)
+
+    await fence
+      .merge({
+        vertexStartId,
+        vertexEndId,
+      })
+      .save()
+
+    return response.ok(fence)
+  }
+  //
+  //
+  async createFromVertices({ request, response }: HttpContext) {
+    const trx = await db.transaction()
+
+    try {
+      const { planId, type, vertexStartId, vertexEndId } = request.body()
+
+      // Create new fence with vertices
+      const fence = await Fence.create(
+        {
+          type: type || 'standard',
+          planId,
+          vertexStartId,
+          vertexEndId,
+        },
+        { client: trx }
+      )
+
+      // validate ransaction
+      await trx.commit()
+
+      // load vertices
+      await fence.load('vertexStart')
+      await fence.load('vertexEnd')
+
+      // Return created fence
+      return response.created(fence)
+    } catch (error) {
+      await trx.rollback()
+
+      console.error('Error creating fence from vertices:', error)
+      return response.internalServerError({
+        message: 'Failed to create fence from vertices',
         error: error.message,
       })
     }

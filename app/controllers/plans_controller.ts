@@ -32,7 +32,13 @@ export default class PlansController {
   //
   //
   async plan({ params, view, auth, response, session }: HttpContext) {
-    const plan = await Plan.query().where('id', params.id).preload('objectives').firstOrFail()
+    const plan = await Plan.query().where('id', params.id).preload('objectives').first()
+
+    // Redirect when calling a non existing plan
+    if (!plan) {
+      session.flash('error', 'You cannot access this plan')
+      return response.redirect().toRoute('user-page')
+    }
 
     // Ensure the user can only access their own plans
     if (plan.userId !== auth.user!.id) {

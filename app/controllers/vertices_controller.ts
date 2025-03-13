@@ -31,4 +31,17 @@ export default class VerticesController {
       })
     }
   }
+  //
+  //
+  async create({ request, response }: HttpContext) {
+    const { planId, positionX, positionY } = request.body()
+
+    const vertex = await Vertex.create({
+      planId,
+      positionX,
+      positionY,
+    })
+
+    return response.created(vertex)
+  }
 }

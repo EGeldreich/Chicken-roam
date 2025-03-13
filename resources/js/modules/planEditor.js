@@ -8,6 +8,7 @@ import DustbathDrawer from './dustbathDrawer.js'
 import TreeDrawer from './treeDrawer.js'
 import DoorDrawer from './doorDrawer.js'
 import Selector from './selector.js'
+import PointAdder from './pointAdder.js'
 import CommonFunctionsService from '../services/commonFunctionsService.js'
 
 export default class PlanEditor {
@@ -50,6 +51,7 @@ export default class PlanEditor {
     this.treeDrawer = new TreeDrawer(this.canvas, this.planId, this)
     this.doorDrawer = new DoorDrawer(this.canvas, this.planId, this)
     this.selector = new Selector(this.canvas, this.planId, this)
+    this.pointAdder = new PointAdder(this.canvas, this.planId, this)
 
     // Add CommonFunctionsService instance
     this.commonFunctionsService = new CommonFunctionsService(this.canvas, this, this.EPSILON)
@@ -69,6 +71,7 @@ export default class PlanEditor {
       select: this.selector,
       tree: this.treeDrawer,
       door: this.doorDrawer,
+      point: this.pointAdder,
     }
 
     // Set up event listeners
@@ -623,7 +626,7 @@ export default class PlanEditor {
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler === this.fenceDrawer) {
+    if (handler === this.fenceDrawer || handler === this.pointAdder) {
       handler.handleMouseDown(point)
     } else if (handler === this.selector) {
       handler.selectElement(event)

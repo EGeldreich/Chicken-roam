@@ -40,15 +40,12 @@ export default class FenceDrawer {
     const response = await fetch(`/api/fences/${this.planId}`)
     if (response.ok) {
       const fences = await response.json()
+
       // Set isFirstFence to false if there is at least 1 fence
       this.isFirstFence = fences.length === 0
 
-      // Clear existing vertices and connection points
+      // Clear existing vertices
       this.vertices.clear()
-      this.connectionPoints.forEach((point) => point.remove())
-      this.connectionPoints = []
-      this.movablePoints.forEach((point) => point.remove())
-      this.movablePoints = []
 
       // Remove all existing fence elements from the DOM
       const existingFences = this.canvas.querySelectorAll('.fence')
@@ -56,6 +53,7 @@ export default class FenceDrawer {
 
       // For each fence
       fences.forEach((fence) => {
+        console.log(fence)
         // Create Fence HTML element
         this.renderFence(fence)
         // Track existing vertices
@@ -78,7 +76,6 @@ export default class FenceDrawer {
     const y = Math.round(parseFloat(vertex.positionY))
     // Get Vertex id
     const id = vertex.id
-
     // If the vertex is already in the map
     if (this.vertices.has(id)) {
       // Increment connection
@@ -108,6 +105,7 @@ export default class FenceDrawer {
     this.connectionPoints = []
     this.movablePoints = []
 
+    console.table(this.vertices)
     // Check each vertex from the vertices Map()
     this.vertices.forEach((vertexData, id) => {
       // Get x and Y coords
