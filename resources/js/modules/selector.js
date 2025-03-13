@@ -646,6 +646,10 @@ export default class Selector {
     if (upgradeBtn) {
       upgradeBtn.addEventListener('click', () => this.handleUpgrade())
     }
+    const downgradeBtn = this.menu.querySelector('.downgrade-btn')
+    if (downgradeBtn) {
+      downgradeBtn.addEventListener('click', () => this.handleDowngrade())
+    }
   }
 
   /**
@@ -654,14 +658,22 @@ export default class Selector {
   showMenu() {
     this.menu.classList.remove('hidden')
 
-    // Display upgrade btn only for fence or perch
+    // Hide contextual btns
     this.menu.querySelector('.upgrade-btn').classList.add('hidden')
+    this.menu.querySelector('.downgrade-btn').classList.add('hidden')
+    // Display upgrade btn only for fence or perch
     if (
-      this.selectedElement.classList.contains('fence') ||
-      this.selectedElement.classList.contains('perch') ||
-      this.selectedElement.classList.contains('shrub')
+      (this.selectedElement.classList.contains('fence') ||
+        this.selectedElement.classList.contains('perch') ||
+        this.selectedElement.classList.contains('shrub')) &&
+      !this.selectedElement.classList.contains('door')
     ) {
       this.menu.querySelector('.upgrade-btn').classList.remove('hidden')
+    }
+
+    // Display downgrade btn only for doors
+    if (this.selectedElement.classList.contains('door')) {
+      this.menu.querySelector('.downgrade-btn').classList.remove('hidden')
     }
   }
 
@@ -794,6 +806,11 @@ export default class Selector {
     let response
     // Fence ___________
     if (this.selectedElement.classList.contains('fence')) {
+      let fenceLength = parseFloat(this.selectedElement.style.width)
+      if (fenceLength < 80) {
+        this.planEditor.showErrorMessage('You can only upgrade fences that are 80cm long')
+        return
+      }
       try {
         // Get fence id
         const fenceId = this.selectedElement.dataset.fenceId
@@ -807,6 +824,7 @@ export default class Selector {
           console.error('Failed to upgrade fence: ', await response.json())
         } else {
           this.selectedElement.classList.add('door')
+          this.showMenu()
         }
       } catch (error) {
         console.error('Error: ', error)
@@ -896,6 +914,29 @@ export default class Selector {
           console.error('Error: ', error)
         }
       }
+    }
+  }
+  async handleDowngrade() {
+    // Get out if selected element isn't a door
+    if (!this.selectedElement.classList.contains('door')) return
+
+    try {
+      // Get fence id
+      const fenceId = this.selectedElement.dataset.fenceId
+      let response = await fetch(`/api/fences/${fenceId}/downgrade`, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        },
+      })
+      if (!response.ok) {
+        console.error('Failed to downgrade door: ', await response.json())
+      } else {
+        this.selectedElement.classList.remove('door')
+        this.showMenu()
+      }
+    } catch (error) {
+      console.error('Error: ', error)
     }
   }
 }

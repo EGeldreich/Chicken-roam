@@ -34,6 +34,7 @@ router.post('/api/fences', [FencesController, 'create'])
 router.delete('/api/fences/:id', [FencesController, 'delete'])
 router.patch('/api/fences/:id/link', [FencesController, 'link'])
 router.patch('/api/fences/:id/upgrade', [FencesController, 'upgradeFence'])
+router.patch('/api/fences/:id/downgrade', [FencesController, 'downgradeFence'])
 
 // PLANS
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])

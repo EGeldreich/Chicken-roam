@@ -483,6 +483,21 @@ export default class PlanEditor {
   }
 
   /**
+   * Display an error feedback as an error toast
+   * @param {String} message String containing the error message
+   */
+  showErrorMessage(message) {
+    // Create error message div and display it for 3 seconds
+    const errorMessage = document.createElement('div')
+    errorMessage.className = 'placement-error-toast'
+    errorMessage.textContent = message
+    document.body.appendChild(errorMessage)
+
+    setTimeout(() => {
+      errorMessage.remove()
+    }, 3000)
+  }
+  /**
    * Change tool btns bg and font color
    * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
    */

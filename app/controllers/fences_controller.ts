@@ -263,4 +263,28 @@ export default class FencesController {
       })
     }
   }
+  //
+  //
+  async downgradeFence({ params, response }: HttpContext) {
+    try {
+      // Find fence to downgrade
+      const fence = await Fence.findOrFail(params.id)
+
+      // Change it's type
+      fence.type = 'fence'
+
+      // Save
+      await fence.save()
+
+      return response.ok({
+        message: 'door downgraded successfully',
+      })
+    } catch (error) {
+      console.error('Error downgrading door element: ', error)
+      return response.internalServerError({
+        message: 'Failed to downgrade door element',
+        error: error.message,
+      })
+    }
+  }
 }
