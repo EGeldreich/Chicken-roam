@@ -11,30 +11,49 @@
   window.IS_ENCLOSED = {{ plan.isEnclosed ? 'true' : 'false' }};
 </script>
 
-@if(auth.user)
-  <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
-    {{ csrfField() }}
-    <input type="text" name="newName" value="{{ plan.name }}" />
-    <button type="submit" class="btn btn-primary">Rename</button>
-  </form>
-@end
-<div class="flex h-screen overflow-hidden">
-  {{-- Toolbox Panel --}}
-  <div class="w-64 bg-gray-100 p-4 h-screen overflow-y-auto flex-shrink-0">
-    <h2 class="text-lg font-bold mb-4">
-      Tools
-    </h2>
+{{-- Whole page container --}}
+<div class="relative h-screen w-screen overflow-hidden">
 
-    {{-- Plan state --}}
-    <div class="mb-4">
-      <span class="text-sm font-medium text-gray-500">Status:</span>
-      <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
-        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+  {{-- Main Canvas Area // Takes whole screen --}}
+  <div class="absolute inset-0">
+    <div class="viewport-container h-full">
+      <div
+        id="planCanvas"
+        class="canvas-content w-full h-full bg-white relative border-2 state-{{ plan.state || 'construction' }}"
+      >
       </div>
     </div>
+  </div>
 
-    {{-- Helper messages --}}
-    <div class="guidance-message mb-4">
+  {{-- Interface container, 12cols 12rows grid --}}
+  <div class="grid grid-cols-12 grid-rows-12 gap-4 h-screen overflow-hidden relative">
+
+    {{-- Top left menu // 2col 1row, top-left --}}
+    <div class="col-span-2 row-span-1 z-10 flex">
+      <a href="{{ route('user-page') }}">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <g clip-path="url(#clip0_2497_25894)">
+            <path d="M14 7L9 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M9 12L14 17" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
+          <defs>
+            <clipPath id="clip0_2497_25894">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </a>
+      @if(auth.user)
+        <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
+          {{ csrfField() }}
+      <input type="text" name="newName" value="{{ plan.name }}" />
+          <button type="submit" class="btn btn-primary">Rename</button>
+        </form>
+      @end
+    </div>
+
+    {{-- Guidance messages // 4col 1row, top, centered --}}
+    <div class="guidance-message mb-4 col-span-4 col-start-4 row-span-1 z-10 justify-center">
       @if(plan.isEnclosed)
         Enclosure complete! You can now place elements
       @else
@@ -42,8 +61,8 @@
       @endif
     </div>
 
-    {{-- Tools --}}
-    <div class="space-y-2">
+    {{-- Toolbox Panel // 2col 10row, on the left --}}
+    <div class="col-span-2 row-span-10 row-start-3 col-start-1 z-10 flex-col space-y-1">
       <button class="tool-btn btn btn-primary bg-gray-800 text-gray-200" data-tool="select">Select</button>
       <button class="tool-btn btn btn-primary" data-tool="point">Add point</button>
       <button class="fence-tool-btn tool-btn btn btn-primary" data-tool="fence">Fence</button>
@@ -77,11 +96,8 @@
       >Dustbath</button>
     </div>
 
-    {{-- Objectives --}}
-    <h2 class="text-lg font-bold mt-6 mb-4">
-      Objectives
-    </h2>
-    <div class="space-y-2">
+    {{-- Objectives // 2col 10row, on the right --}}
+    <div class="col-span-2 col-start-11 row-span-10 z-10">
       @each(objective in plan.objectives)
         <p>
           <strong>{{ objective.name }}</strong>
@@ -94,29 +110,28 @@
         </p>
       @end
     </div>
-  </div>
 
-  {{-- Main Canvas Area --}}
-  <div class="flex-1 relative">
-    <div class="viewport-container h-full">
-      <div id="currentTool" class="absolute top-4 right-4 bg-gray-100 p-2 rounded z-20">
-        Current Tool: <span id="toolDisplay">select</span>
-      </div>
-      <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
-        <button class="btn btn-danger delete-btn">Delete</button>
-        <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
-        <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
-      </div>
-      <div
-        id="planCanvas"
-        class="canvas-content w-full h-full bg-white relative border-2 state-{{ plan.state || 'construction' }}"
-      >
-      </div>
+    {{-- ELEMENT MENU --}}
+    {{-- TO PLACE ACCORDING TO ELEMENT --}}
+    <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
+      <button class="btn btn-danger delete-btn">Delete</button>
+      <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
+      <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
+    </div>
 
+    {{-- Plan state // 2col 1row, bottom left --}}
+    <div class="col-span-2 row-span-1 col-start-1 row-start-12 z-10 justify-center items-center">
+      <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
+        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+      </div>
+    </div>
+
+    {{-- Controls, 2col 2row, bottom right --}}
+    <div
+      class="col-span-2 row-span-2 col-start-11 row-start-12 z-10 flex justify-center items-center space-x-8"
+    >
       {{-- Zoom controls --}}
-      <div
-        class="zoom-controls flex items-center absolute bottom-4 right-4 bg-white p-2 rounded shadow z-10"
-      >
+      <div class="zoom-controls flex items-center">
         <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">+</button>
         <span id="zoomLevel" class="mx-2">100%</span>
         <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">-</button>
@@ -124,9 +139,7 @@
       </div>
 
       {{-- Movement controls --}}
-      <div
-        class="movement-controls flex flex-col justify-center items-center absolute bottom-17 right-4 bg-white p-2 rounded shadow z-10"
-      >
+      <div class="movement-controls flex flex-col justify-center items-center">
         <button id="moveUp" class="btn btn-sm px-2 py-1 h-8">&#9206;</button>
         <div class="flex">
           <button id="moveLeft" class="btn btn-sm px-2 py-1 h-8">&#9204;</button>
@@ -135,6 +148,7 @@
         <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
       </div>
     </div>
+
   </div>
 </div>
 

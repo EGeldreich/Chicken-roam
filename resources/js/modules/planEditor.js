@@ -16,7 +16,6 @@ export default class PlanEditor {
     this.planId = planId // Get plan ID
     this.currentTool = 'select' // Set select as default tool
     this.canvas = document.getElementById('planCanvas') // Get drawing area
-    this.toolDisplay = document.getElementById('toolDisplay') // Get tool tooltip display HTML element
     this.EPSILON = 1 // Margin of error
 
     // Zoom and pan related properties
@@ -606,7 +605,6 @@ export default class PlanEditor {
 
     // Update current tool
     this.currentTool = tool
-    this.toolDisplay.textContent = tool
     this.updateToolButtonStyles(tool)
 
     // Start placement mode for elements if that tool is selected
