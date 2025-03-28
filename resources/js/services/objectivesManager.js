@@ -222,6 +222,20 @@ export default class ObjectivesManager {
     const objectiveSpan = document.getElementById(objectiveName)
     if (objectiveSpan) {
       objectiveSpan.textContent = completion
+
+      // Also update progress bar width
+      const progressBar = document.querySelector(
+        `.objective-progress-bar[data-objective-name="${objectiveName}"]`
+      )
+      if (progressBar) {
+        progressBar.style.width = `${completion}%`
+
+        // Add pulse animation for visual feedback
+        progressBar.classList.remove('pulse-update')
+        // Trigger reflow to restart animation
+        void progressBar.offsetWidth
+        progressBar.classList.add('pulse-update')
+      }
     }
 
     // Update in current objective if necessary
@@ -229,7 +243,7 @@ export default class ObjectivesManager {
       this.currentObjectiveCompletion.textContent = completion
     }
 
-    // Update our internal objectives array
+    // Update this.objectives array
     const index = this.objectives.findIndex((obj) => obj.name === objectiveName)
     if (index !== -1) {
       this.objectives[index].completion = completion
