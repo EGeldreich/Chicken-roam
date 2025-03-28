@@ -10,6 +10,7 @@ import DoorDrawer from './doorDrawer.js'
 import Selector from './selector.js'
 import PointAdder from './pointAdder.js'
 import CommonFunctionsService from '../services/commonFunctionsService.js'
+import ObjectivesManager from '../services/objectivesManager.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -52,8 +53,9 @@ export default class PlanEditor {
     this.selector = new Selector(this.canvas, this.planId, this)
     this.pointAdder = new PointAdder(this.canvas, this.planId, this)
 
-    // Add CommonFunctionsService instance
+    // Add services instances
     this.commonFunctionsService = new CommonFunctionsService(this.canvas, this, this.EPSILON)
+    this.objectivesManager = new ObjectivesManager(this)
 
     // Load all elements once
     this.loadAllElements()
@@ -606,6 +608,9 @@ export default class PlanEditor {
     // Update current tool
     this.currentTool = tool
     this.updateToolButtonStyles(tool)
+    if (this.objectivesManager) {
+      this.objectivesManager.updateCurrentObjective(tool)
+    }
 
     // Start placement mode for elements if that tool is selected
     const newHandler = this.toolHandlers[this.currentTool]

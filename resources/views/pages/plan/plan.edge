@@ -106,31 +106,60 @@
 
     {{-- Objectives // 2col 6row, on the right --}}
     <div class="col-span-3 col-start-10 row-span-6 z-10 flex flex-col w-full">
-
-      <div class="flex space-x-2 items-center">
-        {{-- Progress bar --}}
+      {{-- Progress Bar --}}
+      <div class="flex space-x-2 items-center mb-4">
         <div class="w-1/3 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
           <div id="complete-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 45%">
           </div>
         </div>
-
-        {{-- Text --}}
         <p class="w-2/3">
-          <span id="complete-text">45</span>% chicken complient
+          <span id="complete-text">45</span>% chicken compliant
         </p>
       </div>
 
-      @each(objective in plan.objectives)
-        <p>
-          <strong>{{ objective.name }}</strong>
-        </p>
-        <p>
-          Target: {{ objective.$extras.pivot_target_value }}{{ objective.unit }}
-        </p>
-        <p>
-          Completion: <span id="{{ objective.name }}">{{ objective.$extras.pivot_completion_percentage }}</span>%
-        </p>
-      @end
+      {{-- Current tool objective --}}
+      <div id="current-objective" class="bg-white p-3 rounded-lg shadow-sm mb-2">
+        <div id="current-objective-content" class="hidden">
+          <p>
+            <strong id="current-objective-name"></strong>
+          </p>
+          <p>
+            Target: <span id="current-objective-target"></span>
+          </p>
+          <p>
+            Completion: <span id="current-objective-completion"></span>%
+          </p>
+        </div>
+      </div>
+
+      {{-- See more btn --}}
+      <button id="see-more-btn" class="self-end mb-2">
+        <span id="see-more-text">See more</span>
+        <span id="see-less-text" class="hidden">See less</span>
+      </button>
+
+      {{-- All objectives list --}}
+      <div id="all-objectives" class="hidden mt-2 bg-white p-3 rounded-lg shadow-sm">
+        <h3 class="font-bold mb-2">
+          All objectives
+        </h3>
+        @each(objective in plan.objectives)
+          <div
+            class="objective-item mb-2 pb-2 border-b border-gray-100"
+            data-objective-name="{{ objective.name }}"
+          >
+            <p>
+              <strong>{{ objective.name }}</strong>
+            </p>
+            <p>
+              Target: <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>{{ objective.unit }}
+            </p>
+            <p>
+              Completion: <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
+            </p>
+          </div>
+        @end
+      </div>
     </div>
 
     {{-- ELEMENT MENU --}}
