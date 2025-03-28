@@ -317,3 +317,29 @@ body {
     transform: scale(1);
   }
 }
+
+/* Tooltip styles */
+.info-icon {
+  transition: transform 0.2s ease;
+}
+
+.info-icon:hover,
+.info-icon:focus {
+  transform: scale(1.2);
+  outline: none;
+}
+
+.tooltip-content {
+  pointer-events: none;
+  max-width: 250px;
+  word-wrap: break-word;
+  z-index: 50;
+}
+
+/* Class added by JS */
+.tooltip-show {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Tooltip styles end */

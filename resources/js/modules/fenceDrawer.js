@@ -452,6 +452,7 @@ export default class FenceDrawer {
    * @returns {Boolean} True if enclosure is complete
    */
   hasFormedEnclosure() {
+    console.log('checking enclosure')
     return this.planEditor.commonFunctionsService.isEnclosureComplete(this.vertices)
   }
 

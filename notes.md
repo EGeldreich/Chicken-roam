@@ -717,3 +717,7 @@ Pas satisfait par la gestion du 'plan state' (PlanEditor.js - updatePlanState)
 Ajout d'un validator pour les éléments
 **MUST DO**
 **MUST DO**
+
+- Placement message d'erreur
+- Mise à jour du % total sans refresh
+- Gerer display objectifs quand l'outil est arbre

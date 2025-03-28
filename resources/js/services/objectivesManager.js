@@ -13,12 +13,12 @@ export default class ObjectivesManager {
       shrub: 'shrubs',
       insectary: 'insectary',
       dustbath: 'dustbath',
-      // 'tree': 'shrubs', // Trees contribute to shrubs and perch, need exception
+      tree: 'shrubs', // Trees contribute to shrubs and perch, need exception
       fence: 'area',
       door: 'area', // Fence and door both contribute to area
     }
 
-    // Mapping inversé (objectif -> outil)
+    // Same map but inversed
     this.objectiveToToolMap = {}
     for (const [tool, objective] of Object.entries(this.toolToObjectiveMap)) {
       if (!this.objectiveToToolMap[objective]) {
@@ -38,7 +38,35 @@ export default class ObjectivesManager {
     this.seeLessText = document.getElementById('see-less-text')
     this.allObjectives = document.getElementById('all-objectives')
 
+    this.completeBar = document.getElementById('complete-bar')
+    this.completeText = document.getElementById('complete-text')
+
+    this.infoIcon = document.querySelector('.info-icon')
+    this.objectiveTooltip = document.getElementById('objective-tooltip')
+    this.objectiveDescription = document.getElementById('objective-description')
+
+    // Store objective descriptions
+    this.objectiveDescriptions = {
+      shelter:
+        'A shelter provides protection from predators and weather for the chickens. It should be well-ventilated and easy to clean.',
+      waterer:
+        'Fresh water is essential for chicken health. Waterers should be cleaned regularly and positioned to prevent contamination.',
+      perch:
+        'Chickens naturally want to roost off the ground. Perches give them a comfortable place to rest.',
+      shrubs: 'Shrubs provide shade, protection, and natural foraging opportunities for chickens.',
+      insectary:
+        'Insectaries attract beneficial insects that chickens can eat, supporting natural feeding behaviors.',
+      dustbath:
+        'Dust bathing is essential for chickens to maintain feather health and prevent parasites.',
+      area: 'The enclosed area provides space for movement and exercise. Larger areas allow for more natural behaviors.',
+    }
+
+    // Store current state of objectives
+    this.objectives = []
+
     // Initialisation
+    this.setupTooltip()
+    this.initializeObjectives()
     this.initializeEventListeners()
     this.updateCurrentObjective(this.planEditor.currentTool)
   }
@@ -60,6 +88,70 @@ export default class ObjectivesManager {
     // See more btn event listener
     this.seeMoreBtn.addEventListener('click', () => {
       this.toggleAllObjectives()
+    })
+  }
+
+  /**
+   * Fills this.objectives array {name: ... , completion: ...}
+   * Calls function to update total completion
+   */
+  initializeObjectives() {
+    // For each objective DOM element
+    document.querySelectorAll('.objective-item').forEach((item) => {
+      // Find name and completion
+      const name = item.dataset.objectiveName
+      const completionElement = item.querySelector('.objective-completion')
+      const completion = completionElement ? parseInt(completionElement.textContent, 10) : 0
+
+      // Push into this.objectives
+      this.objectives.push({
+        name: name,
+        completion: completion,
+      })
+    })
+
+    // Calculate and update total completion for initial display
+    this.updateTotalCompletion()
+  }
+
+  /**
+   * Initialize tooltip functionality
+   */
+  setupTooltip() {
+    // Security, DOM elements needed
+    if (!this.infoIcon || !this.objectiveTooltip) return
+
+    // Define hover timeout
+    let hoverTimeout
+    // Define delay before showing tooltip
+    const HOVER_DELAY = 500
+
+    // Show tooltip after delay on hover
+    this.infoIcon.addEventListener('mouseenter', () => {
+      clearTimeout(hoverTimeout)
+      hoverTimeout = setTimeout(() => {
+        this.objectiveTooltip.classList.add('tooltip-show')
+      }, HOVER_DELAY)
+    })
+
+    // Show on focus (for accessibility)
+    this.infoIcon.addEventListener('focus', () => {
+      clearTimeout(hoverTimeout)
+      hoverTimeout = setTimeout(() => {
+        this.objectiveTooltip.classList.add('tooltip-show')
+      }, HOVER_DELAY)
+    })
+
+    // Hide tooltip when mouse leaves
+    this.infoIcon.addEventListener('mouseleave', () => {
+      clearTimeout(hoverTimeout)
+      this.objectiveTooltip.classList.remove('tooltip-show')
+    })
+
+    // Hide tooltip when focus is lost
+    this.infoIcon.addEventListener('blur', () => {
+      clearTimeout(hoverTimeout)
+      this.objectiveTooltip.classList.remove('tooltip-show')
     })
   }
 
@@ -87,6 +179,13 @@ export default class ObjectivesManager {
           objectiveItem.querySelector('.objective-target').textContent
         this.currentObjectiveCompletion.textContent =
           objectiveItem.querySelector('.objective-completion').textContent
+      }
+
+      if (objectiveName && this.objectiveDescription) {
+        // Update tooltip description based on the current objective
+        this.objectiveDescription.textContent =
+          this.objectiveDescriptions[objectiveName] ||
+          `Information about the ${objectiveName} objective.`
       }
     } else {
       // No objective linked to this tool
@@ -129,6 +228,15 @@ export default class ObjectivesManager {
     if (this.currentObjectiveName.textContent === objectiveName) {
       this.currentObjectiveCompletion.textContent = completion
     }
+
+    // Update our internal objectives array
+    const index = this.objectives.findIndex((obj) => obj.name === objectiveName)
+    if (index !== -1) {
+      this.objectives[index].completion = completion
+
+      // Recalculate total completion after objective update
+      this.updateTotalCompletion()
+    }
   }
 
   /**
@@ -139,9 +247,46 @@ export default class ObjectivesManager {
     //updateObjectiveCompletion for each objective
     objectives.forEach((objective) => {
       this.updateObjectiveCompletion(objective.name, objective.completion_percentage)
+
+      // Also update this.objectives array
+      const index = this.objectives.findIndex((obj) => obj.name === objective.name)
+      if (index !== -1) {
+        this.objectives[index].completion = objective.completion_percentage
+      }
     })
+
+    // Calculate and update total completion
+    this.updateTotalCompletion()
 
     // Update current objective
     this.updateCurrentObjective(this.planEditor.currentTool)
+  }
+
+  /**
+   * Calculate and update total completion percentage
+   * Updates both progress bar width and completion text
+   */
+  updateTotalCompletion() {
+    // Skip if no objectives are available
+    if (!this.objectives || this.objectives.length === 0) return
+
+    // Calculate average completion percentage
+    const totalCompletion =
+      this.objectives.reduce((sum, objective) => {
+        return sum + objective.completion
+      }, 0) / this.objectives.length
+
+    // Round to nearest integer
+    const roundedCompletion = Math.round(totalCompletion)
+
+    // Update progress bar width
+    if (this.completeBar) {
+      this.completeBar.style.width = `${roundedCompletion}%`
+    }
+
+    // Update percentage text
+    if (this.completeText) {
+      this.completeText.textContent = roundedCompletion
+    }
   }
 }
