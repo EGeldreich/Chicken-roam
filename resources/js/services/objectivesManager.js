@@ -28,9 +28,11 @@ export default class ObjectivesManager {
     }
 
     // DOM elements
+    this.currentObjective = document.getElementById('current-objective')
     this.currentObjectiveContent = document.getElementById('current-objective-content')
     this.currentObjectiveName = document.getElementById('current-objective-name')
     this.currentObjectiveTarget = document.getElementById('current-objective-target')
+    this.currentObjectiveUnit = document.getElementById('current-objective-unit')
     this.currentObjectiveCompletion = document.getElementById('current-objective-completion')
 
     this.seeMoreBtn = document.getElementById('see-more-btn')
@@ -165,7 +167,7 @@ export default class ObjectivesManager {
 
     if (objectiveName) {
       // Display objective
-      this.currentObjectiveContent.classList.remove('hidden')
+      this.currentObjective.classList.remove('hidden')
 
       // Find current objective from all objectives list
       const objectiveItem = document.querySelector(
@@ -177,8 +179,21 @@ export default class ObjectivesManager {
         this.currentObjectiveName.textContent = objectiveName
         this.currentObjectiveTarget.textContent =
           objectiveItem.querySelector('.objective-target').textContent
-        this.currentObjectiveCompletion.textContent =
-          objectiveItem.querySelector('.objective-completion').textContent
+        this.currentObjectiveUnit.textContent =
+          objectiveItem.querySelector('.objective-unit').textContent
+
+        // Get completion percentage
+        const completionValue = objectiveItem.querySelector('.objective-completion').textContent
+        this.currentObjectiveCompletion.textContent = completionValue
+
+        // Update progress bar width
+        const progressBar = document.getElementById('current-objective-progress-bar')
+        if (progressBar) {
+          progressBar.style.width = `${completionValue}%`
+
+          // Set color class based on completion value
+          this.updateProgressBarColor(progressBar, parseInt(completionValue, 10))
+        }
       }
 
       if (objectiveName && this.objectiveDescription) {
@@ -189,7 +204,7 @@ export default class ObjectivesManager {
       }
     } else {
       // No objective linked to this tool
-      this.currentObjectiveContent.classList.add('hidden')
+      this.currentObjective.classList.add('hidden')
     }
   }
 
@@ -223,12 +238,15 @@ export default class ObjectivesManager {
     if (objectiveSpan) {
       objectiveSpan.textContent = completion
 
-      // Also update progress bar width
+      // Also update progress bar width in list
       const progressBar = document.querySelector(
         `.objective-progress-bar[data-objective-name="${objectiveName}"]`
       )
       if (progressBar) {
         progressBar.style.width = `${completion}%`
+
+        // Update color based on completion value
+        this.updateProgressBarColor(progressBar, completion)
 
         // Add pulse animation for visual feedback
         progressBar.classList.remove('pulse-update')
@@ -241,6 +259,20 @@ export default class ObjectivesManager {
     // Update in current objective if necessary
     if (this.currentObjectiveName.textContent === objectiveName) {
       this.currentObjectiveCompletion.textContent = completion
+
+      // Update current objective progress bar
+      const currentProgressBar = document.getElementById('current-objective-progress-bar')
+      if (currentProgressBar) {
+        currentProgressBar.style.width = `${completion}%`
+
+        // Update color based on completion value
+        this.updateProgressBarColor(currentProgressBar, completion)
+
+        // Add pulse animation
+        currentProgressBar.classList.remove('pulse-update')
+        void currentProgressBar.offsetWidth
+        currentProgressBar.classList.add('pulse-update')
+      }
     }
 
     // Update this.objectives array
@@ -301,6 +333,37 @@ export default class ObjectivesManager {
     // Update percentage text
     if (this.completeText) {
       this.completeText.textContent = roundedCompletion
+    }
+  }
+
+  /**
+   * Change progress bar color acording to completion
+   * @param {HTMLElement} progressBar progress bar DOM element
+   * @param {Number} completion completion percentage
+   */
+  updateProgressBarColor(progressBar, completion) {
+    // Remove all existing color classes
+    progressBar.classList.remove(
+      'bg-blue-600',
+      'bg-green-500',
+      'bg-yellow-500',
+      'bg-orange-500',
+      'bg-red-500'
+    )
+
+    // Add appropriate color class based on percentage
+    if (completion === 100) {
+      progressBar.classList.add('bg-green-500') // Green for 100%
+    } else if (completion >= 70) {
+      progressBar.classList.add('bg-blue-600') // Blue for 70-99%
+    } else if (completion >= 50) {
+      progressBar.classList.add('bg-blue-400') // Light blue for 50-69%
+    } else if (completion >= 30) {
+      progressBar.classList.add('bg-yellow-500') // Yellow for 30-49%
+    } else if (completion >= 10) {
+      progressBar.classList.add('bg-orange-500') // Orange for 10-29%
+    } else {
+      progressBar.classList.add('bg-red-500') // Red for 0-9%
     }
   }
 }
