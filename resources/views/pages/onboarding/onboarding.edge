@@ -1,35 +1,49 @@
 @let(title = 'Chicken Realm')
 @include('partials/header')
+@include('partials/nav')
+@include('partials/flash')
 
-@if(auth.use('web').isAuthenticated)
-  <form action="/plan" method="POST">
-  @else
-    <form action="/plan/guest" method="POST">
-    @end
-    
-    {{ csrfField() }}
-    <div>
-      <div class="inline">
-        I want to create a chicken run for my dear
-      </div>
-      <div class="inline">
-        <input type="number" name="nbChickens" min="1" max="50" class="underline" value="10" />
-      </div>
-      <div class="inline">
-        chickens.
-      </div>
-    </div>
-    <button type="submit" class="btn btn-primary">Let's start</button>
-  </form>
+<div class="container mx-auto flex flex-col gap-5 m-auto items-center">
+  {{-- Title --}}
+  <h1>
+    Welcome to Chicken Roam
+  </h1>
+  {{-- One liner ? --}}
 
+  {{-- Form chosen number --}}
   @if(auth.use('web').isAuthenticated)
     <form action="/plan" method="POST">
     @else
       <form action="/plan/guest" method="POST">
       @end
+      
       {{ csrfField() }}
-<input type="hidden" name="nbChickens" value="10" />
-      <button type="submit" class="btn btn-primary">I just want to play around</button>
+      <div class="flex gap-5 items-center">
+        <div>
+          I want to create a chicken run for my dear
+        </div>
+        <div>
+          <input type="number" name="nbChickens" min="1" max="50" class="underline" value="10" />
+        </div>
+        <div>
+          chickens.
+        </div>
+        <button type="submit" class="btn btn-primary">Let's start</button>
+      </div>
     </form>
 
+    {{-- Form 10 chickens --}}
+    @if(auth.use('web').isAuthenticated)
+      <form action="/plan" method="POST">
+      @else
+        <form action="/plan/guest" method="POST">
+        @end
+        {{ csrfField() }}
+      <input type="hidden" name="nbChickens" value="10" />
+        <button type="submit" class="btn btn-primary">I just want to play around</button>
+      </form>
+
+    </div>
+
     @include('partials/footer')
+

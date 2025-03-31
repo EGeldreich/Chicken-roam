@@ -48,7 +48,7 @@ export default class AuthController {
 
     // Add flash message and redirect
     session.flash('success', 'Register Ok')
-    return response.redirect().toRoute('home')
+    return response.redirect().toRoute('user-page')
   }
   //
   //
@@ -74,7 +74,7 @@ export default class AuthController {
     )
     // Add flash message and redirect
     session.flash('success', 'You are logged in')
-    return response.redirect().toRoute('home')
+    return response.redirect().toRoute('user-page')
   }
   //
   //

@@ -1,27 +1,22 @@
 <nav class="bg-slate-700 h-15">
-  <div class="container flex justify-between h-full px-10">
-
-    <div class="flex">
-      <a
-        class="text-xl text-slate-300 font-semibold flex self-center hover:text-slate-100 transition duration-200 ease-in-out"
-        href="{{ route('onboarding') }}"
-      >Home</a>
-    </div>
+  <div class="flex justify-between h-full px-10">
 
     <div class="flex gap-5">
-
       @if(!auth.use('web').isAuthenticated)
         <a class="btn btn-primary-reverse" href="{{ route('auth.login') }}">Log in</a>
 
         <a class="btn btn-primary-reverse" href="{{ route('auth.register') }}">Register</a>
       @else
-        <a class="btn btn-primary-reverse" href="{{ route('user-page') }}">{{ auth.use('web').user.username }}</a>
+        <a class="btn btn-primary-reverse" href="{{ route('user-page') }}">Profil</a>
         <form action="{{ route('auth.logout') }}?_method=DELETE" method="POST" class="flex">
           {{ csrfField() }}
-            <button type="submit" class="btn btn-primary-reverse">Log out</button>
+          <button type="submit" class="btn btn-primary-reverse">Log out</button>
         </form>
       @end
-        
+    </div>
+
+    <div class="flex ">
+      <a class="btn btn-primary-reverse" href="{{ route('about') }}">About</a>
     </div>
 
   </div>

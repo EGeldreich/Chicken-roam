@@ -17,6 +17,12 @@ export default class HomeController {
   //
   //
   //
+  about({ view }: HttpContext) {
+    return view.render('pages/about/about')
+  }
+  //
+  //
+  //
   async guestLanding({ request, response, session }: HttpContext) {
     // Validate input
     const { nbChickens } = await request.validateUsing(onboardingValidator)
