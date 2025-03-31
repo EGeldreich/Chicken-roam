@@ -21,6 +21,7 @@ import VerticesController from '#controllers/vertices_controller'
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
 router.get('/about', [HomeController, 'about']).as('about')
+router.get('/gdpr', [HomeController, 'gdpr']).as('gdpr')
 
 // ELEMENTS
 router.post('/api/elements', [ElementsController, 'create'])

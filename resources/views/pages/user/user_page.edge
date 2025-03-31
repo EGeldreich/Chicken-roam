@@ -1,82 +1,95 @@
 @let(title = 'User page')
+@let(pageStyle = 'resources/css/pages-css/user-page.css')
 @include('partials/header')
+@include('partials/nav')
+@include('partials/flash')
 
-{{-- User info --}}
-<table>
-  <thead>
-    <tr>
-      <th>
-        Username
-      </th>
-      <th>
-        Email
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>
-        {{ user.username }}
-      </td>
-      <td>
-        {{ user.email }}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        <a href="{{ route('edit-username') }}">Change username</a>
-      </td>
-      <td>
-        <a href="{{ route('edit-email') }}">Change email adress</a>
-      </td>
-      <td>
-        <a href="{{ route('edit-password') }}">Change password</a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-{{-- Plan list --}}
-@if(user.plans.length > 0)
-  <table>
-    <thead>
-      <th>
-        Plans
-      </th>
-      <th>
-        Delete
-      </th>
-    </thead>
-    <tbody>
-      @each(plan in user.plans)
-        <tr>
-          <td>
-            <a href="{{ route('plan', { id: plan.id }) }}">{{ plan.name }}</a>
-          </td>
-          <td>
-            @component('components/delete_form', {
-              name: 'Delete plan',
-              action: route('delete-plan', { id: plan.id}),
-              sentenceEnd: `the plan: ${plan.name}`
-            })
-            @end
-          </td>
-        </tr>
+<div id="user-page">
+  {{-- User info --}}
+  <div id="user-info">
+    <div>
+      <p>
+        Username: <span>{{ user.username }}</span>
+      </p>
+      <a href="{{ route('edit-username') }}">Change username</a>
+    </div>
+    <div>
+      <p>
+        Email: <span>{{ user.email }}</span>
+      </p>
+      <a href="{{ route('edit-email') }}">Change email adress</a>
+    </div>
+    <div>
+      <a href="{{ route('edit-password') }}">Change password</a>
+    </div>
+    <div>
+      {{-- Delete accound --}}
+      @component('components/delete_form', {
+        name: 'Delete account',
+        action: route('user-destroy'),
+        sentenceEnd: 'your account'
+      })
       @end
-    </tbody>
-  </table>
-@else
-  <p>
-    You have no plans yet.
-  </p>
-@end
-  
-@component('components/delete_form', {
-  name: 'Delete account',
-  action: route('user-destroy'),
-  sentenceEnd: 'your account'
-})
+      {{-- End delete account --}}
+    </div>
+  </div>
 
-@end
-  
+  {{-- Plans list --}}
+  @if(user.plans.length > 0)
+    @each(plan in user.plans)
+      <div class="plan">
+        <a href="{{ route('plan', { id: plan.id }) }}">
+          <h3>
+            {{ plan.name }}
+          </h3>
+          <div class="progress-bar">
+            <div class="progress-bar_container">
+              <div
+                class="progress-bar_completion"
+                data-plan-id="{{ plan.id }}"
+                style="width: {{ plan.completionPercentage || 0 }}%"
+              >
+              </div>
+            </div>
+            <p>
+              <span class="completion-text" data-plan-id="{{ plan.id }}">
+                {{ plan.completionPercentage || 0 }}
+            </span>% chicken compliant
+            </p>
+          </div>
+        </a>
+
+        {{-- Delete plan --}}
+        @component('components/delete_form', {
+            name: 'Delete plan',
+            action: route('delete-plan', { id: plan.id}),
+            sentenceEnd: `the plan: ${plan.name}`
+        })
+        @end
+        {{-- End Delete plan --}}
+      </div>
+    @end
+    {{-- End Each plan --}}
+  @end
+  {{-- End If plan --}}
+  <div class="new-plan">
+    <a href="{{ route('onboarding') }}">
+      <div>
+        <svg width="106" height="95" viewBox="0 0 106 95" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M103 92L79.9327 82.5848C63.2858 75.7901 44.6628 75.6617 27.9238 82.226L3 92M80.7778 82.1111V36.375M80.7778 53.0625C95.5926 53.0625 103 45.9107 103 28.0312C103 10.1518 95.5926 3 80.7778 3C65.963 3 58.5556 10.1518 58.5556 28.0312C58.5556 45.9107 65.963 53.0625 80.7778 53.0625Z"
+            stroke="black"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <p>
+        New Plan
+      </p>
+    </a>
+  </div>
+</div>
+
 @include('partials/footer')

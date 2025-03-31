@@ -25,7 +25,15 @@
       {{ title || 'Chicken Realm' }}
     </title>
 
+    {{-- Global CSS and JS --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    {{-- Page-specific CSS --}}
+    @if(pageStyle)
+      @vite([pageStyle])
+    @end
+    
+    
     @stack('dumper')
   </head>
   <body>

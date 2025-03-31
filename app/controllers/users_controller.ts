@@ -7,9 +7,47 @@ export default class UsersController {
   //
   // Render user page view
   async userPage({ view, auth }: HttpContext) {
-    const user = await User.query().where('id', auth.user!.id).preload('plans').firstOrFail()
+    // Get user and preload plan_objectives
+    const user = await User.query()
+      .where('id', auth.user!.id)
+      .preload('plans', (plansQuery) => {
+        plansQuery.preload('objectives')
+      })
+      .firstOrFail()
 
-    return view.render('pages/user/user_page', { user })
+    // Create a new dataset to export to view
+    // Will include user info
+    // and each user's plan info + completion percentage
+    const viewData = {
+      // user { userInfo, plans}
+      user: {
+        // Convert Lucid model to JSON
+        ...user.toJSON(),
+        plans: user.plans.map((plan) => {
+          // Initialize completionPercentage
+          let completionPercentage = 0
+
+          // Calculate correct completionPercentage
+          if (plan.objectives && plan.objectives.length > 0) {
+            const totalCompletion =
+              plan.objectives.reduce((sum, objective) => {
+                return sum + objective.$extras.pivot_completion_percentage
+              }, 0) / plan.objectives.length
+
+            // Round it
+            completionPercentage = Math.round(totalCompletion)
+          }
+
+          // plans : return plan Lucid model info + completion percentage
+          return {
+            ...plan.toJSON(),
+            completionPercentage,
+          }
+        }),
+      },
+    }
+
+    return view.render('pages/user/user_page', viewData)
   }
   //
   //

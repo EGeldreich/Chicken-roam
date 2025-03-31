@@ -23,6 +23,12 @@ export default class HomeController {
   //
   //
   //
+  gdpr({ view }: HttpContext) {
+    return view.render('pages/gdpr/gdpr')
+  }
+  //
+  //
+  //
   async guestLanding({ request, response, session }: HttpContext) {
     // Validate input
     const { nbChickens } = await request.validateUsing(onboardingValidator)
