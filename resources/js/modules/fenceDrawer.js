@@ -53,7 +53,6 @@ export default class FenceDrawer {
 
       // For each fence
       fences.forEach((fence) => {
-        console.log(fence)
         // Create Fence HTML element
         this.renderFence(fence)
         // Track existing vertices
@@ -104,8 +103,6 @@ export default class FenceDrawer {
     // Set connectionPoints as empty array
     this.connectionPoints = []
     this.movablePoints = []
-
-    console.table(this.vertices)
     // Check each vertex from the vertices Map()
     this.vertices.forEach((vertexData, id) => {
       // Get x and Y coords
@@ -452,7 +449,6 @@ export default class FenceDrawer {
    * @returns {Boolean} True if enclosure is complete
    */
   hasFormedEnclosure() {
-    console.log('checking enclosure')
     return this.planEditor.commonFunctionsService.isEnclosureComplete(this.vertices)
   }
 

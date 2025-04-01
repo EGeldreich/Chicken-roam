@@ -251,19 +251,14 @@ export default class PlanEditor {
     // Event listener on zoom in
     if (zoomIn) {
       zoomIn.addEventListener('click', () => {
-        // Zoom by 0.1 increments, cannot go above 5
-        this.zoom = Math.min(this.ZOOM_MAX, this.zoom + 0.1)
-
-        // Call for changes
-        this.applyTransform()
+        this.zoomCentered(0.1)
       })
     }
 
     // Event listener on zoom out
     if (zoomOut) {
       zoomOut.addEventListener('click', () => {
-        this.zoom = Math.max(this.ZOOM_MIN, this.zoom - 0.1)
-        this.applyTransform()
+        this.zoomCentered(-0.1)
       })
     }
 
@@ -304,6 +299,43 @@ export default class PlanEditor {
         this.panX += 50
         this.applyTransform()
       })
+    }
+  }
+
+  /**
+   * Zoom on the center point of current view
+   * @param {number} delta - Zoom change value + in, - out
+   */
+  zoomCentered(delta) {
+    // Get necessary Rects
+    const viewportRect = this.canvas.parentElement.getBoundingClientRect()
+    const canvasRect = this.canvas.getBoundingClientRect()
+
+    // Calculate the center of the viewport
+    const viewportCenterX = viewportRect.left + viewportRect.width / 2
+    const viewportCenterY = viewportRect.top + viewportRect.height / 2
+
+    // Transform into canvas-related coordinates
+    const canvasRelativeX = viewportCenterX - canvasRect.left
+    const canvasRelativeY = viewportCenterY - canvasRect.top
+
+    // Transform into world-related coordinates (account for zoom)
+    const worldX = canvasRelativeX / this.zoom
+    const worldY = canvasRelativeY / this.zoom
+
+    // Store old zoom
+    const oldZoom = this.zoom
+
+    // Calculate new zoom
+    this.zoom = Math.max(this.ZOOM_MIN, Math.min(this.ZOOM_MAX, this.zoom + delta))
+
+    // Adjust pan to keep it centered
+    if (this.zoom !== oldZoom) {
+      this.panX += (canvasRelativeX * (oldZoom - this.zoom)) / oldZoom
+      this.panY += (canvasRelativeY * (oldZoom - this.zoom)) / oldZoom
+
+      // Apply transformations
+      this.applyTransform()
     }
   }
   ///////////////////////
