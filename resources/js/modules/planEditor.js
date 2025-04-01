@@ -29,6 +29,10 @@ export default class PlanEditor {
     this.ZOOM_MIN = 0.3
     // For offset adjustment
     this.offsetAdjustment = { x: 0, y: 0 }
+    // Scale elements
+    this.scaleBar = document.getElementById('scale-bar')
+    this.scaleNumber = document.getElementById('scale-number')
+    this.updateScale()
 
     // Plan state properties
     this.planState = 'construction' // Default state: construction, enclosed, broken
@@ -323,6 +327,9 @@ export default class PlanEditor {
     // Update zoom-dependent values
     this.updateZoomDependentValues()
 
+    // Update scale
+    this.updateScale()
+
     // Dispatch custom event containing transformation data
     const transformEvent = new CustomEvent('canvas:transform', {
       detail: {
@@ -360,6 +367,57 @@ export default class PlanEditor {
       this.fenceDrawer.EPSILON = this.EPSILON
 
       this.selector.snapDistance = 50 / this.zoom
+    }
+  }
+  updateScale() {
+    if (!this.scaleBar || !this.scaleNumber) return
+
+    // Initialize required variables
+    let referenceLength, unit, barWidth, divisions
+
+    if (this.zoom <= 0.5) {
+      referenceLength = 5
+      unit = 'm'
+      barWidth = 100 * referenceLength * this.zoom
+      divisions = 5 // Diviser en 5 parties de 1m chacune
+    } else if (this.zoom <= 1.5) {
+      referenceLength = 1
+      unit = 'm'
+      barWidth = 100 * referenceLength * this.zoom
+      divisions = 4 // Diviser en 4 parties de 25cm chacune
+    } else if (this.zoom <= 3) {
+      referenceLength = 50
+      unit = 'cm'
+      barWidth = referenceLength * this.zoom
+      divisions = 5 // Diviser en 5 parties de 10cm chacune
+    } else {
+      referenceLength = 20
+      unit = 'cm'
+      barWidth = referenceLength * this.zoom
+      divisions = 4 // Diviser en 4 parties de 5cm chacune
+    }
+
+    // Mettre à jour la largeur de la barre d'échelle
+    this.scaleBar.style.width = `${barWidth}px`
+
+    // Add divisions on scale bar
+    this.scaleBar.innerHTML = '<div class="scale-bar-divisions"></div>'
+    const divisionsContainer = this.scaleBar.querySelector('.scale-bar-divisions')
+
+    for (let i = 0; i <= divisions; i++) {
+      const divisionElement = document.createElement('div')
+      divisionElement.className = 'scale-bar-division'
+      divisionElement.style.left = `${(i * barWidth) / divisions}px`
+      divisionsContainer.appendChild(divisionElement)
+    }
+
+    // Update text
+    this.scaleNumber.textContent = referenceLength
+
+    // Update unit if necessary
+    const unitElement = document.querySelector('#scale-unit')
+    if (unitElement && unitElement.textContent !== unit) {
+      unitElement.textContent = ` ${unit}`
     }
   }
   ///////////////////////

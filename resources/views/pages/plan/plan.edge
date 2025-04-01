@@ -29,8 +29,8 @@
   <div class="grid grid-cols-12 grid-rows-8 gap-4 h-screen overflow-hidden place-items-center">
 
     {{-- Top left menu // 2col 1row, top-left --}}
-    <div class="col-span-3 row-span-1 z-10 flex">
-      <div class="bg-white rounded-xl flex space-x-4 p-4 items-center">
+    <div class="col-span-3 row-span-2 col-start-1 row-start-1 z-10 flex flex-col space-y-2 w-full">
+      <div class="bg-white rounded-xl flex space-x-4 p-4 items-center w-full">
         @if(auth.user)
           <a href="{{ route('user-page') }}">
           @else
@@ -49,15 +49,19 @@
             </svg>
           </a>
           @if(auth.user)
-            <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
+            <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST" class="w-full">
               {{ csrfField() }}
-            <input type="text" name="newName" value="{{ plan.name }}" />
+            <input type="text" name="newName" value="{{ plan.name }}" class="w-full" />
             </form>
           @else
             <h1>
               {{ plan.name }}
             </h1>
           @end
+        </div>
+        {{-- Plan state --}}
+        <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
+          {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
         </div>
       </div>
 
@@ -243,6 +247,43 @@
           @end
         </div>
       </div>
+
+      {{-- Scale, 2col 1row, bottom left --}}
+      <div class="col-span-2 row-span-1 col-start-1 row-start-8 z-10 flex justify-center items-center">
+        <div class="scale-container flex items-center gap-3">
+          <p class="text-xs mt-1">
+            <span id="scale-number">1</span>
+            <span id="scale-unit">m</span>
+          </p>
+          <div class="flex">
+            <div id="scale-bar" class="h-1 bg-black">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {{-- Controls, 2col 1row, bottom right --}}
+      <div
+        class="col-span-2 row-span-1 col-start-11 row-start-8 z-10 flex justify-center items-center space-x-8"
+      >
+        {{-- Zoom controls --}}
+        <div class="zoom-controls flex items-center">
+          <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">+</button>
+          <span id="zoomLevel" class="mx-2">100%</span>
+          <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">-</button>
+          <button id="resetView" class="btn btn-sm px-2 py-1 h-8 ml-2">Reset</button>
+        </div>
+
+        {{-- Movement controls --}}
+        <div class="movement-controls flex flex-col justify-center items-center">
+          <button id="moveUp" class="btn btn-sm px-2 py-1 h-8">&#9206;</button>
+          <div class="flex">
+            <button id="moveLeft" class="btn btn-sm px-2 py-1 h-8">&#9204;</button>
+            <button id="moveRight" class="btn btn-sm px-2 py-1 h-8">&#9205;</button>
+          </div>
+          <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
+        </div>
+      </div>
     </div>
 
     {{-- ELEMENT MENU --}}
@@ -253,37 +294,6 @@
       <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
     </div>
 
-    {{-- Plan state // 2col 1row, bottom left --}}
-    <div class="col-span-2 row-span-1 col-start-1 row-start-8 z-10 justify-center items-center">
-      <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
-        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
-      </div>
-    </div>
-
-    {{-- Controls, 2col 1row, bottom right --}}
-    <div
-      class="col-span-2 row-span-1 col-start-11 row-start-8 z-10 flex justify-center items-center space-x-8"
-    >
-      {{-- Zoom controls --}}
-      <div class="zoom-controls flex items-center">
-        <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">+</button>
-        <span id="zoomLevel" class="mx-2">100%</span>
-        <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">-</button>
-        <button id="resetView" class="btn btn-sm px-2 py-1 h-8 ml-2">Reset</button>
-      </div>
-
-      {{-- Movement controls --}}
-      <div class="movement-controls flex flex-col justify-center items-center">
-        <button id="moveUp" class="btn btn-sm px-2 py-1 h-8">&#9206;</button>
-        <div class="flex">
-          <button id="moveLeft" class="btn btn-sm px-2 py-1 h-8">&#9204;</button>
-          <button id="moveRight" class="btn btn-sm px-2 py-1 h-8">&#9205;</button>
-        </div>
-        <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
-      </div>
-    </div>
-
   </div>
-</div>
 
-@include('partials/footer')
+  @include('partials/footer')
