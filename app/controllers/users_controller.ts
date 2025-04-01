@@ -1,3 +1,4 @@
+import Plan from '#models/plan'
 import User from '#models/user'
 import { editEmailValidator, editPasswordValidator, editUsernameValidator } from '#validators/user'
 import type { HttpContext } from '@adonisjs/core/http'
@@ -48,6 +49,42 @@ export default class UsersController {
     }
 
     return view.render('pages/user/user_page', viewData)
+  }
+  //
+  //
+  // Render guest page view
+  async guestPage({ view, session }: HttpContext) {
+    // Check if there's already a temporary plan ID in the session
+    let plan = null
+    const tempPlanId = session.get('temporaryPlanId')
+
+    if (tempPlanId) {
+      // Try to find the existing temporary plan
+      try {
+        plan = await Plan.query().where('id', tempPlanId).preload('objectives').first()
+      } catch (error) {
+        // Clear invalid plan id from session
+        session.forget('temporaryPlanId')
+      }
+    }
+
+    // If there is a temporary plan
+    if (plan) {
+      // Calculate completion percentage
+      let completionPercentage = 0
+      if (plan.objectives && plan.objectives.length > 0) {
+        const totalCompletion =
+          plan.objectives.reduce((sum, objective) => {
+            return sum + objective.$extras.pivot_completion_percentage
+          }, 0) / plan.objectives.length
+
+        // Round it
+        completionPercentage = Math.round(totalCompletion)
+      }
+      return view.render('pages/user/guest_page', { plan, completionPercentage })
+    } else {
+      return view.render('pages/user/guest_page')
+    }
   }
   //
   //

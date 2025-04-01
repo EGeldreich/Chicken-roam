@@ -66,6 +66,7 @@ router
     router.post('/reset-password', [ResetPasswordController, 'handleResetPassword'])
 
     router.post('/plan/guest', [HomeController, 'guestLanding'])
+    router.get('/guest', [UsersController, 'guestPage']).as('guest-page')
 
     router.get('/plan', [PlansController, 'guestPlan']).as('guest-plan')
   })

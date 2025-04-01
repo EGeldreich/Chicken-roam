@@ -31,255 +31,259 @@
     {{-- Top left menu // 2col 1row, top-left --}}
     <div class="col-span-3 row-span-1 z-10 flex">
       <div class="bg-white rounded-xl flex space-x-4 p-4 items-center">
-        <a href="{{ route('user-page') }}">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g clip-path="url(#clip0_2497_25894)">
-              <path d="M14 7L9 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              <path d="M9 12L14 17" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-            </g>
-            <defs>
-              <clipPath id="clip0_2497_25894">
-                <rect width="24" height="24" fill="white" />
-              </clipPath>
-            </defs>
-          </svg>
-        </a>
         @if(auth.user)
-          <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
-            {{ csrfField() }}
+          <a href="{{ route('user-page') }}">
+          @else
+            <a href="{{ route('guest-page') }}">
+            @end
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <g clip-path="url(#clip0_2497_25894)">
+                <path d="M14 7L9 12" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M9 12L14 17" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </g>
+              <defs>
+                <clipPath id="clip0_2497_25894">
+                  <rect width="24" height="24" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+          </a>
+          @if(auth.user)
+            <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST">
+              {{ csrfField() }}
             <input type="text" name="newName" value="{{ plan.name }}" />
-          </form>
+            </form>
+          @else
+            <h1>
+              {{ plan.name }}
+            </h1>
+          @end
+        </div>
+      </div>
+
+      {{-- Guidance messages // 6col 1row, top, centered --}}
+      <div class="guidance-message col-span-6 col-start-4 row-span-1 z-10">
+        @if(plan.isEnclosed)
+          Enclosure complete! You can now place elements
         @else
-          <h1>
-            {{ plan.name }}
-          </h1>
-        @end
+          Complete the enclosure before placing elements
+        @endif
       </div>
-    </div>
 
-    {{-- Guidance messages // 6col 1row, top, centered --}}
-    <div class="guidance-message col-span-6 col-start-4 row-span-1 z-10">
-      @if(plan.isEnclosed)
-        Enclosure complete! You can now place elements
-      @else
-        Complete the enclosure before placing elements
-      @endif
-    </div>
-
-    {{-- Toolbox Panel // 2col 6row, on the left --}}
-    <div class="col-span-2 row-span-6 row-start-2 col-start-1 z-10 flex-col space-y-1">
-      <button class="tool-btn btn btn-primary bg-gray-800 text-gray-200" data-tool="select">
-        <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M8 18L1 1L18 8L11.7353 10.6849C11.2633 10.8872 10.8872 11.2633 10.6849 11.7353L8 18Z"
-            stroke="black"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-      </button>
-      <button class="tool-btn btn btn-primary" data-tool="point">Add point</button>
-      <button class="fence-tool-btn tool-btn btn btn-primary" data-tool="fence">Fence</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="shelter"
-      >Shelter</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="waterer"
-      >Waterer</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="perch"
-      >Perch</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="shrub"
-      >Shrub</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="tree"
-      >Tree</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="insectary"
-      >Insectary</button>
-      <button
-        class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
-        data-tool="dustbath"
-      >Dustbath</button>
-    </div>
-
-    {{-- Objectives // 2col 6row, on the right --}}
-    <div
-      class="col-span-3 col-start-10 row-span-auto z-10 flex flex-col w-full h-full justify-start items-end"
-    >
-      {{-- Progress Bar --}}
-      <div class="flex space-x-2 items-center justify-end w-full p-4">
-        <div class="w-1/3 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-          <div id="complete-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%">
-          </div>
-        </div>
-        <p>
-          <span id="complete-text">0</span>% chicken compliant
-        </p>
-        {{-- See more btn --}}
-        <button id="see-more-btn">
-          <span id="see-more-text" class="text-gray-700 text-sm">More</span>
-          <span id="see-less-text" class="hidden text-gray-700 text-sm">Less</span>
+      {{-- Toolbox Panel // 2col 6row, on the left --}}
+      <div class="col-span-2 row-span-6 row-start-2 col-start-1 z-10 flex-col space-y-1">
+        <button class="tool-btn btn btn-primary bg-gray-800 text-gray-200" data-tool="select">
+          <svg width="19" height="19" viewBox="0 0 19 19" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M8 18L1 1L18 8L11.7353 10.6849C11.2633 10.8872 10.8872 11.2633 10.6849 11.7353L8 18Z"
+              stroke="black"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
         </button>
+        <button class="tool-btn btn btn-primary" data-tool="point">Add point</button>
+        <button class="fence-tool-btn tool-btn btn btn-primary" data-tool="fence">Fence</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="shelter"
+        >Shelter</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="waterer"
+        >Waterer</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="perch"
+        >Perch</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="shrub"
+        >Shrub</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="tree"
+        >Tree</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="insectary"
+        >Insectary</button>
+        <button
+          class="element-tool-btn tool-btn btn btn-primary{{ !plan.isEnclosed ? ' disabled' : '' }}"
+          data-tool="dustbath"
+        >Dustbath</button>
       </div>
 
-      <div class="w-2/3 mr-4 relative">
-        {{-- Current tool objective --}}
-        <div id="current-objective" class="bg-white rounded-lg mb-2 hidden">
-          <div id="current-objective-content" class="p-4">
-            <div class="flex justify-between">
-              {{-- Current objective name --}}
-              <p>
-                <strong id="current-objective-name" class="capitalize"></strong>
-              </p>
-              {{-- Info hover (i) --}}
-              <svg
-                class="info-icon cursor-help"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                tabindex="0"
-                aria-label="Objective information"
-              >
-                <path
-                  d="M10 10V14M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10ZM10 6H10.01V6.01H10V6Z"
-                  stroke="black"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+      {{-- Objectives // 2col 6row, on the right --}}
+      <div
+        class="col-span-3 col-start-10 row-span-auto z-10 flex flex-col w-full h-full justify-start items-end"
+      >
+        {{-- Progress Bar --}}
+        <div class="flex space-x-2 items-center justify-end w-full p-4">
+          <div class="w-1/3 bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+            <div id="complete-bar" class="bg-blue-600 h-2.5 rounded-full" style="width: 0%">
             </div>
+          </div>
+          <p>
+            <span id="complete-text">0</span>% chicken compliant
+          </p>
+          {{-- See more btn --}}
+          <button id="see-more-btn">
+            <span id="see-more-text" class="text-gray-700 text-sm">More</span>
+            <span id="see-less-text" class="hidden text-gray-700 text-sm">Less</span>
+          </button>
+        </div>
 
-            {{-- Completion percentage and progress bar --}}
-            <div class="flex justify-between items-center mt-2 mb-1">
-              <span class="text-base font-medium"></span>
-              <span class="text-sm font-medium">
-                <span id="current-objective-completion"></span>%
+        <div class="w-2/3 mr-4 relative">
+          {{-- Current tool objective --}}
+          <div id="current-objective" class="bg-white rounded-lg mb-2 hidden">
+            <div id="current-objective-content" class="p-4">
+              <div class="flex justify-between">
+                {{-- Current objective name --}}
+                <p>
+                  <strong id="current-objective-name" class="capitalize"></strong>
+                </p>
+                {{-- Info hover (i) --}}
+                <svg
+                  class="info-icon cursor-help"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  tabindex="0"
+                  aria-label="Objective information"
+                >
+                  <path
+                    d="M10 10V14M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10ZM10 6H10.01V6.01H10V6Z"
+                    stroke="black"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+
+              {{-- Completion percentage and progress bar --}}
+              <div class="flex justify-between items-center mt-2 mb-1">
+                <span class="text-base font-medium"></span>
+                <span class="text-sm font-medium">
+                  <span id="current-objective-completion"></span>%
       </span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                id="current-objective-progress-bar"
-                class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
-                style="width: 0%"
-              >
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  id="current-objective-progress-bar"
+                  class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out"
+                  style="width: 0%"
+                >
+                </div>
+              </div>
+
+              {{-- Target value --}}
+              <div class="flex justify-between items-center mt-2">
+                <p class="text-sm font-light text-gray-700">
+                  Target value:
+                </p>
+                <span class="text-sm font-light text-gray-700">
+                  <span id="current-objective-target"></span>
+                  <span id="current-objective-unit"></span>
+                </span>
               </div>
             </div>
 
-            {{-- Target value --}}
-            <div class="flex justify-between items-center mt-2">
-              <p class="text-sm font-light text-gray-700">
-                Target value:
-              </p>
-              <span class="text-sm font-light text-gray-700">
-                <span id="current-objective-target"></span>
-                <span id="current-objective-unit"></span>
-              </span>
-            </div>
-          </div>
-
-          {{-- Tooltip --}}
-          <div
-            id="objective-tooltip"
-            class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
-          >
-            <p class="text-sm mb-2" id="objective-description">
-              Description of the objective will appear here.
-            </p>
+            {{-- Tooltip --}}
             <div
-              class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
+              id="objective-tooltip"
+              class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
             >
+              <p class="text-sm mb-2" id="objective-description">
+                Description of the objective will appear here.
+              </p>
+              <div
+                class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
+              >
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {{-- All objectives list --}}
-      <div id="all-objectives" class="w-2/3 mr-4 hidden mt-2 bg-white p-3 rounded-lg shadow-sm space-y-4">
-        @each(objective in plan.objectives)
-          <div class="objective-item" data-objective-name="{{ objective.name }}">
-            {{-- Name target and completion % --}}
-            <div class="flex justify-between items-center">
-              <span class="text-base font-medium capitalize">{{ objective.name }}</span>
-              <span class="text-sm font-medium">
-                <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
+        {{-- All objectives list --}}
+        <div id="all-objectives" class="w-2/3 mr-4 hidden mt-2 bg-white p-3 rounded-lg shadow-sm space-y-4">
+          @each(objective in plan.objectives)
+            <div class="objective-item" data-objective-name="{{ objective.name }}">
+              {{-- Name target and completion % --}}
+              <div class="flex justify-between items-center">
+                <span class="text-base font-medium capitalize">{{ objective.name }}</span>
+                <span class="text-sm font-medium">
+                  <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
                 </span>
-            </div>
-            {{-- Progress bar --}}
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                class="bg-blue-600 h-2.5 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
-                style="width: {{ objective.$extras.pivot_completion_percentage }}%"
-                data-objective-name="{{ objective.name }}"
-              >
+              </div>
+              {{-- Progress bar --}}
+              <div class="w-full bg-gray-200 rounded-full h-2.5">
+                <div
+                  class="bg-blue-600 h-2.5 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
+                  style="width: {{ objective.$extras.pivot_completion_percentage }}%"
+                  data-objective-name="{{ objective.name }}"
+                >
+                </div>
+              </div>
+              {{-- Target value --}}
+              <div class="flex justify-between items-center">
+                <p class="text-sm font-light text-gray-700">
+                  Target value:
+                </p>
+                <span class="text-sm font-light text-gray-700">
+                  <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
+                  <span class="objective-unit">{{ objective.unit }}</span>
+                </span>
               </div>
             </div>
-            {{-- Target value --}}
-            <div class="flex justify-between items-center">
-              <p class="text-sm font-light text-gray-700">
-                Target value:
-              </p>
-              <span class="text-sm font-light text-gray-700">
-                <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
-                <span class="objective-unit">{{ objective.unit }}</span>
-              </span>
-            </div>
-          </div>
-        @end
+          @end
+        </div>
       </div>
     </div>
-  </div>
 
-  {{-- ELEMENT MENU --}}
-  {{-- TO PLACE ACCORDING TO ELEMENT --}}
-  <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
-    <button class="btn btn-danger delete-btn">Delete</button>
-    <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
-    <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
-  </div>
-
-  {{-- Plan state // 2col 1row, bottom left --}}
-  <div class="col-span-2 row-span-1 col-start-1 row-start-8 z-10 justify-center items-center">
-    <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
-      {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
-    </div>
-  </div>
-
-  {{-- Controls, 2col 1row, bottom right --}}
-  <div
-    class="col-span-2 row-span-1 col-start-11 row-start-8 z-10 flex justify-center items-center space-x-8"
-  >
-    {{-- Zoom controls --}}
-    <div class="zoom-controls flex items-center">
-      <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">+</button>
-      <span id="zoomLevel" class="mx-2">100%</span>
-      <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">-</button>
-      <button id="resetView" class="btn btn-sm px-2 py-1 h-8 ml-2">Reset</button>
+    {{-- ELEMENT MENU --}}
+    {{-- TO PLACE ACCORDING TO ELEMENT --}}
+    <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
+      <button class="btn btn-danger delete-btn">Delete</button>
+      <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
+      <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
     </div>
 
-    {{-- Movement controls --}}
-    <div class="movement-controls flex flex-col justify-center items-center">
-      <button id="moveUp" class="btn btn-sm px-2 py-1 h-8">&#9206;</button>
-      <div class="flex">
-        <button id="moveLeft" class="btn btn-sm px-2 py-1 h-8">&#9204;</button>
-        <button id="moveRight" class="btn btn-sm px-2 py-1 h-8">&#9205;</button>
+    {{-- Plan state // 2col 1row, bottom left --}}
+    <div class="col-span-2 row-span-1 col-start-1 row-start-8 z-10 justify-center items-center">
+      <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
+        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
       </div>
-      <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
     </div>
-  </div>
 
-</div>
+    {{-- Controls, 2col 1row, bottom right --}}
+    <div
+      class="col-span-2 row-span-1 col-start-11 row-start-8 z-10 flex justify-center items-center space-x-8"
+    >
+      {{-- Zoom controls --}}
+      <div class="zoom-controls flex items-center">
+        <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">+</button>
+        <span id="zoomLevel" class="mx-2">100%</span>
+        <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">-</button>
+        <button id="resetView" class="btn btn-sm px-2 py-1 h-8 ml-2">Reset</button>
+      </div>
+
+      {{-- Movement controls --}}
+      <div class="movement-controls flex flex-col justify-center items-center">
+        <button id="moveUp" class="btn btn-sm px-2 py-1 h-8">&#9206;</button>
+        <div class="flex">
+          <button id="moveLeft" class="btn btn-sm px-2 py-1 h-8">&#9204;</button>
+          <button id="moveRight" class="btn btn-sm px-2 py-1 h-8">&#9205;</button>
+        </div>
+        <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 @include('partials/footer')
