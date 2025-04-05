@@ -553,11 +553,12 @@ export default class FenceDrawer {
         })
         // Dispatch the event from the canvas element
         this.canvas.dispatchEvent(event)
-        // Update just the area objective
-        const areaObjectiveEl = document.querySelector('#area')
-        if (areaObjectiveEl) {
-          areaObjectiveEl.textContent = areaCompletion
-        }
+
+        // Update objective completion with new value
+        this.planEditor.objectivesManager.updateObjectiveCompletion('area', areaCompletion)
+
+        // Call update total completion
+        this.planEditor.objectivesManager.updateTotalCompletion()
 
         // If elements were removed or updated, show a message
         if (elementsToRemove.length > 0 || elementsToUpdate.length > 0) {
