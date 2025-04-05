@@ -17,6 +17,12 @@
   .btn-danger {
     @apply border-red-800 text-red-800 hover:bg-red-800 hover:text-gray-300;
   }
+  .tool-btn {
+    @apply border-0 bg-gray-100 hover:bg-gray-700;
+  }
+  .active-tool {
+    @apply bg-black hover:bg-black;
+  }
   /*  */
   /* ELEMENTS STYLING */
   /*  */
@@ -364,3 +370,16 @@ body {
 }
 
 /* Scale end */
+
+/* Tool btn */
+.tool-btn svg path {
+  fill: #000;
+  transition: fill 0.2s ease-in-out;
+}
+.tool-btn:hover svg path {
+  fill: #f3f4f6;
+}
+.active-tool svg path {
+  fill: #f3f4f6;
+}
+/* Tool btn end */

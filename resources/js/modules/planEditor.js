@@ -598,11 +598,9 @@ export default class PlanEditor {
   updateToolButtonStyles(currentTool) {
     document.querySelectorAll('.tool-btn').forEach((btn) => {
       if (btn.dataset.tool === currentTool) {
-        btn.classList.add('bg-gray-800', 'text-gray-200')
-        btn.classList.remove('bg-gray-200', 'text-gray-800')
+        btn.classList.add('active-tool')
       } else {
-        btn.classList.add('bg-gray-200', 'text-gray-800')
-        btn.classList.remove('bg-gray-800', 'text-gray-200')
+        btn.classList.remove('active-tool')
       }
     })
   }
