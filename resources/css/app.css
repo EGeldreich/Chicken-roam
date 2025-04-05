@@ -107,12 +107,6 @@ body {
   text-align: center;
 }
 
-/* Position fixe pour les menus flottants */
-#currentTool,
-#elementMenu {
-  z-index: 30;
-}
-
 /* Style pour les toasts */
 .enclosure-break-toast,
 .enclosure-update-toast,

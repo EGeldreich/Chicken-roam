@@ -284,14 +284,19 @@
           <button id="moveDown" class="btn btn-sm px-2 py-1 h-8">&#9207;</button>
         </div>
       </div>
-    </div>
 
-    {{-- ELEMENT MENU --}}
-    {{-- TO PLACE ACCORDING TO ELEMENT --}}
-    <div id="elementMenu" class="hidden absolute bg-white shadow-lg rounded-lg p-2 z-20">
-      <button class="btn btn-danger delete-btn">Delete</button>
-      <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
-      <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
+      {{-- ELEMENT MENU --}}
+      {{-- TO PLACE ACCORDING TO ELEMENT --}}
+      <div
+        id="elementMenu"
+        class="hidden bg-white rounded-lg p-2 z-20 col-span-2 row-span-1 col-start-5 row-start-8"
+      >
+        <div class="flex gap-4">
+          <button class="btn btn-danger delete-btn">Delete</button>
+          <button class="hidden btn btn-primary upgrade-btn">Upgrade</button>
+          <button class="hidden btn btn-primary downgrade-btn">Downgrade</button>
+        </div>
+      </div>
     </div>
 
   </div>
