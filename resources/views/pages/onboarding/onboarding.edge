@@ -3,12 +3,15 @@
 @include('partials/nav')
 @include('partials/flash')
 
-<div class="container mx-auto flex flex-col gap-5 m-auto items-center">
+<div class="container mx-auto flex flex-col gap-5 m-auto items-center mt-30">
   {{-- Title --}}
-  <h1>
-    Welcome to Chicken Roam
+  <h1 class="title text-center">
+    Design the Ultimate <span class="text-orange-main">Chicken Kingdom</span>    <br />for Happy, Healthy Hens
   </h1>
   {{-- One liner ? --}}
+  <p class="body text-center">
+    Create a custom path tailored to your chickens’ well-being,<br />or just have fun building your dream chicken run!
+  </p>
 
   {{-- Form chosen number --}}
   @if(auth.use('web').isAuthenticated)

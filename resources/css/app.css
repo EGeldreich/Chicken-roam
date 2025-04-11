@@ -2,16 +2,22 @@
 @source "../views";
 
 @theme {
+  /* Colors */
   --color-green-main: #05804d;
   --color-green-secondary: #05804d33;
   --color-green-hover: #04663e;
 
   --color-white-main: #efefef;
   --color-black-main: #2f2319;
+  --color-black-secondary: #634b35;
 
   --color-orange-main: #e06500;
 
   --color-bg-main: #fff4d9;
+
+  /* Fonts */
+  --font-sora: Sora, sans-serif;
+  --font-averia: Averia Sans Libre, sans-serif;
 }
 
 @layer components {
@@ -45,6 +51,12 @@
   /*  */
   .link {
     @apply text-green-main underline;
+  }
+  .body {
+    @apply text-black-secondary text-lg font-sora;
+  }
+  .title {
+    @apply text-black-main text-5xl font-semibold font-averia;
   }
 
   /*  */
