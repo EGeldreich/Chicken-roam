@@ -1,18 +1,34 @@
 @import 'tailwindcss';
 @source "../views";
 
+@theme {
+  --color-green-main: #05804d;
+  --color-green-secondary: #05804d33;
+  --color-green-hover: #04663e;
+
+  --color-white-main: #efefef;
+  --color-black-main: #2f2319;
+
+  --color-orange-main: #e06500;
+
+  --color-bg-main: #fff4d9;
+}
+
 @layer components {
   /*  */
   /* BUTTONS */
   /*  */
   .btn {
-    @apply rounded-lg px-3 py-1.5 border-2 h-10 flex self-center duration-300 cursor-pointer;
+    @apply rounded-lg px-2 py-1.5 h-10 flex self-center duration-300 cursor-pointer;
   }
   .btn-primary {
-    @apply border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-gray-300;
+    @apply bg-green-main text-white-main hover:bg-green-hover;
   }
-  .btn-primary-reverse {
-    @apply border-gray-300 text-gray-300 hover:bg-gray-300 hover:text-gray-800;
+  .btn-secondary {
+    @apply bg-green-secondary text-green-main hover:bg-green-hover hover:text-white-main;
+  }
+  .btn-tertiary {
+    @apply bg-none text-green-main hover:bg-green-secondary hover:text-green-main;
   }
   .btn-danger {
     @apply border-red-800 text-red-800 hover:bg-red-800 hover:text-gray-300;
@@ -23,6 +39,14 @@
   .active-tool {
     @apply bg-black hover:bg-black;
   }
+
+  /*  */
+  /* TEXT */
+  /*  */
+  .link {
+    @apply text-green-main underline;
+  }
+
   /*  */
   /* ELEMENTS STYLING */
   /*  */
