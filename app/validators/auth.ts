@@ -1,4 +1,4 @@
-import vine from '@vinejs/vine'
+import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 // VineJS library comes pre-configured  with AdonisJS web starter kit
 // validation library
 
@@ -13,6 +13,13 @@ import vine from '@vinejs/vine'
 // unique() ensure uniqueness in DB
 // confirmed() ensure input from this field and the confirmation field are equals
 
+// Personalized error messages
+const messages = {
+  regex:
+    'The {{ field }} must contain at least 12 characters, including at least one uppercase letter, one lowercase letter, one number, and one special character.',
+}
+vine.messagesProvider = new SimpleMessagesProvider(messages)
+
 export const registerUserValidator = vine.compile(
   vine.object({
     username: vine.string().trim().minLength(2).maxLength(50).alphaNumeric(),
@@ -24,7 +31,10 @@ export const registerUserValidator = vine.compile(
         const users = await db.from('users').where('email', value).first()
         return !users
       }),
-    password: vine.string().minLength(8).confirmed(),
+    password: vine
+      .string()
+      .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/))
+      .confirmed(),
   })
 )
 //
@@ -32,7 +42,9 @@ export const registerUserValidator = vine.compile(
 export const loginUserValidator = vine.compile(
   vine.object({
     email: vine.string().email(),
-    password: vine.string().minLength(8),
+    password: vine
+      .string()
+      .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/)),
   })
 )
 //
@@ -48,6 +60,9 @@ export const resetPasswordValidator = vine.compile(
   vine.object({
     token: vine.string(),
     email: vine.string().email(),
-    password: vine.string().minLength(8).confirmed(),
+    password: vine
+      .string()
+      .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/))
+      .confirmed(),
   })
 )
