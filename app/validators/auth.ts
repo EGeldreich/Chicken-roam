@@ -42,9 +42,7 @@ export const registerUserValidator = vine.compile(
 export const loginUserValidator = vine.compile(
   vine.object({
     email: vine.string().email(),
-    password: vine
-      .string()
-      .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/)),
+    password: vine.string(),
   })
 )
 //
