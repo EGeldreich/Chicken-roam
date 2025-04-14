@@ -19,6 +19,8 @@ export default class FenceDrawer {
     this.isDrawing = false // State required to not triggers mouse events constantly
     this.isFirstFence = true // Needed to be able to draw first fence without any connection point
 
+    this.lengthIndicator = null // Will indicate fence length while drawing
+
     this.loadExistingFences() // Get existings fences from DB
 
     // Listen for fence deletions
@@ -218,6 +220,14 @@ export default class FenceDrawer {
     this.temporaryFence.style.top = `${point.y}px`
     // Append a temporary fence to canva
     this.canvas.appendChild(this.temporaryFence)
+
+    // Create length indicator
+    this.lengthIndicator = document.createElement('div')
+    // Add styling classes
+    this.lengthIndicator.className =
+      'fence-length-indicator absolute bg-white border border-gray-500 px-2 py-1 rounded-md text-sm z-50'
+    // Append to canvas
+    this.canvas.appendChild(this.lengthIndicator)
   }
 
   /**
@@ -227,6 +237,12 @@ export default class FenceDrawer {
     if (this.temporaryFence) {
       this.temporaryFence.remove()
     }
+
+    if (this.lengthIndicator) {
+      this.lengthIndicator.remove()
+      this.lengthIndicator = null
+    }
+
     this.isDrawing = false
     this.drawStartPoint = null
     this.temporaryFence = null
@@ -285,6 +301,30 @@ export default class FenceDrawer {
     // Update the temporary fence line according to length and angle
     this.temporaryFence.style.width = `${length}px`
     this.temporaryFence.style.transform = `rotate(${angle}deg)`
+
+    // Update length indicator
+    if (this.lengthIndicator) {
+      // Transform pixel into meters (take zoom into account)
+      const lengthInMeters = length / 100 / this.planEditor.zoom
+
+      // Place indicator next to the mouse
+      const indicatorX = endPoint.x + 15
+      const indicatorY = endPoint.y - 15
+      this.lengthIndicator.style.left = `${indicatorX}px`
+      this.lengthIndicator.style.top = `${indicatorY}px`
+
+      // Display length with 2 decimals
+      this.lengthIndicator.textContent = `${lengthInMeters.toFixed(2)} m`
+
+      // Add color to text according to the fence validity
+      if (isInvalid) {
+        this.lengthIndicator.classList.add('text-red-500')
+        this.lengthIndicator.classList.remove('text-green-500')
+      } else {
+        this.lengthIndicator.classList.add('text-green-500')
+        this.lengthIndicator.classList.remove('text-red-500')
+      }
+    }
   }
 
   /**
@@ -297,6 +337,12 @@ export default class FenceDrawer {
   async handleMouseUp(point) {
     // If not currently drawing, do nothing
     if (!this.isDrawing) return
+
+    // Remove length indicator on mouse release
+    if (this.lengthIndicator) {
+      this.lengthIndicator.remove()
+      this.lengthIndicator = null
+    }
 
     // Define default endpoint as current mouse position
     let endPoint = point
