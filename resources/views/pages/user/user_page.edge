@@ -59,14 +59,25 @@
           </div>
         </a>
 
-        {{-- Delete plan --}}
-        @component('components/delete_form', {
+        {{-- Menu --}}
+        <div class="plan-actions">
+          <!-- Duplication -->
+          <form action="{{ route('duplicate-plan', { id: plan.id }) }}" method="POST" class="inline">
+            {{ csrfField() }}
+            <button type="submit" class="btn btn-secondary">Duplicate</button>
+          </form>
+          <!-- End Duplication -->
+
+          {{-- Delete plan --}}
+          @component('components/delete_form', {
             name: 'Delete plan',
             action: route('delete-plan', { id: plan.id}),
             sentenceEnd: `the plan: ${plan.name}`
-        })
-        @end
-        {{-- End Delete plan --}}
+          })
+          @end
+          {{-- End Delete plan --}}
+        </div>
+        {{-- End Menu --}}
       </div>
     @end
     {{-- End Each plan --}}

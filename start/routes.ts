@@ -90,6 +90,7 @@ router
     router.get('/plan/:id', [PlansController, 'plan']).as('plan')
     router.post('/plan/:id/delete', [PlansController, 'delete']).as('delete-plan')
     router.post('/plan/:id/rename', [PlansController, 'rename']).as('rename-plan')
+    router.post('/plan/:id/duplicate', [PlansController, 'duplicate']).as('duplicate-plan')
   })
   .use(middleware.auth())
 

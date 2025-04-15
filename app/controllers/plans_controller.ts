@@ -169,4 +169,59 @@ export default class PlansController {
       return response.redirect().toRoute('plan', { id: params.id })
     }
   }
+  //
+  //
+  //
+  async duplicate({ params, response, session, auth }: HttpContext) {
+    try {
+      // Find user
+      const user = auth.user!
+
+      // Find plan to copy
+      const originalPlan = await Plan.query()
+        .where('id', params.id)
+        .preload('objectives')
+        .firstOrFail()
+
+      // Check if the plan is the user's (security)
+      if (originalPlan.userId !== user.id) {
+        session.flash('error', 'You do not have permission to duplicate this plan')
+        return response.redirect().toRoute('user-page')
+      }
+
+      // Create new plan with the same data
+      const newPlan = await Plan.create({
+        name: `copy of ${originalPlan.name}`,
+        nbChickens: originalPlan.nbChickens,
+        isCompleted: originalPlan.isCompleted,
+        userId: user.id,
+        state: originalPlan.state,
+        isEnclosed: originalPlan.isEnclosed,
+      })
+
+      // Prepare objective pivot data
+      const objectivePivotData: {
+        [key: number]: { completion_percentage: number; target_value: number }
+      } = {}
+
+      // Get objectives from the original plan
+      for (const objective of originalPlan.objectives) {
+        objectivePivotData[objective.id] = {
+          completion_percentage: objective.$extras.pivot_completion_percentage,
+          target_value: objective.$extras.pivot_target_value,
+        }
+      }
+
+      // Attach pivot data to new plan
+      await newPlan.related('objectives').attach(objectivePivotData)
+
+      // Flash and redirection
+      session.flash('success', 'Plan duplicated successfully')
+      return response.redirect().toRoute('user-page')
+    } catch (error) {
+      console.error('Error duplicating plan:', error)
+      session.flash('error', 'An error occurred while duplicating the plan')
+      return response.redirect().toRoute('user-page')
+    }
+  }
 }
