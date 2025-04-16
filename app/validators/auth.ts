@@ -17,6 +17,7 @@ import vine, { SimpleMessagesProvider } from '@vinejs/vine'
 const messages = {
   regex:
     'The {{ field }} must contain at least 12 characters, including at least one uppercase letter, one lowercase letter, one number, and one special character.',
+  accepted: 'You must accept the Terms and Privacy Policy to continue',
 }
 vine.messagesProvider = new SimpleMessagesProvider(messages)
 
@@ -35,6 +36,7 @@ export const registerUserValidator = vine.compile(
       .string()
       .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/))
       .confirmed(),
+    accept_gdpr: vine.accepted(),
   })
 )
 //
