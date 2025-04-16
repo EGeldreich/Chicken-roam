@@ -36,7 +36,7 @@ export const registerUserValidator = vine.compile(
       .string()
       .regex(new RegExp(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,}$/))
       .confirmed(),
-    accept_gdpr: vine.accepted(),
+    gdpr: vine.accepted(),
   })
 )
 //

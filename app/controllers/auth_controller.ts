@@ -15,8 +15,7 @@ export default class AuthController {
   // Handle register
   async handleRegister({ request, session, response, auth }: HttpContext) {
     // Get informations from request and validate them
-    const { username, email, password, accept_gdpr } =
-      await request.validateUsing(registerUserValidator)
+    const { username, email, password, gdpr } = await request.validateUsing(registerUserValidator)
 
     // Create new user in DB and save
     const user = await User.create({ username, email, password })

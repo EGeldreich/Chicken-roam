@@ -18,9 +18,9 @@
   {{-- GDPR Checkbox --}}
   <div class="mb-4">
     <label class="flex items-center">
-      <input type="checkbox" name="accept_gdpr" id="accept_gdpr" class="mr-2" required />
+      <input type="checkbox" name="gdpr" id="gdpr" class="mr-2" />
       <span class="text-gray-700 text-sm">I accept the <a href="{{ route('about') }}#terms" class="text-blue-500 underline" target="_blank">Terms and Privacy Policy</a></span></label>
-    @inputError('accept_gdpr')
+    @inputError('gdpr')
       @each(message in $messages)
         <p class="text-red-700">
           {{ message }}
