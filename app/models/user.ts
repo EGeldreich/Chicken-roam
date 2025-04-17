@@ -5,7 +5,6 @@ import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import { DbRememberMeTokensProvider } from '@adonisjs/auth/session'
 import Plan from './plan.js'
-import History from './history.js'
 import hash from '@adonisjs/core/services/hash'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
@@ -37,7 +36,4 @@ export default class User extends compose(BaseModel, AuthFinder) {
   // Relationships
   @hasMany(() => Plan)
   declare plans: HasMany<typeof Plan>
-
-  @hasMany(() => History)
-  declare histories: HasMany<typeof History>
 }

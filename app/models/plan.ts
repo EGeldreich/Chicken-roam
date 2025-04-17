@@ -6,7 +6,6 @@ import User from './user.js'
 import Fence from './fence.js'
 import Objective from './objective.js'
 import Vertex from './vertex.js'
-import History from './history.js'
 import Element from './element.js'
 
 export enum PlanState {
@@ -58,9 +57,6 @@ export default class Plan extends BaseModel {
 
   @hasMany(() => Vertex)
   declare vertices: HasMany<typeof Vertex>
-
-  @hasMany(() => History)
-  declare histories: HasMany<typeof History>
 
   @manyToMany(() => Objective, {
     pivotTable: 'plan_objectives',
