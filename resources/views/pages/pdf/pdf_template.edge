@@ -1,0 +1,24 @@
+@vite(['resources/js/pages/pdf_template.js'])
+@let(title = 'User page')
+@let(pageStyle = 'resources/css/pages-css/pdf-template.css')
+@include('partials/header')
+
+<body>
+  <div class="container">
+    <h1 class="py-4">
+      {{ planName }}
+    </h1>
+    <div class="canvas-container" id="pdfCanvas">
+      {{-- Canvas image container --}}
+    </div>
+    <div class="controls py-4">
+      <button id="downloadPDF" class="btn">Download PDF</button>
+      <button id="printPDF" class="btn">Print</button>
+    </div>
+  </div>
+</body>
+{{-- JsPDF script --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+  
+</script>
+</html>

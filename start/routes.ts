@@ -42,6 +42,7 @@ router.post('/api/fences/create-from-vertices', [FencesController, 'createFromVe
 
 // PLANS
 router.post('/api/plans/:planId/complete-enclosure', [PlansController, 'completeEnclosure'])
+router.get('/pdf-template', [PlansController, 'pdfTemplate']).as('pdf-template')
 
 // VERTICES
 router.post('/api/vertices', [VerticesController, 'create'])

@@ -16,7 +16,7 @@
 
   {{-- Main Canvas Area // Takes whole screen --}}
   <div class="absolute inset-0 z-5">
-    <div class="viewport-container h-full">
+    <div class="viewport-container">
       <div
         id="planCanvas"
         class="canvas-content w-full h-full bg-white relative border-2 state-{{ plan.state || 'construction' }}"
@@ -51,13 +51,14 @@
           @if(auth.user)
             <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST" class="w-full">
               {{ csrfField() }}
-            <input type="text" name="newName" value="{{ plan.name }}" class="w-full" />
+            <input id="plan-name" type="text" name="newName" value="{{ plan.name }}" class="w-full" />
             </form>
           @else
             <h1>
               {{ plan.name }}
             </h1>
           @end
+          <button id="exportPDF" class="btn btn-primary">Export PDF</button>
         </div>
         {{-- Plan state --}}
         <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">

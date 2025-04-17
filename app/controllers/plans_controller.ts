@@ -224,4 +224,11 @@ export default class PlansController {
       return response.redirect().toRoute('user-page')
     }
   }
+  //
+  //
+  //
+  async pdfTemplate({ view, request }: HttpContext) {
+    const planName = request.input('planName', 'Chicken Plan')
+    return view.render('pages/pdf/pdf_template', { planName })
+  }
 }
