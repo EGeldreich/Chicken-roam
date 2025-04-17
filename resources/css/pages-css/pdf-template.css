@@ -2,51 +2,23 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
   background-color: #f0f0f0;
   font-family: 'Sora', sans-serif;
 }
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-width: 100%;
-  max-height: 100%;
-}
-.canvas-container {
-  border: 1px solid #ccc;
-  margin-bottom: 20px;
-  background-color: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-canvas {
-  display: block;
-}
-.controls {
-  display: flex;
-  gap: 10px;
-}
-.btn {
-  padding: 10px 20px;
-  background-color: #05804d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-.btn:hover {
-  background-color: #04663e;
-}
 h1 {
   font-family: 'Averia Sans Libre', sans-serif;
   color: #2f2319;
-  margin-bottom: 20px;
+}
+.landscape-print {
+  width: 100%;
+  height: auto;
+}
+.portrait-print {
+  width: auto;
+  height: 100%;
 }
 
 /* Print-specific media query */
@@ -82,6 +54,20 @@ h1 {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+  }
+  /* @page apply when printing */
+  @page {
+    /* Auto chose default printing format (A4) */
+    size: auto;
+    margin: 10mm;
+  }
+  /* Tell printer to default to landscape if the landscape-print class in present */
+  body.landscape-print {
+    size: landscape;
+  }
+  /* Tell printer to default to portrait if the portrait-print class in present */
+  body.portrait-print {
+    size: portrait;
   }
 }
 

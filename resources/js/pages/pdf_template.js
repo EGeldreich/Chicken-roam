@@ -91,7 +91,7 @@ document.getElementById('printPDF').addEventListener('click', function () {
 
   // Store current body class
   const originalBodyClass = document.body.className
-  // Orient page according to ration
+  // Orient page according to ratio
   if (ratio > 1) {
     document.body.classList.add('landscape-print')
   } else {

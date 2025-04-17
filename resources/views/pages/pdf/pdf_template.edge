@@ -1,19 +1,19 @@
-@vite(['resources/js/pages/pdf_template.js'])
 @let(title = 'User page')
 @let(pageStyle = 'resources/css/pages-css/pdf-template.css')
+@let(pageJS = 'resources/js/pages/pdf_template.js')
 @include('partials/header')
 
-<body>
-  <div class="container">
-    <h1 class="py-4">
+<body class="h-full flex items-center justify-center">
+  <div class="container flex flex-col max-w-full max-h-full items-center">
+    <h1 class="text-lg py-5">
       {{ planName }}
     </h1>
-    <div class="canvas-container" id="pdfCanvas">
+    <div class="canvas-container mb-5 bg-white border-1 border-black overflow-hidden" id="pdfCanvas">
       {{-- Canvas image container --}}
     </div>
-    <div class="controls py-4">
-      <button id="downloadPDF" class="btn">Download PDF</button>
-      <button id="printPDF" class="btn">Print</button>
+    <div class="controls flex space-x-2.5 py-4">
+      <button id="downloadPDF" class="btn btn-primary">Download PDF</button>
+      <button id="printPDF" class="btn btn-primary">Print</button>
     </div>
   </div>
 </body>

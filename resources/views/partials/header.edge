@@ -39,6 +39,10 @@
     @if(pageStyle)
       @vite([pageStyle])
     @end
+    {{-- Page-specific JS --}}
+    @if(pageJS)
+      @vite([pageJS])
+    @end
     
     
     @stack('dumper')
