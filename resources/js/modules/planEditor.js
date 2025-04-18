@@ -11,6 +11,7 @@ import Selector from './selector.js'
 import PointAdder from './pointAdder.js'
 import CommonFunctionsService from '../services/commonFunctionsService.js'
 import ObjectivesManager from '../services/objectivesManager.js'
+import Mover from './mover.js'
 
 export default class PlanEditor {
   constructor(planId) {
@@ -56,6 +57,7 @@ export default class PlanEditor {
     this.doorDrawer = new DoorDrawer(this.canvas, this.planId, this)
     this.selector = new Selector(this.canvas, this.planId, this)
     this.pointAdder = new PointAdder(this.canvas, this.planId, this)
+    this.mover = new Mover(this.canvas, this.planId, this)
 
     // Add services instances
     this.commonFunctionsService = new CommonFunctionsService(this.canvas, this, this.EPSILON)
@@ -77,6 +79,7 @@ export default class PlanEditor {
       tree: this.treeDrawer,
       door: this.doorDrawer,
       point: this.pointAdder,
+      move: this.mover,
     }
 
     // Set up event listeners
@@ -717,7 +720,7 @@ export default class PlanEditor {
   handleMouseDown(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler === this.fenceDrawer || handler === this.pointAdder) {
+    if (handler === this.fenceDrawer || handler === this.pointAdder || handler === this.mover) {
       handler.handleMouseDown(point)
     } else if (handler === this.selector) {
       handler.selectElement(event)
@@ -747,7 +750,7 @@ export default class PlanEditor {
   handleMouseUp(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    if (handler === this.fenceDrawer || handler === this.selector) {
+    if (handler === this.fenceDrawer || handler === this.selector || handler === this.mover) {
       handler.handleMouseUp(point)
     }
   }
