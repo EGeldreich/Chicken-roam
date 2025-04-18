@@ -183,20 +183,13 @@ export default class PlanEditor {
     })
 
     //____
-    // Move with wheel button or right click
+    // Handle movement via mover tool (mover tool handles isPanning State)
 
     // Go into panning mode
     this.canvas.addEventListener('mousedown', (e) => {
-      // Allow usage of wheel or right clic to move canvas
-      if (e.button === 1 || e.button === 2) {
-        e.preventDefault() // Disable default behavior for right and wheel mouse events
-
-        this.isPanning = true // Change default state
+      // Only act if using the move tool
+      if (this.currentTool === 'move') {
         this.lastPanPoint = { x: e.clientX, y: e.clientY } // Store current pan point
-
-        // Change cursor by adding a class to viewport container
-        const container = document.querySelector('.viewport-container')
-        if (container) container.classList.add('panning') // Panning class change cursor to grabbing
       }
     })
 
@@ -221,23 +214,23 @@ export default class PlanEditor {
       }
     })
 
-    // Deactivate panning mode
-    document.addEventListener('mouseup', (e) => {
-      // If wheel or right click
-      if (e.button === 1 || e.button === 2) {
-        // Change panning state
-        this.isPanning = false
-        // Remove class
-        const container = document.querySelector('.viewport-container')
-        if (container) container.classList.remove('panning')
-      }
-    })
+    // // Deactivate panning mode
+    // document.addEventListener('mouseup', (e) => {
+    //   // If wheel or right click
+    //   if (e.button === 1 || e.button === 2) {
+    //     // Change panning state
+    //     this.isPanning = false
+    //     // Remove class
+    //     const container = document.querySelector('.viewport-container')
+    //     if (container) container.classList.remove('panning')
+    //   }
+    // })
 
     //___
     // Deactivate right click menu
-    this.canvas.addEventListener('contextmenu', (e) => {
-      e.preventDefault() // Added security to avoid right click menu appearing
-    })
+    // this.canvas.addEventListener('contextmenu', (e) => {
+    //   e.preventDefault() // Added security to avoid right click menu appearing
+    // })
 
     //___
     // Zoom control buttons
@@ -246,10 +239,10 @@ export default class PlanEditor {
     const zoomIn = document.getElementById('zoomIn')
     const zoomOut = document.getElementById('zoomOut')
     const resetView = document.getElementById('resetView')
-    const moveUp = document.getElementById('moveUp')
-    const moveLeft = document.getElementById('moveLeft')
-    const moveRight = document.getElementById('moveRight')
-    const moveDown = document.getElementById('moveDown')
+    // const moveUp = document.getElementById('moveUp')
+    // const moveLeft = document.getElementById('moveLeft')
+    // const moveRight = document.getElementById('moveRight')
+    // const moveDown = document.getElementById('moveDown')
 
     // Event listener on zoom in
     if (zoomIn) {
@@ -279,30 +272,30 @@ export default class PlanEditor {
     }
 
     // Event listener on movements
-    if (moveUp) {
-      moveUp.addEventListener('click', () => {
-        this.panY -= 50
-        this.applyTransform()
-      })
-    }
-    if (moveDown) {
-      moveDown.addEventListener('click', () => {
-        this.panY += 50
-        this.applyTransform()
-      })
-    }
-    if (moveRight) {
-      moveRight.addEventListener('click', () => {
-        this.panX -= 50
-        this.applyTransform()
-      })
-    }
-    if (moveLeft) {
-      moveLeft.addEventListener('click', () => {
-        this.panX += 50
-        this.applyTransform()
-      })
-    }
+    // if (moveUp) {
+    //   moveUp.addEventListener('click', () => {
+    //     this.panY -= 50
+    //     this.applyTransform()
+    //   })
+    // }
+    // if (moveDown) {
+    //   moveDown.addEventListener('click', () => {
+    //     this.panY += 50
+    //     this.applyTransform()
+    //   })
+    // }
+    // if (moveRight) {
+    //   moveRight.addEventListener('click', () => {
+    //     this.panX -= 50
+    //     this.applyTransform()
+    //   })
+    // }
+    // if (moveLeft) {
+    //   moveLeft.addEventListener('click', () => {
+    //     this.panX += 50
+    //     this.applyTransform()
+    //   })
+    // }
   }
 
   /**
@@ -407,32 +400,38 @@ export default class PlanEditor {
   updateScale() {
     if (!this.scaleBar || !this.scaleNumber) return
 
+    console.log(this.zoom)
     // Initialize required variables
     let referenceLength, unit, barWidth, divisions
 
     if (this.zoom <= 0.5) {
-      referenceLength = 5
+      referenceLength = 3 // Number used for the whole scale, here 3
+      unit = 'm' // Unit following the reference length, so here "3 m"
+      barWidth = 100 * referenceLength * this.zoom // Automatically handle bar length via zoom level
+      divisions = 3 // number of part the scale is divided in
+    } else if (this.zoom <= 0.8) {
+      referenceLength = 2
       unit = 'm'
       barWidth = 100 * referenceLength * this.zoom
-      divisions = 5 // Diviser en 5 parties de 1m chacune
+      divisions = 2
     } else if (this.zoom <= 1.5) {
       referenceLength = 1
       unit = 'm'
       barWidth = 100 * referenceLength * this.zoom
-      divisions = 4 // Diviser en 4 parties de 25cm chacune
-    } else if (this.zoom <= 3) {
+      divisions = 10
+    } else if (this.zoom <= 2) {
       referenceLength = 50
       unit = 'cm'
       barWidth = referenceLength * this.zoom
-      divisions = 5 // Diviser en 5 parties de 10cm chacune
+      divisions = 5
     } else {
       referenceLength = 20
       unit = 'cm'
       barWidth = referenceLength * this.zoom
-      divisions = 4 // Diviser en 4 parties de 5cm chacune
+      divisions = 2
     }
 
-    // Mettre à jour la largeur de la barre d'échelle
+    // Update bar width
     this.scaleBar.style.width = `${barWidth}px`
 
     // Add divisions on scale bar
@@ -736,11 +735,11 @@ export default class PlanEditor {
   handleMouseMove(event) {
     const point = this.getCanvasPoint(event)
     const handler = this.toolHandlers[this.currentTool]
-    // if (handler === this.selector) {
-    //   return
-    // } else if (handler) {
-    handler.handleMouseMove(point)
-    // }
+    if (handler === this.mover) {
+      return
+    } else if (handler) {
+      handler.handleMouseMove(point)
+    }
   }
 
   /**
