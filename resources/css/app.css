@@ -12,8 +12,11 @@
   --color-black-secondary: #634b35;
 
   --color-orange-main: #e06500;
+  --color-orange-active: #f1781e;
 
   --color-bg-main: #fff4d9;
+
+  --color-tool-hover: #f2e9d5;
 
   /* Fonts */
   --font-sora: Sora, sans-serif;
@@ -41,6 +44,9 @@
   }
   .tool-btn {
     @apply border-0 py-0.5 px-0.5;
+  }
+  .mini-tool {
+    @apply rounded-none flex justify-center py-2 bg-white hover:bg-tool-hover;
   }
   /* .active-tool {
     @apply bg-black hover:bg-black;
@@ -420,10 +426,12 @@ body {
   fill: #f2e9d5;
 }
 .active-tool {
+  /* Change blob */
   & .blob {
     fill: #fff;
     opacity: 0.5;
   }
+  /* Change bg color */
   & #tree-bg {
     fill: #b6d5a0;
   }
@@ -447,5 +455,9 @@ body {
   }
   & #perch-bg {
     fill: #d2db93;
+  }
+  /* mini tools */
+  &.mini-tool {
+    background-color: #f1781e !important;
   }
 }
