@@ -418,7 +418,7 @@ export default class PlanEditor {
       referenceLength = 1
       unit = 'm'
       barWidth = 100 * referenceLength * this.zoom
-      divisions = 10
+      divisions = 5
     } else if (this.zoom <= 2) {
       referenceLength = 50
       unit = 'cm'
