@@ -870,14 +870,7 @@ export default class CommonFunctionsService {
       message = 'Fences cannot intersect each other'
     }
 
-    // Create error message div and display it for 3 seconds
-    const errorMessage = document.createElement('div')
-    errorMessage.className = 'placement-error-toast'
-    errorMessage.textContent = message
-    document.body.appendChild(errorMessage)
-
-    setTimeout(() => {
-      errorMessage.remove()
-    }, 3000)
+    // Use planEditor methode
+    this.planEditor.showGuidanceMessage(message, true)
   }
 }

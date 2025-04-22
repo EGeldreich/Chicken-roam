@@ -155,15 +155,6 @@ body {
   text-align: center;
 }
 
-/* Style pour les toasts */
-.enclosure-break-toast,
-.enclosure-update-toast,
-.placement-error-toast {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 50;
-}
 .enclosure-complete {
   border: 2px solid #4caf50;
 }
@@ -288,15 +279,13 @@ body {
 }
 
 /* Guidance message */
-.guidance-message {
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
+/* .guidance-message {
   border-radius: 0.25rem;
   padding: 0.5rem 1rem;
   margin-bottom: 1rem;
   font-size: 0.875rem;
   color: #495057;
-}
+} */
 
 .guidance-message.pulse {
   animation: pulse-blue 0.5s;
@@ -316,7 +305,6 @@ body {
   z-index: 1000;
   max-width: 300px;
 }
-
 .enclosure-break-toast.warning {
   border-left: 4px solid #cc0000;
 }

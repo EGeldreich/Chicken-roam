@@ -721,3 +721,6 @@ Ajout d'un validator pour les éléments
 - Placement message d'erreur
 - Mise à jour du % total sans refresh
 - Gerer display objectifs quand l'outil est arbre
+- rendre guidance messages temporaires
+
+Nécessité de mettre un limitateur de login ?

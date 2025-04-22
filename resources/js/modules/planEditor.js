@@ -560,39 +560,45 @@ export default class PlanEditor {
   //_____________________
   /**
    * Update the guidance message
-   * Useful to help users
+   * Help users
    * @param {String} message - string with guidance message that will be displayed
+   * @param {Boolean} isError - True if the message is an error message
    */
-  showGuidanceMessage(message) {
+  showGuidanceMessage(message, isError = false) {
+    // Get guidance message element
     const existingMessage = document.querySelector('.guidance-message')
+
+    // Clear any existing timeouts associated with this message
+    if (this.guidanceMessageTimeouts) {
+      this.guidanceMessageTimeouts.forEach((timeout) => clearTimeout(timeout))
+    }
+
+    // Create a new array to store timeouts
+    this.guidanceMessageTimeouts = []
+
+    // Change textContent
     if (existingMessage) {
       existingMessage.textContent = message
+      // Remove hidden class
+      existingMessage.classList.remove('hidden', 'border-gray-300', 'border-red-400')
       // Animate to draw attention
       existingMessage.classList.add('pulse')
-      setTimeout(() => existingMessage.classList.remove('pulse'), 1000)
-    } else {
-      const messageEl = document.createElement('div')
-      messageEl.className = 'guidance-message'
-      messageEl.textContent = message
-      this.canvas.parentNode.appendChild(messageEl)
+      if (isError) {
+        existingMessage.classList.add('border-red-400')
+      } else {
+        existingMessage.classList.add('border-gray-300')
+      }
+
+      // Remove pulse after 1s
+      let pulseTimeout = setTimeout(() => existingMessage.classList.remove('pulse'), 1000)
+      this.guidanceMessageTimeouts.push(pulseTimeout)
+
+      // Hide element after 4s
+      let hideTimeout = setTimeout(() => existingMessage.classList.add('hidden'), 4000)
+      this.guidanceMessageTimeouts.push(hideTimeout)
     }
   }
 
-  /**
-   * Display an error feedback as an error toast
-   * @param {String} message String containing the error message
-   */
-  showErrorMessage(message) {
-    // Create error message div and display it for 3 seconds
-    const errorMessage = document.createElement('div')
-    errorMessage.className = 'placement-error-toast'
-    errorMessage.textContent = message
-    document.body.appendChild(errorMessage)
-
-    setTimeout(() => {
-      errorMessage.remove()
-    }, 3000)
-  }
   /**
    * Change tool btns bg and font color
    * @param {String} currentTool - string sent by setCurrentTool, correspond to btn dataset
