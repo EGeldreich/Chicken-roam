@@ -7,9 +7,41 @@
   --color-green-secondary: #05804d33;
   --color-green-hover: #04663e;
 
-  --color-white-main: #efefef;
-  --color-black-main: #2f2319;
-  --color-black-secondary: #634b35;
+  --color-bamboo-50: #f7f3e9;
+  --color-bamboo-100: #f6edd9;
+  --color-bamboo-200: #f2e9d5;
+  --color-bamboo-300: #ffcb6b;
+  --color-bamboo-400: #ffa92f;
+  --color-bamboo-500: #ff8d07;
+  --color-bamboo-600: #f1781e;
+  --color-bamboo-700: #de6408;
+  --color-bamboo-800: #a34209;
+  --color-bamboo-900: #83380b;
+  --color-bamboo-950: #471a03;
+  --color-bamboo-0: rgba(71, 26, 3, 0.25);
+
+  --color-lightning-50: #ffffea;
+  --color-lightning-100: #fffcc5;
+  --color-lightning-200: #fffa85;
+  --color-lightning-300: #fff046;
+  --color-lightning-400: #ffe21b;
+  --color-lightning-500: #ffc300;
+  --color-lightning-600: #e29700;
+  --color-lightning-700: #bb6b02;
+  --color-lightning-800: #985308;
+  --color-lightning-900: #7c430b;
+  --color-lightning-950: #482300;
+
+  --color-bush: #81b995;
+  --color-tree: #b6d5a0;
+  --color-perch: #d2db93;
+  --color-shelter: #f4cf8c;
+  --color-fence: #ecbb95;
+  --color-dustbath: #d0bea8;
+  --color-waterer: #a8d1c6;
+  --color-insectary: #b8c6e2;
+
+  --color-white-0: rgba(255, 255, 255, 0.5);
 
   --color-orange-main: #e06500;
   --color-orange-active: #f1781e;
@@ -28,16 +60,16 @@
   /* BUTTONS */
   /*  */
   .btn {
-    @apply rounded-lg px-2 py-1.5 flex self-center duration-300 cursor-pointer h-auto w-auto;
+    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex items-center text-base;
   }
   .btn-primary {
-    @apply bg-green-main text-white-main hover:bg-green-hover;
+    @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-400;
   }
   .btn-secondary {
-    @apply bg-green-secondary text-green-main hover:bg-green-hover hover:text-white-main;
+    @apply bg-none text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-600 hover:border-bamboo-600;
   }
   .btn-tertiary {
-    @apply bg-none text-green-main hover:bg-green-secondary hover:text-green-main;
+    @apply bg-none text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
   }
   .btn-danger {
     @apply border-red-800 text-red-800 hover:bg-red-800 hover:text-gray-300;
@@ -59,10 +91,10 @@
     @apply text-green-main underline;
   }
   .body {
-    @apply text-black-secondary text-lg font-sora;
+    @apply text-bamboo-900 text-lg font-sora;
   }
   .title {
-    @apply text-black-main text-5xl font-semibold font-averia;
+    @apply text-bamboo-950 text-5xl font-semibold font-averia;
   }
 
   /*  */

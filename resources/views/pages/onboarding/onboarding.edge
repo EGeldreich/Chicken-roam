@@ -1,52 +1,96 @@
 @let(title = 'Chicken Realm')
+@let(pageStyle = 'resources/css/pages-css/onboarding.css')
 @include('partials/header')
 @include('partials/nav')
 @include('partials/flash')
 
+{{-- Big container --}}
 <div class="container mx-auto flex flex-col gap-5 m-auto items-center mt-30">
   {{-- Title --}}
   <h1 class="title text-center">
-    Design the Ultimate <span class="text-orange-main">Chicken Kingdom</span>    <br />for Happy, Healthy Hens
+    Design the Ultimate <span class="text-bamboo-700">Chicken Kingdom</span>    <br />for Happy, Healthy Hens
   </h1>
-  {{-- One liner ? --}}
-  <p class="body text-center">
-    Create a custom path tailored to your chickens’ well-being,<br />or just have fun building your dream chicken run!
-  </p>
 
-  {{-- Form chosen number --}}
-  @if(auth.use('web').isAuthenticated)
-    <form action="/plan" method="POST">
-    @else
-      <form action="/plan/guest" method="POST">
-      @end
-      
-      {{ csrfField() }}
-      <div class="flex gap-5 items-center">
-        <div>
-          I want to create a chicken run for my dear
-        </div>
-        <div>
-          <input type="number" name="nbChickens" min="1" max="50" class="underline" value="10" />
-        </div>
-        <div>
-          chickens.
-        </div>
-        <button type="submit" class="btn btn-primary">Let's start</button>
-      </div>
-    </form>
+  {{-- Mini container start --}}
+  <div class="w-xl flex flex-col gap-5 m-auto items-center">
+    {{-- One liner ? --}}
+    <p class="body text-center">
+      Create a custom path tailored to your chickens’ well-being,<br />or just have fun building your dream chicken run!
+    </p>
 
-    {{-- Form 10 chickens --}}
+    {{-- Form chosen number --}}
     @if(auth.use('web').isAuthenticated)
-      <form action="/plan" method="POST">
+      <form action="/plan" method="POST" class="w-full px-15">
       @else
-        <form action="/plan/guest" method="POST">
+        <form action="/plan/guest" method="POST" class="w-full px-15">
         @end
+        
         {{ csrfField() }}
-      <input type="hidden" name="nbChickens" value="10" />
-        <button type="submit" class="btn btn-primary">I just want to play around</button>
+        <div class="flex border border-bamboo-0 rounded-md bg-bamboo-50 h-12 w-full">
+          <p class="body content-center text-center border-r border-bamboo-0 px-5 h-full flex-1">
+            I have
+          </p>
+          {{-- number input with personnalized arrow --}}
+          <div class="flex items-center justify-between relative body font-bold text-bamboo-600 h-full flex-3">
+            <input type="number" name="nbChickens" min="1" max="50" class="underline pl-5" value="10" />
+
+            <span class="mr-4">chickens</span>
+
+            {{-- Personnalized arrows --}}
+            <div class="flex flex-col h-full border-l border-bamboo-0">
+
+              <button
+                class="flex-1 border-b border-bamboo-0 px-2 cursor-pointer"
+                type="button"
+                onclick="this.parentNode.parentNode.querySelector('input[type=number]').stepUp()"
+              >
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M4.64147 0.874999C6.47172 0.874999 9.32977 6.55262 9.35725 6.61308C9.52214 6.95385 9.37924 7.36607 9.03847 7.53095C8.6977 7.69584 8.28548 7.55294 8.1206 7.21217C7.02684 4.94772 5.21308 2.49639 4.60849 2.25456C4.00391 2.34799 2.91565 4.92573 2.44847 6.04147C2.2561 6.49766 2.06923 6.93736 1.88785 7.34408C1.73396 7.69035 1.32724 7.84424 0.980972 7.69035C0.634708 7.53645 0.480813 7.12973 0.634708 6.78346C0.816084 6.38773 0.99746 5.95353 1.18433 5.50834C2.18465 3.12846 3.13 0.880496 4.64147 0.880496L4.64147 0.874999Z"
+                    fill="#471A03"
+                  />
+                </svg>
+              </button>
+
+              <button
+                class="flex-1 px-2 cursor-pointer"
+                type="button"
+                onclick="this.parentNode.parentNode.querySelector('input[type=number]').stepDown()"
+              >
+                <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M5.35853 7.75C3.52828 7.75 0.67023 2.07238 0.642749 2.01192C0.477861 1.67115 0.620764 1.25893 0.961531 1.09405C1.3023 0.929158 1.71452 1.07206 1.8794 1.41283C2.97316 3.67728 4.78692 6.12861 5.39151 6.37044C5.99609 6.27701 7.08435 3.69927 7.55153 2.58353C7.7439 2.12734 7.93077 1.68764 8.11215 1.28092C8.26604 0.934654 8.67276 0.780759 9.01903 0.934654C9.36529 1.08855 9.51919 1.49527 9.36529 1.84153C9.18392 2.23726 9.00254 2.67147 8.81567 3.11666C7.81535 5.49654 6.87 7.7445 5.35853 7.7445V7.75Z"
+                    fill="#471A03"
+                  />
+                </svg>
+              </button>
+            </div>
+
+          </div>
+          <button type="submit" class="btn btn-primary">Let's start</button>
+        </div>
       </form>
 
+      <p class="body text-center">
+        Or
+      </p>
+
+      {{-- Form 10 chickens --}}
+      @if(auth.use('web').isAuthenticated)
+        <form action="/plan" method="POST">
+        @else
+          <form action="/plan/guest" method="POST">
+          @end
+          {{ csrfField() }}
+        <input type="hidden" name="nbChickens" value="10" />
+          <button type="submit" class="btn btn-primary">I just want to play around</button>
+        </form>
+
+      </div>
+      {{-- Mini container end --}}
+
     </div>
+    {{-- Big container end --}}
 
     @include('partials/footer')
 
