@@ -690,11 +690,11 @@ export default class PlanEditor {
     const toolBtn = document.querySelector(`[data-tool="${tool}"]`)
     if (toolBtn && toolBtn.classList.contains('disabled')) {
       // Show message explaining why the tool can't be used
-      this.showGuidanceMessage(
-        this.planState === 'construction'
-          ? 'Complete the enclosure before using this tool'
-          : 'Fix the enclosure before using this tool'
-      )
+      if (this.planState === 'construction' || this.planState === 'broken') {
+        this.showGuidanceMessage('Complete the enclosure before using this tool')
+      } else if (this.planState === 'enclosed') {
+        this.showGuidanceMessage('Break your enclosure to place new fences')
+      }
       return // Don't change the tool
     }
 
