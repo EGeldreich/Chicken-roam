@@ -399,8 +399,6 @@ export default class PlanEditor {
   }
   updateScale() {
     if (!this.scaleBar || !this.scaleNumber) return
-
-    console.log(this.zoom)
     // Initialize required variables
     let referenceLength, unit, barWidth, divisions
 

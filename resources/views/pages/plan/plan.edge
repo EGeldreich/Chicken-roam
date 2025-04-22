@@ -543,75 +543,79 @@
         </div>
 
         <div class="w-2/3 mr-4 relative">
-          {{-- Current tool objective --}}
-          <div id="current-objective" class="bg-white rounded-lg mb-2 hidden">
-            <div id="current-objective-content" class="p-4">
-              <div class="flex justify-between">
-                {{-- Current objective name --}}
-                <p>
-                  <strong id="current-objective-name" class="capitalize"></strong>
-                </p>
-                {{-- Info hover (i) --}}
-                <svg
-                  class="info-icon cursor-help"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  tabindex="0"
-                  aria-label="Objective information"
-                >
-                  <path
-                    d="M10 10V14M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10ZM10 6H10.01V6.01H10V6Z"
-                    stroke="black"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
+          {{-- Current tool objectives container --}}
+          <div id="current-objectives-container">
+            {{-- Template for objective that will be cloned --}}
+            <template id="objective-template">
+              <div class="objective-item bg-white rounded-lg mb-2">
+                <div class="p-4">
+                  <div class="flex justify-between">
+                    {{-- Current objective name --}}
+                    <p>
+                      <strong class="objective-name capitalize"></strong>
+                    </p>
+                    {{-- Info hover (i) --}}
+                    <svg
+                      class="info-icon cursor-help"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="#fff"
+                      xmlns="http://www.w3.org/2000/svg"
+                      tabindex="0"
+                      aria-label="Objective information"
+                    >
+                      <path
+                        d="M10 10V14M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10ZM10 6H10.01V6.01H10V6Z"
+                        stroke="black"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
 
-              {{-- Completion percentage and progress bar --}}
-              <div class="flex justify-between items-center mt-2 mb-1">
-                <span class="text-base font-medium"></span>
-                <span class="text-sm font-medium">
-                  <span id="current-objective-completion"></span>%
-                </span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  id="current-objective-progress-bar"
-                  class="bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out z-12"
-                  style="width: 0%"
-                >
+                  {{-- Completion percentage and progress bar --}}
+                  <div class="flex justify-between items-center mt-2 mb-1">
+                    <span class="text-base font-medium"></span>
+                    <span class="text-sm font-medium">
+                      <span class="objective-completion"></span>%
+            </span>
+                  </div>
+                  <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div
+                      class="objective-progress-bar bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out z-12"
+                      style="width: 0%"
+                    >
+                    </div>
+                  </div>
+
+                  {{-- Target value --}}
+                  <div class="flex justify-between items-center mt-2">
+                    <p class="text-sm font-light text-gray-700">
+                      Target value:
+                    </p>
+                    <span class="text-sm font-light text-gray-700">
+                      <span class="objective-target"></span>
+                      <span class="objective-unit"></span>
+                    </span>
+                  </div>
                 </div>
               </div>
+            </template>
+          </div>
 
-              {{-- Target value --}}
-              <div class="flex justify-between items-center mt-2">
-                <p class="text-sm font-light text-gray-700">
-                  Target value:
-                </p>
-                <span class="text-sm font-light text-gray-700">
-                  <span id="current-objective-target"></span>
-                  <span id="current-objective-unit"></span>
-                </span>
-              </div>
-            </div>
-
-            {{-- Tooltip --}}
+          {{-- Tooltip shared for all objectives --}}
+          <div
+            id="objective-tooltip"
+            class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
+          >
+            <p class="text-sm mb-2" id="objective-description">
+              Description of the objective will appear here.
+            </p>
             <div
-              id="objective-tooltip"
-              class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
+              class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
             >
-              <p class="text-sm mb-2" id="objective-description">
-                Description of the objective will appear here.
-              </p>
-              <div
-                class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
-              >
-              </div>
             </div>
           </div>
         </div>
