@@ -870,7 +870,7 @@ export default class CommonFunctionsService {
       message = 'Fences cannot intersect each other'
     }
 
-    // Use planEditor methode
+    // Use planEditor method
     this.planEditor.showGuidanceMessage(message, true)
   }
 }

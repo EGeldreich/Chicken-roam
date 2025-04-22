@@ -214,32 +214,26 @@ body {
     opacity: 0;
   }
 }
-/* State indicators */
-.state-label {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
+/* ---- State indicators */
+/* Plan BG */
 .state-construction {
   background-color: #ffeecc;
-  color: #ff9900;
-  border: 1px solid #ffcc66;
 }
-
 .state-enclosed {
   background-color: #d1ffd1;
-  color: #00aa00;
-  border: 1px solid #99cc99;
 }
-
 .state-broken {
   background-color: #ffdddd;
-  color: #cc0000;
-  border: 1px solid #ff9999;
+}
+/* Plan State Label */
+.label-construction {
+  background-color: #ffeecc;
+}
+.label-enclosed {
+  background-color: #d1ffd1;
+}
+.label-broken {
+  background-color: #ffdddd;
 }
 
 /* Canvas state styling */

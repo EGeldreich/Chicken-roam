@@ -504,7 +504,7 @@ export default class PlanEditor {
         broken: 'Enclosure Broken',
       }
       stateLabel.textContent = stateLabels[newState] || 'Unknown State'
-      stateLabel.className = `state-label state-${newState}`
+      stateLabel.className = `label-${newState}`
     }
 
     // Update tool availability based on state

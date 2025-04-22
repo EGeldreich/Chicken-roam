@@ -30,9 +30,11 @@
   <div class="grid grid-cols-12 grid-rows-12 gap-4 h-screen overflow-hidden place-items-center p-2">
 
     {{-- Top left menu --}}
-    <div class="col-span-3 row-span-1 col-start-1 row-start-1 z-10 flex w-auto gap-2">
+    <div
+      class="col-span-3 row-span-1 col-start-1 row-start-1 z-10 flex w-auto gap-2 self-end justify-self-start"
+    >
 
-      <div class="bg-white rounded-xl flex space-x-4 p-2 items-center w-full">
+      <div class="bg-white rounded-md flex space-x-4 p-2 items-center w-full">
         @if(auth.user)
           <a href="{{ route('user-page') }}">
           @else
@@ -77,9 +79,18 @@
         </div>
       </div>
 
+      {{-- Plan state --}}
+      <div
+        class="col-span-3 row-span-1 col-start-1 row-start-2 z-10 w-auto items-start border-2 border-white rounded-md px-3 py-1.5 self-start justify-self-start"
+      >
+        <div id="planStateLabel" class="label-{{ plan.state || 'construction' }}">
+          {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+        </div>
+      </div>
+
       {{-- Toolbox Panel --}}
       <div
-        class="col-span-1 row-span-10 row-start-2 col-start-1 z-10 flex flex-col bg-white rounded-xl border-2 border-gray-300 overflow-hidden"
+        class="col-span-1 row-span-10 row-start-2 col-start-1 z-10 flex flex-col bg-white rounded-md border-2 border-gray-300 overflow-hidden"
       >
 
         {{-- Move --}}
@@ -721,10 +732,7 @@
   </div>
 
   <div class="hidden">
-    {{-- Plan state --}}
-    <div id="planStateLabel" class="state-label state-{{ plan.state || 'construction' }}">
-      {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
-    </div>
+
   </div>
 
   {{-- @include('partials/footer') --}}
