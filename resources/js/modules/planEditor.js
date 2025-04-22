@@ -468,7 +468,7 @@ export default class PlanEditor {
       const response = await fetch(`/api/plans/${this.planId}/state`)
       if (response.ok) {
         const data = await response.json()
-        this.updatePlanState(data.state)
+        this.updatePlanState(data.state, true)
         data.isEnclosed === 1 ? (this.isEnclosureComplete = true) : false
 
         // Add enclosure-complete class if enclosure is complete
@@ -485,8 +485,9 @@ export default class PlanEditor {
    * Update plan UI according to new state
    * Mainly disable and reable element btns, show message, and change color
    * @param {String} newState - newState variable must contain 'construction', 'enclosed' or 'broken'
+   * @param {Boolean} onLoad - true if the method is called on page load
    */
-  updatePlanState(newState) {
+  updatePlanState(newState, onLoad = false) {
     // Update state property
     this.planState = newState
 
@@ -520,11 +521,13 @@ export default class PlanEditor {
       }
 
       // Show guidance message
-      this.showGuidanceMessage(
-        newState === 'construction'
-          ? 'Complete the enclosure before placing elements'
-          : 'Enclosure is broken! Fix it before placing more elements'
-      )
+      if (onLoad) {
+        this.showGuidanceMessage(
+          newState === 'construction'
+            ? 'Complete the enclosure before placing elements'
+            : 'Enclosure is broken! Fix it before placing more elements'
+        )
+      }
 
       // If in broken state, add visual indication to elements
       if (newState === 'broken') {

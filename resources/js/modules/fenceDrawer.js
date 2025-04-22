@@ -367,19 +367,16 @@ export default class FenceDrawer {
 
       // If the placement is invalid
       if (checkResult.invalid) {
-        // Create error display
-        const errorMessage = document.createElement('div')
-        errorMessage.className = 'placement-error-toast'
-
+        // Define error message
+        let message
         if (checkResult.reason === 'angle') {
-          errorMessage.textContent = `Angle between two fences should be at least ${this.MIN_ANGLE_DEG}°.`
+          message = `Angle between two fences should be at least ${this.MIN_ANGLE_DEG}°.`
         } else {
-          errorMessage.textContent = 'Fences cannot intersect.'
+          message = 'Fences cannot intersect.'
         }
 
-        // Append to DOM for 3 seconds
-        document.body.appendChild(errorMessage)
-        setTimeout(() => errorMessage.remove(), 3000)
+        // Use planEditor method
+        this.planEditor.showGuidanceMessage(message, true)
 
         // Add error class to temporary fence
         this.temporaryFence.classList.add('invalid-placement')

@@ -741,19 +741,19 @@ export default class Selector {
 
       // Handle plan state change if fence was deleted
       if (isFence && data.planState) {
+        // Get the previous state before updating
+        const previousState = this.planEditor.planState
+
         // Notify PlanEditor of state change
-        if (this.planEditor && typeof this.planEditor.updatePlanState === 'function') {
-          this.planEditor.updatePlanState(data.planState)
-        }
+        this.planEditor.updatePlanState(data.planState)
 
         // If state changed to 'broken', show a notification
-        if (data.planState === 'broken') {
-          const breakMessage = document.createElement('div')
-          breakMessage.className = 'enclosure-break-toast warning'
-          breakMessage.textContent =
+        if (previousState === 'enclosed' && data.planState === 'broken') {
+          const message =
             'Enclosure is now broken! Elements will be inactive until enclosure is complete.'
-          document.body.appendChild(breakMessage)
-          setTimeout(() => breakMessage.remove(), 5000)
+
+          // Use planEditor method
+          this.planEditor.showGuidanceMessage(message, true)
 
           // Add visual indication to all elements that they're inactive
           document.querySelectorAll('.element:not(.fence)').forEach((element) => {
