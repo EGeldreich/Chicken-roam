@@ -1,3 +1,11 @@
+/* Custom btn styles */
+.btn-create {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+.btn-full-w {
+  width: 100% !important;
+}
+
 /* Hide native input arrows */
 input[type='number']::-webkit-inner-spin-button,
 input[type='number']::-webkit-outer-spin-button {
@@ -5,14 +13,7 @@ input[type='number']::-webkit-outer-spin-button {
   margin: 0;
 }
 
-.btn-create {
-  border-radius: 0 0.375rem 0.375rem 0;
-}
-
-.btn-full-w {
-  width: 100% !important;
-}
-
+/* Chicken Kingdom svgs */
 #chicken-kingdom::before {
   content: '';
   position: absolute;
@@ -25,7 +26,6 @@ input[type='number']::-webkit-outer-spin-button {
   background-repeat: no-repeat;
   z-index: -1;
 }
-
 #chicken-kingdom::after {
   content: '';
   position: absolute;
@@ -39,6 +39,15 @@ input[type='number']::-webkit-outer-spin-button {
   z-index: -1;
 }
 
+/* Page illustration */
+body {
+  background-image: url('../../assets/images/onboarding-bg.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: right 0px bottom -500px;
+}
+
+/* Media queries */
 @media (width <= 48rem) {
   #chicken-kingdom::after {
     top: -45px;
@@ -51,5 +60,8 @@ input[type='number']::-webkit-outer-spin-button {
   .btn-create {
     border-radius: 0 0 0.375rem 0.375rem;
     width: 100% !important;
+  }
+  body {
+    background-image: none;
   }
 }
