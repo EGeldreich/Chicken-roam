@@ -5,6 +5,7 @@
   --bamboo-50: #f7f3e9;
   --bamboo-100: #f6edd9;
   --bamboo-400: #ffa92f;
+  --bamboo-600: #f1781e;
   --bamboo-950: #471a03;
   --bg-main: #fff4d9;
 
@@ -84,6 +85,19 @@
   overflow: hidden;
 }
 
+.dropdown-content form {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.del-first {
+  border-radius: 0 !important;
+  display: block !important;
+  text-align: left;
+  padding-left: 16px;
+}
+
 .dropdown-content a {
   color: var(--bamboo-950);
   padding: 12px 16px;
@@ -91,13 +105,16 @@
   display: block;
   transition: 300ms;
   border-bottom: 1px solid var(--bamboo-25);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background-color: var(--bamboo-50);
+    background-color: var(--bamboo-100);
   }
 }
 
@@ -164,7 +181,17 @@
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
+    display: flex;
+    gap: 1rem;
   }
+}
+
+/* Plan dropdown */
+.plan .dropdown-content {
+  right: 0;
+  top: 3rem;
+  right: 3rem;
+  left: auto;
 }
 
 /* Progress bar */

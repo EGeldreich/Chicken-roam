@@ -10,20 +10,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dropdown menu logic
 document.addEventListener('DOMContentLoaded', function () {
-  const userMenuButton = document.getElementById('user-info-btn')
-  const userDropdown = document.getElementById('dropdown-menu')
+  // Get elements
+  const dropdownButton = document.getElementById('user-info-btn')
+  const dropdownMenu = document.getElementById('dropdown-menu')
 
-  // Display / hide on btn click
-  userMenuButton.addEventListener('click', function () {
-    userDropdown.classList.toggle('show')
+  // Force hide on load (security)
+  dropdownMenu.style.display = 'none'
+
+  // Toggle menu on btn click
+  dropdownButton.addEventListener('click', function (e) {
+    e.stopPropagation()
+    const currentDisplay = window.getComputedStyle(dropdownMenu).display
+    dropdownMenu.style.display = currentDisplay === 'none' ? 'block' : 'none'
   })
 
-  // Close the menu if clicking outside
-  window.addEventListener('click', function (event) {
-    if (!event.target.matches('#user-info-btn') && !event.target.closest('#user-info-btn')) {
-      if (userDropdown.classList.contains('show')) {
-        userDropdown.classList.remove('show')
-      }
+  // Close when clicking outside of the menu
+  window.addEventListener('click', function (e) {
+    if (!e.target.closest('#user-info-btn') && !e.target.closest('#dropdown-menu')) {
+      dropdownMenu.style.display = 'none'
     }
   })
+
+  // Avoid closing the menu when clicking on the form
+  const deleteForm = dropdownMenu.querySelector('form')
+  if (deleteForm) {
+    deleteForm.addEventListener('click', function (e) {
+      e.stopPropagation()
+    })
+  }
 })
