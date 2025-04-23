@@ -60,7 +60,7 @@
   /* BUTTONS */
   /*  */
   .btn {
-    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex items-center text-base;
+    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex items-center text-base whitespace-nowrap;
   }
   .btn-primary {
     @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-400;
@@ -94,7 +94,7 @@
     @apply text-bamboo-900 text-lg font-sora;
   }
   .title {
-    @apply text-bamboo-950 text-5xl font-semibold font-averia;
+    @apply text-bamboo-950 md:text-5xl text-3xl font-semibold font-averia;
   }
 
   /*  */

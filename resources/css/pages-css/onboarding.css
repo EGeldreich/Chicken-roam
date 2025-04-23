@@ -36,5 +36,14 @@ input[type='number']::-webkit-outer-spin-button {
   background-image: url('../../assets/images/crown.svg');
   background-size: contain;
   background-repeat: no-repeat;
-  z-index: 1;
+  z-index: -1;
+}
+
+@media (width <= 48rem) {
+  #chicken-kingdom::after {
+    top: -45px;
+    right: -45px;
+    width: 70px;
+    height: 70px;
+  }
 }
