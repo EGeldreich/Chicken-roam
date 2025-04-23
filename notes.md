@@ -711,13 +711,26 @@ this.showMenu()
 
 ## TO DO
 
-Pas satisfait par la gestion du 'plan state' (PlanEditor.js - updatePlanState)
 **MUST DO**
 **MUST DO**
 Ajout d'un validator pour les éléments
 **MUST DO**
 **MUST DO**
 
-- Gerer display objectifs quand l'outil est arbre
-
 Nécessité de mettre un limitateur de login ?
+
+{{-- Delete plan --}}
+@component('components/delete_form', {
+name: 'Delete plan',
+action: route('delete-plan', { id: plan.id}),
+sentenceEnd: `the plan: ${plan.name}`
+})
+@end
+{{-- End Delete plan --}}
+
+  <!-- Duplication -->
+  <form action="{{ route('duplicate-plan', { id: plan.id }) }}" method="POST" class="inline">
+    {{ csrfField() }}
+    <button type="submit" class="btn btn-secondary">Duplicate</button>
+  </form>
+  <!-- End Duplication -->

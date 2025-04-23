@@ -75,7 +75,7 @@
     @apply bg-none text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
   }
   .btn-danger {
-    @apply border-red-800 text-red-800 hover:bg-red-800 hover:text-gray-300;
+    @apply text-red-800 hover:bg-red-800 hover:text-bamboo-50;
   }
   .tool-btn {
     @apply border-0 py-0.5 px-0.5;
