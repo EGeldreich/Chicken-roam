@@ -88,7 +88,7 @@
   /* TEXT */
   /*  */
   .link {
-    @apply text-green-main underline;
+    @apply text-bamboo-700 underline font-sora;
   }
   .body {
     @apply text-bamboo-900 text-lg font-sora;

@@ -4,3 +4,37 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+.btn-create {
+  border-radius: 0 0.375rem 0.375rem 0;
+}
+
+.btn-full-w {
+  width: 100% !important;
+}
+
+#chicken-kingdom::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: -35px;
+  width: 120%;
+  height: 120%;
+  background-image: url('../../assets/images/brush.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+#chicken-kingdom::after {
+  content: '';
+  position: absolute;
+  top: -65px;
+  right: -65px;
+  width: 100px;
+  height: 100px;
+  background-image: url('../../assets/images/crown.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 1;
+}

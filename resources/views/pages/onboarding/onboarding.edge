@@ -5,24 +5,27 @@
 @include('partials/flash')
 
 {{-- Big container --}}
-<div class="container mx-auto flex flex-col gap-5 m-auto items-center mt-30">
-  {{-- Title --}}
-  <h1 class="title text-center">
-    Design the Ultimate <span class="text-bamboo-700">Chicken Kingdom</span>    <br />for Happy, Healthy Hens
-  </h1>
+<div class="container mx-auto flex flex-col gap-10 m-auto items-center mt-30">
 
-  {{-- Mini container start --}}
-  <div class="w-xl flex flex-col gap-5 m-auto items-center">
+  <div class="flex flex-col gap-4">
+    {{-- Title --}}
+    <h1 class="title text-center leading-tight">
+      Design the Ultimate <span id="chicken-kingdom" class="text-bamboo-700 relative inline px-1">Chicken Kingdom</span>      <br />for Happy, Healthy Hens
+    </h1>
+
     {{-- One liner ? --}}
     <p class="body text-center">
       Create a custom path tailored to your chickens’ well-being,<br />or just have fun building your dream chicken run!
     </p>
+  </div>
 
+  {{-- Forms container start --}}
+  <div class="w-xl flex flex-col gap-4 m-auto items-center">
     {{-- Form chosen number --}}
     @if(auth.use('web').isAuthenticated)
       <form action="/plan" method="POST" class="w-full px-15">
       @else
-        <form action="/plan/guest" method="POST" class="w-full px-15">
+        <form action="/plan/guest" method="POST" class="w-full">
         @end
         
         {{ csrfField() }}
@@ -32,9 +35,11 @@
           </p>
           {{-- number input with personnalized arrow --}}
           <div class="flex items-center justify-between relative body font-bold text-bamboo-600 h-full flex-3">
-            <input type="number" name="nbChickens" min="1" max="50" class="underline pl-5" value="10" />
 
-            <span class="mr-4">chickens</span>
+            <div>
+              <input type="number" name="nbChickens" min="1" max="50" class="underline pl-5" value="10" />
+              <span class="mr-4">chickens</span>
+            </div>
 
             {{-- Personnalized arrows --}}
             <div class="flex flex-col h-full border-l border-bamboo-0">
@@ -51,7 +56,6 @@
                   />
                 </svg>
               </button>
-
               <button
                 class="flex-1 px-2 cursor-pointer"
                 type="button"
@@ -64,10 +68,12 @@
                   />
                 </svg>
               </button>
-            </div>
 
+            </div>
           </div>
-          <button type="submit" class="btn btn-primary">Let's start</button>
+
+          <button type="submit" class="btn btn-primary btn-create">Create</button>
+
         </div>
       </form>
 
@@ -77,20 +83,28 @@
 
       {{-- Form 10 chickens --}}
       @if(auth.use('web').isAuthenticated)
-        <form action="/plan" method="POST">
+        <form action="/plan" method="POST" class="w-full">
         @else
-          <form action="/plan/guest" method="POST">
+          <form action="/plan/guest" method="POST" class="w-full">
           @end
           {{ csrfField() }}
         <input type="hidden" name="nbChickens" value="10" />
-          <button type="submit" class="btn btn-primary">I just want to play around</button>
+          <button type="submit" class="btn btn-primary btn-full-w flex justify-center">I just want to play around</button>
         </form>
 
       </div>
-      {{-- Mini container end --}}
+      {{-- Forms container end --}}
+
+      <div class="flex flex-col gap-1">
+        <p class="body text-center">
+          Already clucking with us?
+        </p>
+        <a href="{{ route('auth.login') }}" class="link text-center">Log in to access your saved plans</a>
+      </div>
 
     </div>
     {{-- Big container end --}}
 
-    @include('partials/footer')
+  </body>
+</html>
 
