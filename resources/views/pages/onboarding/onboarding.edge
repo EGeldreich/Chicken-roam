@@ -5,7 +5,7 @@
 @include('partials/flash')
 
 {{-- Big container --}}
-<div class="container mx-auto flex flex-col gap-10 m-auto items-center mt-30">
+<div class="container m-auto flex flex-col gap-10 items-center mt-30">
 
   <div class="flex flex-col gap-4">
     {{-- Title --}}
@@ -28,7 +28,7 @@
   </div>
 
   {{-- Forms container start --}}
-  <div class="lg:w-3/5 md:w-4/5 md-px-0 w-full px-4 flex flex-col gap-4 items-center">
+  <div class="lg:w-2/5 md:w-4/5 md-px-0 w-full px-4 flex flex-col gap-4 items-center">
     {{-- Form chosen number --}}
     @if(auth.use('web').isAuthenticated)
       <form action="/plan" method="POST" class="w-full">
@@ -37,22 +37,26 @@
         @end
         
         {{ csrfField() }}
-        <div class="flex border border-bamboo-0 rounded-md bg-bamboo-50 h-12 w-full ">
+        <div
+          class="flex xs:flex-row flex-col border border-bamboo-0 rounded-md bg-bamboo-50 xs:h-12 h-auto w-full "
+        >
           <p
-            class="body content-center text-center border-r border-bamboo-0 px-5 h-full flex-1 whitespace-nowrap"
+            class="body content-center text-center xs:border-r border-b border-bamboo-0 px-5 xs:h-auto h-10 xs:flex-1 whitespace-nowrap"
           >
             I have
           </p>
           {{-- number input with personnalized arrow --}}
-          <div class="flex items-center justify-between relative body font-bold text-bamboo-600 h-full flex-3">
+          <div
+            class="flex items-center justify-between relative body font-bold text-bamboo-600 h-full xs:flex-3"
+          >
 
-            <div>
-              <input type="number" name="nbChickens" min="1" max="50" class="underline sm:pl-5 pl-2" value="10" />
+            <div class="xs:h-auto h-12 flex items-center">
+              <input type="number" name="nbChickens" min="1" max="50" class="underline pl-5" value="10" />
               <span>chickens</span>
             </div>
 
             {{-- Personnalized arrows --}}
-            <div class="flex flex-col h-full border-l border-bamboo-0">
+            <div class="flex flex-col xs:h-full h-12 border-l border-bamboo-0">
 
               <button
                 class="flex-1 border-b border-bamboo-0 px-2 cursor-pointer"
@@ -99,7 +103,7 @@
           @end
           {{ csrfField() }}
         <input type="hidden" name="nbChickens" value="10" />
-          <button type="submit" class="btn btn-primary btn-full-w flex justify-center">I just want to play around</button>
+          <button type="submit" class="btn btn-primary btn-full-w">I just want to play around</button>
         </form>
 
       </div>

@@ -2,6 +2,9 @@
 @source "../views";
 
 @theme {
+  /* breakpoints override */
+  --breakpoint-xs: 30rem;
+
   /* Colors */
   --color-green-main: #05804d;
   --color-green-secondary: #05804d33;
@@ -60,7 +63,7 @@
   /* BUTTONS */
   /*  */
   .btn {
-    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex items-center text-base whitespace-nowrap;
+    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex  justify-center items-center text-base whitespace-nowrap;
   }
   .btn-primary {
     @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-400;
