@@ -6,6 +6,8 @@
 @include('partials/nav')
 @include('partials/flash')
 
+<img src="resources\assets\images\userpage-bg.svg" alt="illustration of a chicken run" />
+
 <div id="user-page">
 
   {{-- User info --}}
@@ -16,7 +18,7 @@
         @if(auth.use('web').isAuthenticated)
           {{ user.username }}
         @else
-          Guest
+          You are not authentified
         @end
       </h2>
       <p>

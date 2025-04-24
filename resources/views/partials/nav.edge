@@ -1,5 +1,7 @@
 <nav class="h-15">
-  <div class="flex justify-between h-full px-10 items-end">
+
+  {{-- Full width nav --}}
+  <div class="sm:flex justify-between h-full px-10 items-end hidden">
 
     <div class="flex gap-5">
       @if(!auth.use('web').isAuthenticated)
@@ -34,4 +36,5 @@
     @end
     
   </div>
+
 </nav>
