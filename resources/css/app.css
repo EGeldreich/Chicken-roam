@@ -94,10 +94,16 @@
     @apply text-bamboo-700 underline font-sora;
   }
   .body {
-    @apply text-bamboo-900 text-lg font-sora;
+    @apply text-bamboo-950 text-lg font-sora;
   }
   .title {
     @apply text-bamboo-950 md:text-5xl text-3xl font-semibold font-averia;
+  }
+  .sect-title {
+    @apply text-bamboo-950 md:text-3xl text-xl font-semibold font-averia;
+  }
+  .art-title {
+    @apply text-bamboo-950 md:text-2xl text-lg font-semibold font-averia;
   }
 
   /* FLASH MSGS */

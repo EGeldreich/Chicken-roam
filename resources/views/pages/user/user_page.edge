@@ -2,13 +2,14 @@
 @let(onboarding = false)
 @let(pageStyle = 'resources/css/pages-css/user-page.css')
 @let(pageJS = 'resources/js/pages/user_page.js')
+@let(description = "Manage your plans, create new ones, or modify your personnal informations.")
 @include('partials/header')
 @include('partials/nav')
 @include('partials/flash')
 
 <img src="resources\assets\images\userpage-bg.svg" alt="illustration of a chicken run" />
 
-<div id="user-page">
+<main id="user-page">
 
   {{-- User info --}}
   <section id="user-info">
@@ -308,6 +309,6 @@
 
   </section>
 
-</div>
+</main>
 </body>
 </html>
