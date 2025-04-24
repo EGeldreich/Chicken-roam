@@ -20,6 +20,7 @@ import VerticesController from '#controllers/vertices_controller'
 
 router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
+router.get('/user', [UsersController, 'userPage']).as('user-page')
 router.get('/about', [HomeController, 'about']).as('about')
 router.get('/gdpr', [HomeController, 'gdpr']).as('gdpr')
 
@@ -67,7 +68,6 @@ router
     router.post('/reset-password', [ResetPasswordController, 'handleResetPassword'])
 
     router.post('/plan/guest', [HomeController, 'guestLanding'])
-    router.get('/guest', [UsersController, 'guestPage']).as('guest-page')
 
     router.get('/plan', [PlansController, 'guestPlan']).as('guest-plan')
   })
@@ -77,7 +77,6 @@ router
 router
   .group(() => {
     router.delete('/login', [AuthController, 'logout']).as('auth.logout')
-    router.get('/user', [UsersController, 'userPage']).as('user-page')
     router.get('/user/edit-email', [UsersController, 'editEmail']).as('edit-email')
     router.post('/user/edit-email', [UsersController, 'handleEditEmail'])
     router.get('/user/edit-password', [UsersController, 'editPassword']).as('edit-password')

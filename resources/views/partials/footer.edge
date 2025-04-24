@@ -3,7 +3,6 @@
   <a class="btn btn-primary-reverse" href="{{ route('gdpr') }}">GDPR</a>
 
   @if(auth.use('web').isAuthenticated)
-
     <form action="{{ route('auth.logout') }}?_method=DELETE" method="POST" class="flex">
       {{ csrfField() }}
         <button type="submit" class="btn btn-primary-reverse">Log out</button>
