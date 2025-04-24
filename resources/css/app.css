@@ -100,6 +100,17 @@
     @apply text-bamboo-950 md:text-5xl text-3xl font-semibold font-averia;
   }
 
+  /* FLASH MSGS */
+  .flash {
+    @apply font-sora text-sm border border-bamboo-0 rounded-md text-bamboo-950 px-4 py-3 absolute top-18 left-18;
+  }
+  .flash-success {
+    @apply bg-bamboo-300;
+  }
+  .flash-error {
+    @apply bg-lightning-100;
+  }
+
   /*  */
   /* ELEMENTS STYLING */
   /*  */
