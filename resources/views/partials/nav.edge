@@ -1,5 +1,51 @@
-<nav class="h-15">
+<nav class="h-15 w-full">
 
+  {{-- mobile burger menu --}}
+  <div class="sm:hidden flex justify-end px-4 py-2">
+    <button
+      id="navbar-toggle"
+      type="button"
+      class="btn btn-secondary"
+      aria-controls="navbar-menu"
+      aria-expanded="false"
+      aria-label="Open main menu"
+    >
+      <svg width="19" height="17" viewBox="0 0 19 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M1.25813 3C0.563642 3 0.010065 2.44642 0 1.75194C0 1.05745 0.553577 0.493806 1.24806 0.483741C2.60684 0.473676 4.01595 0.373026 5.51564 0.26231C8.99814 0.0207496 12.9436 -0.261071 17.6742 0.463612C18.3586 0.564262 18.8317 1.20842 18.721 1.90291C18.6203 2.58733 17.9661 3.06039 17.2817 2.94967C12.8329 2.26525 9.0384 2.52694 5.68674 2.7685C4.14679 2.87922 2.69743 2.97987 1.25813 2.98993H1.24806L1.25813 3Z"
+          fill="#471A03"
+        />
+        <path
+          d="M1.25813 10C0.563642 10 0.010065 9.44642 0 8.75194C0 8.05745 0.553577 7.49381 1.24806 7.48374C2.60684 7.47368 4.01595 7.37303 5.51564 7.26231C8.99814 7.02075 12.9436 6.73893 17.6742 7.46361C18.3586 7.56426 18.8317 8.20842 18.721 8.90291C18.6203 9.58733 17.9661 10.0604 17.2817 9.94967C12.8329 9.26525 9.0384 9.52694 5.68674 9.7685C4.14679 9.87922 2.69743 9.97987 1.25813 9.98993H1.24806L1.25813 10Z"
+          fill="#471A03"
+        />
+        <path
+          d="M1.25813 17C0.563642 17 0.010065 16.4464 0 15.7519C0 15.0574 0.553577 14.4938 1.24806 14.4837C2.60684 14.4737 4.01595 14.373 5.51564 14.2623C8.99814 14.0207 12.9436 13.7389 17.6742 14.4636C18.3586 14.5643 18.8317 15.2084 18.721 15.9029C18.6203 16.5873 17.9661 17.0604 17.2817 16.9497C12.8329 16.2653 9.0384 16.5269 5.68674 16.7685C4.14679 16.8792 2.69743 16.9799 1.25813 16.9899H1.24806L1.25813 17Z"
+          fill="#471A03"
+        />
+      </svg>
+
+    </button>
+  </div>
+
+  <!-- Mobile dropdown menu -->
+  <div id="navbar-menu" class="hidden sm:hidden px-4 py-2 absolute w-9/10 z-10">
+    <div class="flex flex-col gap-2 border border-bamboo-0 rounded-md p-4 bg-white shadow-lg">
+      @if(!auth.use('web').isAuthenticated)
+        <a class="btn btn-primary w-full" href="{{ route('auth.register') }}">Register</a>
+        <a class="btn btn-secondary w-full" href="{{ route('auth.login') }}">Log in</a>
+      @else
+        <a class="btn btn-secondary w-full" href="{{ route('user-page') }}">Profil</a>
+      @end
+      <a class="btn btn-secondary w-full" href="{{ route('about') }}">About</a>
+
+      @if(!onboarding)
+        <a class="btn btn-secondary w-full mt-2" href="{{ route('onboarding') }}">
+          Create a plan
+        </a>
+      @end
+    </div>
+  </div>
   {{-- Full width nav --}}
   <div class="sm:flex justify-between h-full px-10 items-end hidden">
 
@@ -38,3 +84,15 @@
   </div>
 
 </nav>
+
+{{-- Script to toggle mobile menu dropdown --}}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const navbarToggle = document.getElementById("navbar-toggle");
+    const navbarMenu = document.getElementById("navbar-menu");
+    navbarToggle.addEventListener("click", function() {
+      navbarMenu.classList.toggle("hidden");
+      navbarToggle.setAttribute("aria-expanded", navbarToggle.getAttribute("aria-expanded") === "false" ? "true" : "false");
+    });
+  });
+</script>
