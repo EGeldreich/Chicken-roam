@@ -719,18 +719,4 @@ Ajout d'un validator pour les éléments
 
 Nécessité de mettre un limitateur de login ?
 
-{{-- Delete plan --}}
-@component('components/delete_form', {
-name: 'Delete plan',
-action: route('delete-plan', { id: plan.id}),
-sentenceEnd: `the plan: ${plan.name}`
-})
-@end
-{{-- End Delete plan --}}
-
-  <!-- Duplication -->
-  <form action="{{ route('duplicate-plan', { id: plan.id }) }}" method="POST" class="inline">
-    {{ csrfField() }}
-    <button type="submit" class="btn btn-secondary">Duplicate</button>
-  </form>
-  <!-- End Duplication -->
+FLASH MESSAGE ON PLAN RENAME
