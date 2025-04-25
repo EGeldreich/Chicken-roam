@@ -16,21 +16,32 @@ document.addEventListener('DOMContentLoaded', function () {
   const dropdownButton = document.getElementById('user-info-btn')
   const dropdownMenu = document.getElementById('dropdown-menu')
 
-  // Force hide on load (security)
   if (dropdownButton && dropdownMenu) {
+    // Force hide on load (security)
     dropdownMenu.style.display = 'none'
+
+    // Initialise aria-expanded to false
+    dropdownButton.setAttribute('aria-expanded', 'false')
 
     // Toggle menu on btn click
     dropdownButton.addEventListener('click', function (e) {
       e.stopPropagation()
       const currentDisplay = window.getComputedStyle(dropdownMenu).display
-      dropdownMenu.style.display = currentDisplay === 'none' ? 'block' : 'none'
+      //Boolean for expanded status
+      const isExpanded = currentDisplay === 'none' ? false : true
+
+      // Update display
+      dropdownMenu.style.display = isExpanded ? 'none' : 'block'
+
+      // Update aria expanded
+      dropdownButton.setAttribute('aria-expanded', !isExpanded)
     })
 
     // Close when clicking outside of the menu
     window.addEventListener('click', function (e) {
       if (!e.target.closest('#user-info-btn') && !e.target.closest('#dropdown-menu')) {
         dropdownMenu.style.display = 'none'
+        dropdownButton.setAttribute('aria-expanded', 'false')
       }
     })
 

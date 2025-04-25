@@ -1,4 +1,3 @@
-// resources/js/cookie-consent.js
 import 'cookieconsent'
 
 export function initCookieConsent() {
@@ -10,15 +9,16 @@ export function initCookieConsent() {
       },
       button: {
         background: '#f1781e',
-        text: '#ffffff',
+        text: '#fff',
       },
     },
     theme: 'classic',
     position: 'bottom',
     type: 'info',
     // info because there is only essential cookies, type:opt-in otherwise
+    revokable: true,
     content: {
-      message: 'This website uses cookies to ensure you get the best experience.',
+      message: 'This website use only cookies that are necessary for the user experience.',
       dismiss: 'Got it',
       //   deny: 'Decline',
       //   allow: 'Accept',

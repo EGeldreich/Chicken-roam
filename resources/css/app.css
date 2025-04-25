@@ -83,10 +83,10 @@
     @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex  justify-center items-center text-base whitespace-nowrap;
   }
   .btn-primary {
-    @apply bg-bamboo-500 text-bamboo-950 hover:bg-bamboo-400;
+    @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-500;
   }
   .btn-secondary {
-    @apply bg-transparent text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-500 hover:border-bamboo-500;
+    @apply bg-transparent text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-600 hover:border-bamboo-600;
   }
   .btn-tertiary {
     @apply bg-transparent text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
