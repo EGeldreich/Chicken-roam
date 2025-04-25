@@ -1,0 +1,25 @@
+#chicken-paradise::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: -35px;
+  width: 120%;
+  height: 120%;
+  background-image: url('../../assets/images/brush.svg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+#chicken-paradise::after {
+  content: ',';
+  position: absolute;
+  right: -0.5rem;
+  color: var(--bamboo-950);
+}
+
+@media (width <= 48rem) {
+  #chicken-paradise::after {
+    right: -0.2rem;
+  }
+}

@@ -1,4 +1,4 @@
-@let(title = 'register')
+@let(title = 'Register - Chicken Realm')
 @include('partials/header')
 @include('partials/nav')
 @include('partials/flash')
@@ -19,7 +19,7 @@
   <div class="mb-4">
     <label class="flex items-center">
       <input type="checkbox" name="gdpr" id="gdpr" class="mr-2" />
-      <span class="text-gray-700 text-sm">I accept the <a href="{{ route('about') }}#terms" class="text-blue-500 underline" target="_blank">Terms and Privacy Policy</a></span></label>
+      <span class="text-gray-700 text-sm">I accept the <a href="{{ route('about') }}#serious-stuff" class="text-blue-500 underline" target="_blank">Terms and Privacy Policy</a></span></label>
     @inputError('gdpr')
       @each(message in $messages)
         <p class="text-red-700">

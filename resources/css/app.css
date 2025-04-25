@@ -94,7 +94,7 @@
     @apply text-bamboo-700 underline font-sora;
   }
   .body {
-    @apply text-bamboo-950 text-lg font-sora;
+    @apply text-bamboo-950 md:text-lg text-base font-sora;
   }
   .title {
     @apply text-bamboo-950 md:text-5xl text-3xl font-semibold font-averia;
@@ -170,8 +170,22 @@
   }
 }
 
-body {
-  font-family: 'IBM Plex Mono', monospace;
+/* Variables */
+:root {
+  --lightning-500: #ffc300;
+  --bamboo-25: rgba(71, 26, 3, 0.25);
+  --bamboo-50: #f7f3e9;
+  --bamboo-100: #f6edd9;
+  --bamboo-400: #ffa92f;
+  --bamboo-600: #f1781e;
+  --bamboo-950: #471a03;
+
+  --radius: 0.375rem;
+}
+
+html {
+  font-family: 'Sora', sans-serif;
+  scroll-behavior: smooth;
 }
 
 .viewport-container {
