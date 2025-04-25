@@ -1,0 +1,79 @@
+<!-- resources/views/pages/cookies-policy.edge -->
+@let(title = 'Cookie Policy')
+@include('partials/header')
+@include('partials/nav')
+
+<main class="container 2xl:px-100 lg:px-50 sm:px-10 px-5 m-auto flex flex-col gap-15 my-30 flex-grow">
+  <section class="flex flex-col gap-2">
+    <h1 class="title">
+      Cookie Policy
+    </h1>
+
+    <h2 class="sect-title">
+      What are cookies?
+    </h2>
+    <p class="body">
+      Cookies are small text files that are placed on your computer or mobile device when you browse websites. 
+            They allow a website to recognize your device and remember if you've been to the website before.
+    </p>
+  </section>
+
+  <section class="flex flex-col gap-2">
+
+    <h2 class="sect-title">
+      How we use cookies
+    </h2>
+    <p class="body">
+      We use different types of cookies for the following reasons:
+    </p>
+    <h3 class="text-xl underline">
+      Essential cookies
+    </h3>
+    <p class="body">
+      These cookies are necessary for the website to function properly. They enable core functionality such as security, network management, and account access. 
+        You may disable these by changing your browser settings, but this may affect how the website functions.
+    </p>
+
+    <h3 class="text-xl underline">
+      Analytics cookies
+    </h3>
+    <p class="body">
+      We use analytics cookies to understand how visitors interact with our website. These cookies help us improve 
+        our website by collecting and reporting information on how you use it.
+    </p>
+  </section>
+
+  <section class="flex flex-col gap-2">
+    <h2 class="sect-title">
+      Managing your cookie preferences
+    </h2>
+    <p class="body">
+      You can adjust your cookie preferences at any time by clicking on the cookie icon at the bottom of the page.
+    </p>
+
+    <div class="mt-8">
+      <button id="open-cookie-settings" class="btn btn-primary">
+        Manage Cookie Settings
+          </button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  document.getElementById("open-cookie-settings").addEventListener("click", function() {
+    // Open cookie settings panel
+    var event = new CustomEvent("open-cookie-settings");
+    document.dispatchEvent(event);
+  });
+  
+  document.addEventListener("open-cookie-settings", function() {
+    // For Cookie Consent by Osano
+    var elem = document.querySelector(".cc-revoke");
+    if (elem) {
+      elem.click();
+    }
+  });
+</script>
+
+@include('partials/footer')

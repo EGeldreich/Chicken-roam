@@ -1,0 +1,22 @@
+.cc-window {
+  font-family: 'Roundo', 'Sora', sans-serif !important;
+  border-radius: 4px !important;
+}
+
+.cc-btn {
+  border-radius: 4px !important;
+  text-transform: none !important;
+  padding: 0.5em 1.5em !important;
+  min-width: 140px;
+}
+
+/* Utiliser les couleurs de votre thème Chicken Realm */
+.cc-btn.cc-allow {
+  background-color: #f1781e !important; /* bamboo-600 */
+}
+
+.cc-btn.cc-deny {
+  color: #471a03 !important; /* bamboo-950 */
+  background-color: #f7f3e9 !important; /* bamboo-50 */
+  border: 1px solid rgba(71, 26, 3, 0.25) !important; /* bamboo-0 */
+}
