@@ -18,4 +18,5 @@ export default defineConfig({
       reload: ['resources/views/**/*.edge'],
     }),
   ],
+  assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf', '**/*.eot'],
 })

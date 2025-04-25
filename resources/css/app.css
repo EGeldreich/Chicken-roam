@@ -52,8 +52,27 @@
   --color-tool-hover: #f2e9d5;
 
   /* Fonts */
-  --font-sora: Sora, sans-serif;
+  --font-sora: Roundo, Sora, sans-serif;
   --font-averia: Averia Sans Libre, sans-serif;
+}
+
+@font-face {
+  font-family: 'Roundo';
+  src:
+    url('../assets/fonts/Roundo-Medium.woff2') format('woff2'),
+    url('../assets/fonts/Roundo-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Roundo';
+  src:
+    url('../assets/fonts/Roundo-SemiBold.woff2') format('woff2'),
+    url('../assets/fonts/Roundo-SemiBold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 @layer components {
