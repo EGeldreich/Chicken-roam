@@ -96,7 +96,6 @@ export default class UsersController {
     }
 
     // Render view with appropriate data
-    console.log(viewData)
     return view.render('pages/user/user_page', viewData)
   }
   //

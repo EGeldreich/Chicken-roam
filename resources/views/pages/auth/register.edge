@@ -7,7 +7,7 @@
   action=""
   method="POST"
   enctype="multipart/form-data"
-  class="bg-white p-10 rounded-lg shadow md:w-3/4 mx-auto lg:w-1/2"
+  class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
 >
   {{ csrfField() }}
   @!component('components/input', { name : 'username', label : 'Username' })
@@ -19,17 +19,17 @@
   <div class="mb-4">
     <label class="flex items-center">
       <input type="checkbox" name="gdpr" id="gdpr" class="mr-2" />
-      <span class="text-gray-700 text-sm">I accept the <a href="{{ route('about') }}#serious-stuff" class="text-blue-500 underline" target="_blank">Terms and Privacy Policy</a></span></label>
+      <span class="text-bamboo-900 text-sm">I accept the <a href="{{ route('about') }}#serious-stuff" class="link whitespace-nowrap" target="_blank">Terms and Privacy Policy</a></span></label>
     @inputError('gdpr')
       @each(message in $messages)
-        <p class="text-red-700">
+        <p class="text-bamboo-700">
           {{ message }}
         </p>
       @end
     @end
   </div>
 
-  <button class="block w-full bg-blue-500 text-white font-bold p-4 rounded-lg" type="submit">{{ title }}</button>
+  <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
 </form>
 
 @include('partials/footer')

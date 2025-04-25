@@ -2,9 +2,6 @@
 .btn-create {
   border-radius: 0 0.375rem 0.375rem 0;
 }
-.btn-w-full {
-  width: 100% !important;
-}
 
 /* Hide native input arrows */
 input[type='number']::-webkit-inner-spin-button,

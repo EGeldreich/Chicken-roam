@@ -128,6 +128,7 @@ section {
   flex-wrap: wrap;
   gap: 1rem;
   width: 100%;
+  background-color: var(--bamboo-50);
 }
 
 /* New plan */
