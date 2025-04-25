@@ -1,5 +1,7 @@
 <!-- resources/views/pages/cookies-policy.edge -->
-@let(title = 'Cookie Policy')
+@let(title = 'Cookies Policy')
+@let(description = "Cookies policy of Chicken Realm.")
+@let(navPage ='about')
 @include('partials/header')
 @include('partials/nav')
 
@@ -26,7 +28,7 @@
     <p class="body">
       We use different types of cookies for the following reasons:
     </p>
-    <h3 class="text-xl underline">
+    <h3 class="body lg:text-xl text-lg underline">
       Essential cookies
     </h3>
     <p class="body">
@@ -34,7 +36,7 @@
         You may disable these by changing your browser settings, but this may affect how the website functions.
     </p>
 
-    <h3 class="text-xl underline">
+    <h3 class="body lg:text-xl text-lg underline">
       Analytics cookies
     </h3>
     <p class="body">

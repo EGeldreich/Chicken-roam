@@ -51,12 +51,19 @@
     <div class="flex gap-5">
       @if(!auth.use('web').isAuthenticated)
         <a class="btn btn-primary" href="{{ route('auth.register') }}">Register</a>
-        <a class="btn btn-secondary" href="{{ route('auth.login') }}">Log in</a>
-        <a class="btn btn-tertiary" href="{{ route('user-page') }}">Profil</a>
-      @else
-        <a class="btn btn-secondary" href="{{ route('user-page') }}">Profil</a>
+        <a
+          class="btn {{ navPage === 'login' ? 'btn-secondary' : 'btn-tertiary' }}"
+          href="{{ route('auth.login') }}"
+        >Log in</a>
       @end
-      <a class="btn btn-tertiary" href="{{ route('about') }}">About</a>
+      <a
+        class="btn {{ navPage === 'profil' ? 'btn-secondary' : 'btn-tertiary' }}"
+        href="{{ route('user-page') }}"
+      >Profil</a>
+      <a
+        class="btn {{ navPage === 'about' ? 'btn-secondary' : 'btn-tertiary' }}"
+        href="{{ route('about') }}"
+      >About</a>
     </div>
 
     @if(!onboarding)

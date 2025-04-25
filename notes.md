@@ -719,4 +719,7 @@ Ajout d'un validator pour les éléments
 
 Nécessité de mettre un limitateur de login ?
 
-FLASH MESSAGE ON PLAN RENAME
+cookie settings
+meta description meme pour page du type login ?
+
+modifier cookies info page
