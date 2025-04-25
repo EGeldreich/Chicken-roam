@@ -18,9 +18,9 @@
   --color-bamboo-500: #ff8d07;
   --color-bamboo-600: #f1781e;
   --color-bamboo-700: #de6408;
-  --color-bamboo-800: #a34209;
+  --color-bamboo-800: #ac470c;
   --color-bamboo-900: #83380b;
-  --color-bamboo-950: #471a03;
+  --color-bamboo-950: #3b1502;
   --color-bamboo-0: rgba(71, 26, 3, 0.25);
 
   --color-lightning-50: #ffffea;
@@ -49,8 +49,6 @@
   --color-orange-main: #e06500;
   --color-orange-active: #f1781e;
 
-  --color-bg-main: #fff4d9;
-
   --color-tool-hover: #f2e9d5;
 
   /* Fonts */
@@ -66,13 +64,13 @@
     @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex  justify-center items-center text-base whitespace-nowrap;
   }
   .btn-primary {
-    @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-400;
+    @apply bg-bamboo-500 text-bamboo-950 hover:bg-bamboo-400;
   }
   .btn-secondary {
-    @apply bg-none text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-600 hover:border-bamboo-600;
+    @apply bg-transparent text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-500 hover:border-bamboo-500;
   }
   .btn-tertiary {
-    @apply bg-none text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
+    @apply bg-transparent text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
   }
   .btn-danger {
     @apply rounded-md text-red-800 hover:bg-bamboo-300;
@@ -91,7 +89,7 @@
   /* TEXT */
   /*  */
   .link {
-    @apply text-bamboo-700 underline font-sora;
+    @apply text-bamboo-800 underline font-sora;
   }
   .body {
     @apply text-bamboo-950 md:text-lg text-base font-sora;
@@ -181,7 +179,7 @@
 /* Variables */
 :root {
   --lightning-500: #ffc300;
-  --bamboo-25: rgba(71, 26, 3, 0.25);
+  --bamboo-0: rgba(71, 26, 3, 0.25);
   --bamboo-50: #f7f3e9;
   --bamboo-100: #f6edd9;
   --bamboo-400: #ffa92f;

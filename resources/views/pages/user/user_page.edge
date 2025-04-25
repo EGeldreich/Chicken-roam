@@ -26,7 +26,7 @@
         @if(auth.use('web').isAuthenticated)
           {{ user.email }}
         @else
-          Register or log in to enjoy multiple plans.
+          <a href="{{ route('auth.register') }}" class="link">Register</a>&ensp;or&ensp;<a href="{{ route('auth.login') }}" class="link">log in</a>&ensp;to enjoy multiple plans.
         @end
       </p>
     </div>

@@ -1,7 +1,7 @@
 <nav class="h-15 w-full">
 
   {{-- mobile burger menu --}}
-  <div class="sm:hidden flex justify-end px-4 py-2">
+  <div class="md:hidden flex justify-end px-4 py-2">
     <button
       id="navbar-toggle"
       type="button"
@@ -29,31 +29,30 @@
   </div>
 
   <!-- Mobile dropdown menu -->
-  <div id="navbar-menu" class="hidden sm:hidden px-4 py-2 absolute w-9/10 z-10">
+  <div id="navbar-menu" class="hidden md:hidden px-4 py-2 absolute w-full z-10">
     <div class="flex flex-col gap-2 border border-bamboo-0 rounded-md p-4 bg-white shadow-lg">
       @if(!auth.use('web').isAuthenticated)
-        <a class="btn btn-primary w-full" href="{{ route('auth.register') }}">Register</a>
+        <a class="btn btn-secondary w-full" href="{{ route('auth.register') }}">Register</a>
         <a class="btn btn-secondary w-full" href="{{ route('auth.login') }}">Log in</a>
-      @else
-        <a class="btn btn-secondary w-full" href="{{ route('user-page') }}">Profil</a>
       @end
+      <a class="btn btn-secondary w-full" href="{{ route('user-page') }}">Profil</a>
       <a class="btn btn-secondary w-full" href="{{ route('about') }}">About</a>
 
       @if(!onboarding)
-        <a class="btn btn-secondary w-full mt-2" href="{{ route('onboarding') }}">
+        <a class="btn btn-primary w-full mt-2" href="{{ route('onboarding') }}">
           Create a plan
         </a>
       @end
     </div>
   </div>
   {{-- Full width nav --}}
-  <div class="sm:flex justify-between h-full px-10 items-end hidden">
+  <div class="md:flex justify-between h-full px-10 items-end hidden">
 
     <div class="flex gap-5">
       @if(!auth.use('web').isAuthenticated)
         <a class="btn btn-primary" href="{{ route('auth.register') }}">Register</a>
-
         <a class="btn btn-secondary" href="{{ route('auth.login') }}">Log in</a>
+        <a class="btn btn-tertiary" href="{{ route('user-page') }}">Profil</a>
       @else
         <a class="btn btn-secondary" href="{{ route('user-page') }}">Profil</a>
       @end

@@ -22,6 +22,8 @@ router.on('/').render('pages/onboarding/onboarding').as('onboarding')
 router.get('/home', [HomeController, 'homePage']).as('home')
 router.get('/user', [UsersController, 'userPage']).as('user-page')
 router.get('/about', [HomeController, 'about']).as('about')
+router.get('/termsOfUse', [HomeController, 'terms']).as('terms')
+router.get('/dataProtection', [HomeController, 'data']).as('data')
 router.get('/gdpr', [HomeController, 'gdpr']).as('gdpr')
 
 // ELEMENTS

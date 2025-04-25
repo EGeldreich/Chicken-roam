@@ -1,0 +1,87 @@
+@let(title = 'About Chicken Realm')
+@let(onboarding = false)
+@let(description = "Legal information about Chicken Realm.")
+@include('partials/header')
+@include('partials/nav')
+@include('partials/flash')
+
+<main class="container 2xl:px-100 lg:px-50 sm:px-10 px-5 m-auto flex flex-col gap-15 my-30 flex-grow">
+
+  <section class="flex flex-col gap-4" id="data">
+    <h1 class="title">
+      Privacy Policy
+    </h1>
+    <div class="body flex flex-col gap-2">
+      <p>
+        We take your privacy seriously. This policy outlines what information we collect and how we use it.
+      </p>
+      <div>
+        <p class="font-medium underline">
+          Information we collect:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            Account information: We collect only the minimum information necessary for creating an account: username, email address, and a securely stored password.
+          </li>
+          <li>
+            Plan data: We store the chicken run plans you create to enable you to access and modify them in the future.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          How we use your information:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            Your account information is used solely for authentication purposes.
+          </li>
+          <li>
+            Your plan data is stored exclusively to provide you with access to your saved designs.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Data sharing:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            We do not sell, trade, or otherwise transfer your information to outside parties.
+          </li>
+          <li>
+            We do not use tracking or analytics beyond what is necessary for the basic functioning of the website.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Data Security:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            We implement reasonable security measures to protect your personal information.
+          </li>
+          <li>
+            Passwords are stored in an encrypted format and are never accessible in plain text.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Account Control:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            You may delete your account at any time, which will remove all your personal information from our database.
+          </li>
+        </ul>
+      </div>
+      <p>
+        By using Chicken Realm, you consent to the privacy practices described in this policy.
+      </p>
+    </div>
+  </section>
+
+</main>
+@include('partials/footer')

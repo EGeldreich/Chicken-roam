@@ -23,6 +23,18 @@ export default class HomeController {
   //
   //
   //
+  terms({ view }: HttpContext) {
+    return view.render('pages/legal/terms_of_use')
+  }
+  //
+  //
+  //
+  data({ view }: HttpContext) {
+    return view.render('pages/legal/data_protection')
+  }
+  //
+  //
+  //
   gdpr({ view }: HttpContext) {
     return view.render('pages/gdpr/gdpr')
   }

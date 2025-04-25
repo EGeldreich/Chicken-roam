@@ -3,33 +3,35 @@
 @include('partials/nav')
 @include('partials/flash')
 
-<form
-  action=""
-  method="POST"
-  enctype="multipart/form-data"
-  class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
->
-  {{ csrfField() }}
-  @!component('components/input', { name : 'username', label : 'Username' })
-  @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
-  @!component('components/input', { name : 'password', label : 'Password', type : 'password' })
-  @!component('components/input', { name : 'password_confirmation', label : 'Confirm password', type : 'password' })
+<main class="flex-grow">
+  <form
+    action=""
+    method="POST"
+    enctype="multipart/form-data"
+    class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30 "
+  >
+    {{ csrfField() }}
+    @!component('components/input', { name : 'username', label : 'Username' })
+    @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
+    @!component('components/input', { name : 'password', label : 'Password', type : 'password' })
+    @!component('components/input', { name : 'password_confirmation', label : 'Confirm password', type : 'password' })
 
-  {{-- GDPR Checkbox --}}
-  <div class="mb-4">
-    <label class="flex items-center">
-      <input type="checkbox" name="gdpr" id="gdpr" class="mr-2" />
-      <span class="text-bamboo-900 text-sm">I accept the <a href="{{ route('about') }}#serious-stuff" class="link whitespace-nowrap" target="_blank">Terms and Privacy Policy</a></span></label>
-    @inputError('gdpr')
-      @each(message in $messages)
-        <p class="text-bamboo-700">
-          {{ message }}
-        </p>
+    {{-- GDPR Checkbox --}}
+    <div class="mb-4">
+      <label class="flex items-center">
+        <input type="checkbox" name="gdpr" id="gdpr" class="mr-2" />
+        <span class="text-bamboo-900 text-sm">I accept the&ensp;<a href="{{ route('terms') }}" class="link whitespace-nowrap" target="_blank">Terms of use</a>&ensp;and the&ensp;<a href="{{ route('data') }}" class="link whitespace-nowrap" target="_blank">Privacy Policy</a></span></label>
+      @inputError('gdpr')
+        @each(message in $messages)
+          <p class="text-bamboo-700">
+            {{ message }}
+          </p>
+        @end
       @end
-    @end
-  </div>
+    </div>
 
-  <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
-</form>
+    <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
+  </form>
+</main>
 
 @include('partials/footer')

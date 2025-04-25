@@ -37,11 +37,15 @@ input[type='number']::-webkit-outer-spin-button {
 }
 
 /* Page illustration */
-body {
-  background-image: url('../../assets/images/onboarding-bg.svg');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: right 0px bottom -500px;
+img {
+  position: fixed;
+  width: 100%;
+  height: auto;
+  bottom: 0;
+  right: 0;
+  transform: translate(5%, 30%);
+  z-index: -5;
+  pointer-events: none;
 }
 
 /* Media queries */
@@ -51,6 +55,9 @@ body {
     right: -45px;
     width: 70px;
     height: 70px;
+  }
+  img {
+    display: none;
   }
 }
 @media (width <= 30rem) {

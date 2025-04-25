@@ -1,0 +1,124 @@
+@let(title = 'About Chicken Realm')
+@let(onboarding = false)
+@let(description = "Legal information about Chicken Realm.")
+@include('partials/header')
+@include('partials/nav')
+@include('partials/flash')
+
+<main class="container 2xl:px-100 lg:px-50 sm:px-10 px-5 m-auto flex flex-col gap-15 my-30 flex-grow">
+
+  <section class="flex flex-col gap-4" id='terms'>
+    <h1 class="title">
+      Terms of Service
+    </h1>
+    <div class="body flex flex-col gap-2">
+      <p>
+        By accessing and using Chicken Realm, you agree to these Terms of Service:
+      </p>
+      <div>
+        <p class="font-medium underline">
+          Usage Agreement:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            Chicken Realm is provided as a free service for personal, non-commercial use.
+          </li>
+          <li>
+            You may use the planning tools and save designs for your own chicken keeping purposes.
+          </li>
+          <li>
+            The service is provided "as is" with no guarantees of uptime or continued availability.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          User Conduct:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            You agree to use the service in a manner consistent with all applicable laws and regulations.
+          </li>
+          <li>
+            You are responsible for maintaining the security of your account credentials.
+          </li>
+          <li>
+            You agree not to attempt to access, tamper with, or disrupt any aspects of the Chicken Realm service.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Intellectual Property:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            The content, features, and functionality of Chicken Realm are openly available for educational and personal use.
+          </li>
+          <li>
+            As this is primarily a learning project, there are no specific restrictions on studying or adapting the concepts presented.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Disclaimer of Warranties:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            Chicken Realm is provided on an "as is" and "as available" basis without warranties of any kind.
+          </li>
+          <li>
+            We do not guarantee that the service will be error-free, secure, or continuously available.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Limitation of Liability:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            In no event shall Chicken Realm or its creator(s) be liable for any damages arising from the use or inability to use the service.
+          </li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-medium underline">
+          Termination:
+        </p>
+        <ul class="list-disc list-inside">
+          <li>
+            We reserve the right to terminate or suspend access to the service without prior notice for conduct that we believe violates these terms.
+          </li>
+        </ul>
+      </div>
+      <p>
+        These Terms of Service may be updated from time to time at our discretion.
+      </p>
+    </section>
+
+    <section class="flex flex-col gap-4">
+      <h2 class="sect-title">
+        Legal Disclaimer
+      </h2>
+      <div class="body flex flex-col gap-2">
+        <p>
+          Chicken Realm is primarily a web development learning project and should be used for informational and planning purposes only.
+                The recommendations and guidelines provided by this tool are based on general knowledge and should not be considered as professional or scientific advice.
+        </p>
+        <p>
+          Users are solely responsible for the welfare of their chickens and the design of their chicken runs.
+                Chicken Realm and its creator(s) accept no liability for any decisions made or actions taken based on the information provided by this website.
+        </p>
+        <p>
+          The objectives and requirements calculated by this tool are approximate guidelines only and may need to be adjusted based on your specific circumstances, local regulations, climate conditions, and the specific needs of your chickens.
+        </p>
+        <p>
+          By using Chicken Realm, you acknowledge that you understand this disclaimer and agree to use the information at your own discretion and risk.
+        </p>
+      </div>
+    </section>
+
+  </main>
+  @include('partials/footer')

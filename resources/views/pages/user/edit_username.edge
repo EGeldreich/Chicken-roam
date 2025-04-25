@@ -3,18 +3,20 @@
 @include('partials/nav')
 @include('partials/flash')
 
-<form
-  action=""
-  method="POST"
-  class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
->
-  <p class="body md:text-base text-sm mb-4">
-    Your current username is: <span class="font-averia md:text-lg text-base ml-2">{{ auth.user.username }}</span>
-  </p>
-  {{ csrfField() }}
-  @!component('components/input', { name : 'username', label : 'New username', type : 'text' })
+<main class="flex-grow">
+  <form
+    action=""
+    method="POST"
+    class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
+  >
+    <p class="body md:text-base text-sm mb-4">
+      Your current username is: <span class="font-averia md:text-lg text-base ml-2">{{ auth.user.username }}</span>
+    </p>
+    {{ csrfField() }}
+    @!component('components/input', { name : 'username', label : 'New username', type : 'text' })
 
-  <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
-</form>
+    <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
+  </form>
+</main>
 
 @include('partials/footer')

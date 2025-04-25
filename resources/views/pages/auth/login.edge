@@ -3,23 +3,25 @@
 @include('partials/nav')
 @include('partials/flash')
 
-<form
-  action=""
-  method="POST"
-  class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
->
-  {{ csrfField() }}
-  @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
-  @!component('components/input', { name : 'password', label : 'Password', type : 'password', isLogin: true })
-  <div class="flex flex-col md:flex-row md:justify-between p-4 gap-2">
-    <div class="flex items-center">
-      <input type="checkbox" name="remember_me" id="remember_me" class="mr-4" />
-      <label for="remember_me" class="text-bamboo-900 text-sm">Remember me</label>
+<main class="flex-grow">
+  <form
+    action=""
+    method="POST"
+    class="bg-white-0 border-1 border-bamboo-0 p-10 rounded-md lg:w-1/2 md:w-3/4 w-9/10 mx-auto mt-30"
+  >
+    {{ csrfField() }}
+    @!component('components/input', { name : 'email', label : 'Email', type : 'email' })
+    @!component('components/input', { name : 'password', label : 'Password', type : 'password', isLogin: true })
+    <div class="flex flex-col md:flex-row md:justify-between p-4 gap-2">
+      <div class="flex items-center">
+        <input type="checkbox" name="remember_me" id="remember_me" class="mr-4" />
+        <label for="remember_me" class="text-bamboo-900 text-sm">Remember me</label>
+      </div>
+      <a href="{{ route('auth.forgot-password') }}" class="link text-sm">Forgot password?</a>
     </div>
-    <a href="{{ route('auth.forgot-password') }}" class="link text-sm">Forgot password?</a>
-  </div>
 
-  <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
-</form>
+    <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
+  </form>
+</main>
 
 @include('partials/footer')
