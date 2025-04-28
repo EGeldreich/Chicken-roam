@@ -1,0 +1,60 @@
+/* OBJECTIVES _______________ */
+
+/* Global Progress bar */
+.circular-progress-bar {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--bamboo-0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Variable changed in JS */
+  --percentage: 0;
+}
+.circular-progress-bar::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--lightning-500) 0% var(--percentage),
+    transparent var(--percentage) 100%
+  );
+  z-index: 0;
+}
+.circular-progress-bar-inner {
+  position: absolute;
+  width: 70%;
+  height: 70%;
+  background-color: white;
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+.hidden {
+  display: none;
+  opacity: 0;
+}
+.completion-text {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--bamboo-950);
+  letter-spacing: -1px;
+}
+.percent-symbol {
+  font-size: 12px;
+}
+
+/* See more */
+#see-more-btn svg {
+  transition: 300ms ease;
+}
+#see-more-btn.expanded svg {
+  transform: rotate(180deg);
+}

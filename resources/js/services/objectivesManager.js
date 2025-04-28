@@ -30,12 +30,14 @@ export default class ObjectivesManager {
     }
 
     this.seeMoreBtn = document.getElementById('see-more-btn')
-    this.seeMoreText = document.getElementById('see-more-text')
-    this.seeLessText = document.getElementById('see-less-text')
     this.allObjectives = document.getElementById('all-objectives')
 
-    this.completeBar = document.getElementById('complete-bar')
+    this.completeBar = document.getElementById('main-progress-bar')
     this.completeText = document.getElementById('complete-text')
+    this.completionComment = document.getElementById('completion-comment')
+    this.successIcon = document.getElementById('completion-success-icon')
+
+    this.isComplete = false
 
     this.infoIcon = document.querySelector('.info-icon')
     this.objectiveTooltip = document.getElementById('objective-tooltip')
@@ -324,13 +326,21 @@ export default class ObjectivesManager {
     if (isVisible) {
       // Hide all objectives
       this.allObjectives.classList.add('hidden')
-      this.seeMoreText.classList.remove('hidden')
-      this.seeLessText.classList.add('hidden')
+      // Rotate arrow
+      this.seeMoreBtn.classList.remove('expanded')
+      // Update aria-label
+      this.seeMoreBtn.setAttribute('aria-label', 'Deploy objectives')
+      // Update aria expanded
+      this.seeMoreBtn.setAttribute('aria-expanded', 'false')
     } else {
       // Show all objectives
       this.allObjectives.classList.remove('hidden')
-      this.seeMoreText.classList.add('hidden')
-      this.seeLessText.classList.remove('hidden')
+      // Rotate arrow
+      this.seeMoreBtn.classList.add('expanded')
+      // Update aria-label
+      this.seeMoreBtn.setAttribute('aria-label', 'Hide objectives')
+      // Update aria expanded
+      this.seeMoreBtn.setAttribute('aria-expanded', 'true')
     }
   }
 
@@ -423,7 +433,8 @@ export default class ObjectivesManager {
 
   /**
    * Calculate and update total completion percentage
-   * Updates both progress bar width and completion text
+   * Update both progress bar width and completion text
+   * Show success icon at 100% completion
    */
   updateTotalCompletion() {
     // Skip if no objectives are available
@@ -438,14 +449,63 @@ export default class ObjectivesManager {
     // Round to nearest integer
     const roundedCompletion = Math.round(totalCompletion)
 
-    // Update progress bar width
-    if (this.completeBar) {
-      this.completeBar.style.width = `${roundedCompletion}%`
+    // Determine if the status changed from/to 100%
+    const wasComplete = this.isComplete
+    const isNowComplete = roundedCompletion === 100
+
+    // Update the status
+    this.isComplete = isNowComplete
+
+    // Handle transition between progress bar and success icon
+    if (isNowComplete !== wasComplete) {
+      this.toggleCompletionDisplay(isNowComplete)
     }
 
-    // Update percentage text
-    if (this.completeText) {
+    // Update circular progress bar only if not complete
+    if (!isNowComplete) {
+      if (this.completeBar) {
+        this.completeBar.style.setProperty('--percentage', `${roundedCompletion}%`)
+      }
+    }
+
+    // Update percentage text only if not complete
+    if (this.completeText && !isNowComplete) {
       this.completeText.textContent = roundedCompletion
+    }
+
+    // Update completion comment based on percentage
+    if (this.completionComment) {
+      let commentText = ''
+
+      if (roundedCompletion === 100) {
+        commentText = 'Your hens live like royalty'
+      } else if (roundedCompletion >= 66) {
+        commentText = 'Almost worthy of the crown'
+      } else if (roundedCompletion >= 33) {
+        commentText = 'Not yet fit for the realm'
+      } else {
+        commentText = 'Nowhere near a royal coop'
+      }
+
+      this.completionComment.textContent = commentText
+    }
+  }
+
+  /**
+   * Toggle between progress bar and success icon
+   * @param {Boolean} isComplete - Whether completion is 100%
+   */
+  toggleCompletionDisplay(isComplete) {
+    if (!this.completeBar || !this.successIcon) return
+
+    if (isComplete) {
+      // Transition to success icon
+      this.completeBar.classList.add('hidden')
+      this.successIcon.classList.remove('hidden')
+    } else {
+      // Transition back to progress bar
+      this.successIcon.classList.add('hidden')
+      this.completeBar.classList.remove('hidden')
     }
   }
 

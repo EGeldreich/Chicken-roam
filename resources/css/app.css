@@ -76,11 +76,10 @@
 }
 
 @layer components {
-  /*  */
   /* BUTTONS */
-  /*  */
+  /* main */
   .btn {
-    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex  justify-center items-center text-base whitespace-nowrap;
+    @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex justify-center items-center text-base whitespace-nowrap;
   }
   .btn-primary {
     @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-500;
@@ -94,11 +93,15 @@
   .btn-danger {
     @apply rounded-md text-red-800 hover:bg-bamboo-300;
   }
-  .tool-btn {
-    @apply border-0 py-0.5 px-0.5;
+  /* plan */
+  .arrow-btn {
+    @apply bg-bamboo-50 p-2 rounded-md hover:bg-bamboo-300 duration-300 cursor-pointer;
   }
   .mini-tool {
     @apply rounded-none flex justify-center py-2 bg-white hover:bg-tool-hover;
+  }
+  .tool-btn {
+    @apply cursor-pointer duration-300;
   }
   /* .active-tool {
     @apply bg-black hover:bg-black;
@@ -209,7 +212,7 @@
 }
 
 html {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Roundo', 'Sora', sans-serif;
   scroll-behavior: smooth;
 }
 
