@@ -620,7 +620,13 @@
         </p>
       </div>
       {{-- See more btn --}}
-      <button id="see-more-btn" class="arrow-btn" type="button" aria-label="Deploy objectives">
+      <button
+        id="see-all-btn"
+        class="arrow-btn"
+        type="button"
+        aria-label="Deploy objectives"
+        aria-expanded="false"
+      >
         <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
             d="M6.47869 9.99992C4.03835 9.99992 0.227624 2.42975 0.190983 2.34914C-0.0288673 1.89479 0.161669 1.34516 0.616026 1.12531C1.07038 0.905463 1.62001 1.096 1.83986 1.55036C3.29819 4.56963 5.71654 7.83806 6.52266 8.16051C7.32877 8.03593 8.77978 4.59894 9.40269 3.11129C9.65918 2.50304 9.90835 1.91677 10.1502 1.37448C10.3554 0.912791 10.8977 0.707598 11.3594 0.912791C11.821 1.11798 12.0262 1.66028 11.821 2.12197C11.5792 2.6496 11.3374 3.22854 11.0882 3.82214C9.75445 6.9953 8.49398 9.99259 6.47869 9.99259V9.99992Z"
@@ -630,116 +636,136 @@
       </button>
     </div>
 
-    <div class="w-2/3 mr-4 relative">
-      {{-- Current tool objectives container --}}
-      <div id="current-objectives-container">
-        {{-- Template for objective that will be cloned --}}
-        <template id="objective-template">
-          <div class="objective-item bg-white rounded-lg mb-2">
-            <div class="p-4">
-              <div class="flex justify-between">
-                {{-- Current objective name --}}
-                <p>
-                  <strong class="objective-name capitalize"></strong>
-                </p>
-                {{-- Info hover (i) --}}
-                <svg
-                  class="info-icon cursor-help"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="#fff"
-                  xmlns="http://www.w3.org/2000/svg"
-                  tabindex="0"
-                  aria-label="Objective information"
-                >
-                  <path
-                    d="M10 10V14M19 10C19 14.9706 14.9706 19 10 19C5.02944 19 1 14.9706 1 10C1 5.02944 5.02944 1 10 1C14.9706 1 19 5.02944 19 10ZM10 6H10.01V6.01H10V6Z"
-                    stroke="black"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
+    {{-- Current + all container --}}
+    <div id="all-objectives">
+      {{-- Current objective and tooltip --}}
+      <div class="w-full relative">
 
-              {{-- Completion percentage and progress bar --}}
-              <div class="flex justify-between items-center mt-2 mb-1">
-                <span class="text-base font-medium"></span>
-                <span class="text-sm font-medium">
-                  <span class="objective-completion"></span>%
-            </span>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  class="objective-progress-bar bg-blue-600 h-2.5 rounded-full transition-all duration-300 ease-in-out z-12"
-                  style="width: 0%"
-                >
+        {{-- Current tool objectives container --}}
+        <div id="current-objectives-container">
+
+          {{-- Template for objective that will be cloned --}}
+          <template id="objective-template">
+            <div class="objective-item bg-white rounded-lg mb-2">
+              <div class="p-4 flex flex-col">
+
+                {{-- Above bar info --}}
+                <div class="flex justify-between">
+                  <div class="flex">
+                    {{-- Current objective icon --}}
+                    <div id="current-objective-icon">
+                    </div>
+                    <div class="flex flex-col">
+                      {{-- Current objective name --}}
+                      <p>
+                        <strong class="objective-name capitalize"></strong>
+                      </p>
+                      <p>
+                        <span class="font-bold current-value"></span>
+                        /
+                      <span class="objective-target"></span>
+                        <span class="objective-unit"></span>
+                      </p>
+                    </div>
+                  </div>
+                  {{-- Info hover (i) --}}
+                  <div class="info-icon h-6 cursor-help p-1">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-label="Objective information"
+                    >
+                      <path
+                        d="M8.36599 4.01745e-06C4.60233 -0.00399598 1.13752 2.97947 0.605894 6.70916C-0.190387 11.3772 3.61164 15.7213 8.39539 15.1389C12.2904 14.7235 15.3149 11.112 15.2675 7.23147C15.3768 3.47128 12.1454 0.031129 8.36599 4.01745e-06ZM7.50196 13.4482C5.58911 13.4379 3.8178 12.2571 2.87939 10.6305C2.23639 9.51869 2.15986 8.0966 2.33914 6.85178C3.23736 0.886379 11.703 -0.283215 13.3617 5.848C14.3354 9.49041 11.3408 13.5821 7.50196 13.4482ZM9.22071 10.2299C8.28239 9.95178 8.46243 8.70907 8.43102 7.93816C8.41755 6.96422 8.59074 6.47925 8.07408 6.06188C7.8826 5.94504 7.66045 5.88841 7.4364 5.89931C7.21236 5.9102 6.99675 5.98814 6.81752 6.123C6.58858 6.34657 6.62571 6.62141 6.60055 6.91153C6.48749 8.15546 6.55915 9.40928 6.81321 10.6322C6.95605 11.5612 7.45561 11.9753 8.38946 11.9953C8.80724 12.0043 9.29911 11.9553 9.56064 11.5713C9.63901 11.4456 9.69107 11.3053 9.71368 11.159C9.73629 11.0126 9.72897 10.8631 9.69217 10.7197C9.62827 10.4208 9.52808 10.2906 9.22071 10.2299ZM6.95318 5.18497C7.14233 5.26332 7.34659 5.29846 7.55106 5.28785C7.75553 5.27724 7.95505 5.22113 8.13508 5.12363C8.36833 4.90363 8.40021 4.31425 8.36733 3.70713C8.34155 3.23138 7.73296 3.04529 7.28342 3.07635C6.6948 3.11697 6.52283 3.61803 6.54418 4.08482C6.55821 4.39032 6.6158 5.0245 6.95318 5.18497Z"
+                        fill="#3B1502"
+                      />
+                    </svg>
+                  </div>
                 </div>
-              </div>
 
-              {{-- Target value --}}
-              <div class="flex justify-between items-center mt-2">
-                <p class="text-sm font-light text-gray-700">
-                  Target value:
-                </p>
-                <span class="text-sm font-light text-gray-700">
-                  <span class="objective-target"></span>
-                  <span class="objective-unit"></span>
+                {{-- Progress bar --}}
+                <div class="w-full bg-bamboo-100 rounded-full h-2">
+                  <div
+                    class="objective-progress-bar bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out z-12"
+                    style="width: 0%"
+                  >
+                  </div>
+                </div>
+
+                {{-- See more / less link --}}
+                <button class="link see-more-btn self-start mt-2 text-sm cursor-pointer">
+                  <span class="see-less-targets hidden">
+                    See less targets
                 </span>
-              </div>
-            </div>
-          </div>
-        </template>
-      </div>
+                  <span class="see-more-targets">
+                    See more targets
+                </span>
+                </button>
 
-      {{-- Tooltip shared for all objectives --}}
-      <div
-        id="objective-tooltip"
-        class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
-      >
-        <p class="text-sm mb-2" id="objective-description">
-          Description of the objective will appear here.
-        </p>
+              </div>
+
+            </div>
+          </template>
+        </div>
+
+        {{-- Tooltip shared for all objectives --}}
         <div
-          class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
+          id="objective-tooltip"
+          class="tooltip-content opacity-0 invisible absolute right-full mr-4 top-0 transition-opacity duration-300 w-64 bg-gray-800 text-white p-3 rounded z-20"
         >
+          <p class="text-sm mb-2" id="objective-description">
+            Description of the objective will appear here.
+          </p>
+          <div
+            class="tooltip-arrow absolute right-0 top-1/4 transform translate-x-1/2 rotate-45 w-3 h-3 bg-gray-800"
+          >
+          </div>
         </div>
       </div>
-    </div>
 
-    {{-- All objectives list --}}
-    <div id="all-objectives" class="w-2/3 mr-4 hidden mt-2 bg-white p-3 rounded-lg shadow-sm space-y-4">
-      @each(objective in plan.objectives)
-        <div class="objective-item" data-objective-name="{{ objective.name }}">
-          {{-- Name target and completion % --}}
-          <div class="flex justify-between items-center">
-            <span class="text-base font-medium capitalize">{{ objective.name }}</span>
-            <span class="text-sm font-medium">
-              <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
+      {{-- All objectives list --}}
+      <div id="more-objectives" class="w-full mr-4 hidden mt-2 bg-white p-3 rounded-lg shadow-sm space-y-4">
+
+        @each(objective in plan.objectives)
+
+          <div class="objective-item" data-objective-name="{{ objective.name }}">
+
+            {{-- Name target and completion % --}}
+            <div class="flex justify-between items-center">
+              <span class="text-base font-medium capitalize">{{ objective.name }}</span>
+              <span class="text-sm font-medium">
+                <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
                 </span>
-          </div>
-          {{-- Progress bar --}}
-          <div class="w-full bg-gray-200 rounded-full h-2.5">
-            <div
-              class="bg-blue-600 h-2.5 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
-              style="width: {{ objective.$extras.pivot_completion_percentage }}%"
-              data-objective-name="{{ objective.name }}"
-            >
             </div>
+
+            {{-- Progress bar --}}
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div
+                class="bg-blue-600 h-2.5 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
+                style="width: {{ objective.$extras.pivot_completion_percentage }}%"
+                data-objective-name="{{ objective.name }}"
+              >
+              </div>
+            </div>
+
+            {{-- Target value --}}
+            <div class="flex justify-between items-center">
+              <p class="text-sm font-light text-gray-700">
+                Target value:
+              </p>
+              <span class="text-sm font-light text-gray-700">
+                <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
+                <span class="objective-unit">{{ objective.unit }}</span>
+              </span>
+            </div>
+
           </div>
-          {{-- Target value --}}
-          <div class="flex justify-between items-center">
-            <p class="text-sm font-light text-gray-700">
-              Target value:
-            </p>
-            <span class="text-sm font-light text-gray-700">
-              <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
-              <span class="objective-unit">{{ objective.unit }}</span>
-            </span>
-          </div>
-        </div>
-      @end
+
+        @end
+      </div>
     </div>
   </div>
 

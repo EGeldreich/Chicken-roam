@@ -29,8 +29,10 @@ export default class ObjectivesManager {
       this.objectiveToToolMap[objective].push(tool)
     }
 
-    this.seeMoreBtn = document.getElementById('see-more-btn')
+    this.seeAllBtn = document.getElementById('see-all-btn')
+    this.seeMoreBtn = document.querySelectorAll('.see-more-btn')
     this.allObjectives = document.getElementById('all-objectives')
+    this.moreObjectives = document.getElementById('more-objectives')
 
     this.completeBar = document.getElementById('main-progress-bar')
     this.completeText = document.getElementById('complete-text')
@@ -67,7 +69,6 @@ export default class ObjectivesManager {
     this.initializeObjectives()
     this.initializeEventListeners()
     this.updateCurrentObjective(this.planEditor.currentTool)
-    this.initializeBarColors()
   }
 
   /**
@@ -85,8 +86,8 @@ export default class ObjectivesManager {
     })
 
     // See more btn event listener
-    this.seeMoreBtn.addEventListener('click', () => {
-      this.toggleAllObjectives()
+    this.seeAllBtn.addEventListener('click', () => {
+      this.toggleObjectives()
     })
   }
 
@@ -125,20 +126,16 @@ export default class ObjectivesManager {
     // Define delay before showing the tooltip
     const HOVER_DELAY = 500
 
-    // Event listener on container and not .info-icon because it's part of the template
+    // Add event delegation on the container instead of directly on .info-icon
     document.getElementById('current-objectives-container').addEventListener(
-      'mouseenter',
+      'mouseover',
       (e) => {
-        // Check if we are on the svg (need closest because we may be on a child element like path)
+        // Check if the mouse is over the info-icon or any of its children
         const infoIcon = e.target.closest('.info-icon')
         if (infoIcon) {
-          // If we are, clear any existing hoverTimeout
           clearTimeout(hoverTimeout)
-          // Start a new timeout
           hoverTimeout = setTimeout(() => {
-            // Position the tooltip (so it works with tree's 2 objectives)
             this.positionTooltip(infoIcon)
-            // Add styling class to show the tooltip
             this.objectiveTooltip.classList.add('tooltip-show')
           }, HOVER_DELAY)
         }
@@ -146,12 +143,15 @@ export default class ObjectivesManager {
       true
     )
 
-    // Remove tooltip on mouse leave
+    // Handle mouseout with event delegation
     document.getElementById('current-objectives-container').addEventListener(
-      'mouseleave',
+      'mouseout',
       (e) => {
-        const infoIcon = e.target.closest('.info-icon')
-        if (infoIcon) {
+        const fromElement = e.target
+        const toElement = e.relatedTarget
+
+        // Check if we're leaving the info-icon area completely
+        if (fromElement.closest('.info-icon') && !toElement?.closest('.info-icon')) {
           clearTimeout(hoverTimeout)
           this.objectiveTooltip.classList.remove('tooltip-show')
         }
@@ -227,28 +227,6 @@ export default class ObjectivesManager {
   }
 
   /**
-   * Color progress bars of the objectives full list on load
-   */
-  initializeBarColors() {
-    // Get all bars
-    const listProgressBars = document.querySelectorAll(`#all-objectives .objective-progress-bar`)
-
-    if (listProgressBars && listProgressBars.length > 0) {
-      // For each bar
-      listProgressBars.forEach((bar) => {
-        // Get completion from width (completion may be more but it's enough for colors)
-        const widthStyle = bar.style.width
-        const completion = parseInt(widthStyle, 10)
-
-        // If completion is valid, update
-        if (!isNaN(completion)) {
-          this.updateProgressBarColor(bar, completion)
-        }
-      })
-    }
-  }
-
-  /**
    * Update current objectives depending on current tool
    * @param {string} tool - Current tool
    */
@@ -261,14 +239,14 @@ export default class ObjectivesManager {
     const existingItems = container.querySelectorAll('.objective-item:not(#objective-template)')
     existingItems.forEach((item) => item.remove())
 
-    // Get objectives linked to tool
+    // Get objective(s) linked to tool
     const objectiveNames = this.getObjectivesForTool(tool)
 
     // Security, if we found the objectives
     if (objectiveNames && objectiveNames.length > 0) {
       // For each one
-      objectiveNames.forEach((objectiveName) => {
-        // Find objective data
+      objectiveNames.forEach((objectiveName, index) => {
+        // Find the wanted objective from the list of all objectives
         const objectiveItem = document.querySelector(
           `.objective-item[data-objective-name="${objectiveName}"]`
         )
@@ -277,28 +255,50 @@ export default class ObjectivesManager {
           // Clone the template
           const clone = template.content.cloneNode(true)
 
+          // Set data attribute (used for styling)
+          const cloneItem = clone.querySelector('.objective-item')
+          if (cloneItem) {
+            cloneItem.dataset.objectiveName = objectiveName
+          }
+
           // Set objective name
           clone.querySelector('.objective-name').textContent = objectiveName
 
-          // Get completion percentage
-          const completionValue = objectiveItem.querySelector('.objective-completion').textContent
-          clone.querySelector('.objective-completion').textContent = completionValue
+          // Get completion values
+          const completionValue = parseInt(
+            objectiveItem.querySelector('.objective-completion').textContent,
+            10
+          )
+          const targetValue = parseInt(
+            objectiveItem.querySelector('.objective-target').textContent,
+            10
+          )
+
+          // Calculate current value from percentage
+          const currentValue = Math.round((completionValue * targetValue) / 100)
+
+          // Set current value
+          const currentValueElement = clone.querySelector('.current-value')
+          if (currentValueElement) {
+            currentValueElement.textContent = currentValue
+          }
 
           // Update progress bar
           const progressBar = clone.querySelector('.objective-progress-bar')
           progressBar.style.width = `${completionValue}%`
-
-          // Add data attribute
-          progressBar.dataset.objectiveName = objectiveName
-
-          // Update progress bar color
-          this.updateProgressBarColor(progressBar, parseInt(completionValue, 10))
 
           // Set target values
           clone.querySelector('.objective-target').textContent =
             objectiveItem.querySelector('.objective-target').textContent
           clone.querySelector('.objective-unit').textContent =
             objectiveItem.querySelector('.objective-unit').textContent
+
+          // Hide the "See more" button if this is not the last objective
+          const seeMoreBtn = clone.querySelector('.see-more-btn')
+          if (index < objectiveNames.length - 1) {
+            // This is not the last objective, hide the button
+            seeMoreBtn.classList.add('hidden')
+          }
 
           // Append the populated clone to the container
           container.appendChild(clone)
@@ -311,36 +311,68 @@ export default class ObjectivesManager {
           this.objectiveDescriptions[objectiveNames[0]] ||
           `Information about the ${objectiveNames[0]} objective.`
       }
-    } else {
-      // No objective linked to this tool, hide all
-      // Since we've already cleared existing items, nothing more to do
+
+      // Initialize event listeners on see less/more btn
+      this.initializeTargetsToggles()
     }
   }
 
   /**
-   * Show / hide all objectives
+   * Initialize event listeners for the "See more/less targets" buttons
    */
-  toggleAllObjectives() {
+  initializeTargetsToggles() {
+    // Get all "See more" buttons in the current objectives container
+    const seeMoreButtons = document.querySelectorAll('#current-objectives-container .see-more-btn')
+
+    // Add click event listener to each button
+    seeMoreButtons.forEach((button) => {
+      // Remove any existing event listeners to prevent duplicates
+      button.removeEventListener('click', this.handleSeeMoreClick)
+
+      // Add new event listener
+      button.addEventListener('click', () => {
+        const seeMore = button.querySelector('.see-more-targets')
+        const seeLess = button.querySelector('.see-less-targets')
+
+        if (this.moreObjectives.classList.contains('hidden')) {
+          // Show more objectives
+          this.moreObjectives.classList.remove('hidden')
+          seeMore.classList.add('hidden')
+          seeLess.classList.remove('hidden')
+        } else {
+          // Hide more objectives
+          this.moreObjectives.classList.add('hidden')
+          seeMore.classList.remove('hidden')
+          seeLess.classList.add('hidden')
+        }
+      })
+    })
+  }
+
+  /**
+   * Show / hide objectives
+   */
+  toggleObjectives() {
     const isVisible = !this.allObjectives.classList.contains('hidden')
 
     if (isVisible) {
       // Hide all objectives
       this.allObjectives.classList.add('hidden')
       // Rotate arrow
-      this.seeMoreBtn.classList.remove('expanded')
+      this.seeAllBtn.classList.remove('expanded')
       // Update aria-label
-      this.seeMoreBtn.setAttribute('aria-label', 'Deploy objectives')
+      this.seeAllBtn.setAttribute('aria-label', 'Deploy objectives')
       // Update aria expanded
-      this.seeMoreBtn.setAttribute('aria-expanded', 'false')
+      this.seeAllBtn.setAttribute('aria-expanded', 'false')
     } else {
       // Show all objectives
       this.allObjectives.classList.remove('hidden')
       // Rotate arrow
-      this.seeMoreBtn.classList.add('expanded')
+      this.seeAllBtn.classList.add('expanded')
       // Update aria-label
-      this.seeMoreBtn.setAttribute('aria-label', 'Hide objectives')
+      this.seeAllBtn.setAttribute('aria-label', 'Hide objectives')
       // Update aria expanded
-      this.seeMoreBtn.setAttribute('aria-expanded', 'true')
+      this.seeAllBtn.setAttribute('aria-expanded', 'true')
     }
   }
 
@@ -362,9 +394,6 @@ export default class ObjectivesManager {
       if (listProgressBar) {
         listProgressBar.style.width = `${completion}%`
 
-        // Update color based on completion value
-        this.updateProgressBarColor(listProgressBar, completion)
-
         // Add pulse animation for visual feedback
         listProgressBar.classList.remove('pulse-update')
         // Trigger reflow to restart animation
@@ -381,7 +410,6 @@ export default class ObjectivesManager {
     currentObjectives.forEach((bar) => {
       // Update progress bar
       bar.style.width = `${completion}%`
-      this.updateProgressBarColor(bar, completion)
 
       // Update completion text (find parent then the completion span)
       const parent = bar.closest('.objective-item')
@@ -506,37 +534,6 @@ export default class ObjectivesManager {
       // Transition back to progress bar
       this.successIcon.classList.add('hidden')
       this.completeBar.classList.remove('hidden')
-    }
-  }
-
-  /**
-   * Change progress bar color acording to completion
-   * @param {HTMLElement} progressBar progress bar DOM element
-   * @param {Number} completion completion percentage
-   */
-  updateProgressBarColor(progressBar, completion) {
-    // Remove all existing color classes
-    progressBar.classList.remove(
-      'bg-blue-600',
-      'bg-green-500',
-      'bg-yellow-500',
-      'bg-orange-500',
-      'bg-red-500'
-    )
-
-    // Add appropriate color class based on percentage
-    if (completion === 100) {
-      progressBar.classList.add('bg-green-500') // Green for 100%
-    } else if (completion >= 70) {
-      progressBar.classList.add('bg-blue-600') // Blue for 70-99%
-    } else if (completion >= 50) {
-      progressBar.classList.add('bg-blue-400') // Light blue for 50-69%
-    } else if (completion >= 30) {
-      progressBar.classList.add('bg-yellow-500') // Yellow for 30-49%
-    } else if (completion >= 10) {
-      progressBar.classList.add('bg-orange-500') // Orange for 10-29%
-    } else {
-      progressBar.classList.add('bg-red-500') // Red for 0-9%
     }
   }
 }

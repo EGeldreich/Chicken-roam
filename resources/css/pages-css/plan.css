@@ -51,10 +51,35 @@
   font-size: 12px;
 }
 
-/* See more */
-#see-more-btn svg {
+/* See all */
+#see-all-btn svg {
   transition: 300ms ease;
 }
-#see-more-btn.expanded svg {
+#see-all-btn.expanded svg {
   transform: rotate(180deg);
 }
+
+/* Current objective icon and color */
+.objective-item {
+}
+/* Tooltip */
+.info-icon {
+  transition: transform 300ms ease;
+}
+.info-icon:hover,
+.info-icon:focus {
+  transform: scale(1.1);
+  outline: none;
+}
+.tooltip-content {
+  pointer-events: none;
+  max-width: 250px;
+  word-wrap: break-word;
+  z-index: 50;
+}
+.tooltip-show {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* END OBJECTIVES */
