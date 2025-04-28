@@ -67,6 +67,7 @@ export default class ObjectivesManager {
     // Initialisation
     this.setupTooltip()
     this.initializeObjectives()
+    this.initializeCurrentValues()
     this.initializeEventListeners()
     this.updateCurrentObjective(this.planEditor.currentTool)
   }
@@ -115,6 +116,41 @@ export default class ObjectivesManager {
   }
 
   /**
+   * Initialize current values for all objectives
+   * based on completion percentage
+   */
+  initializeCurrentValues() {
+    // Select all objective items
+    const objectiveItems = document.querySelectorAll('#more-objectives .objective-item')
+
+    objectiveItems.forEach((item) => {
+      // Find relevant elements
+      const completionElement = item.querySelector('.objective-completion')
+      const targetElement = item.querySelector('.objective-target')
+      const currentValueElement = item.querySelector('.current-value')
+
+      if (completionElement && targetElement && currentValueElement) {
+        // Get values
+        const completionPercentage = parseFloat(completionElement.textContent)
+        const targetValue = parseFloat(targetElement.textContent)
+        const completionCrown = item.querySelector('.completion-crown')
+
+        // Calculate and round
+        const currentValue = Math.round((completionPercentage * targetValue) / 100)
+
+        // Update display
+        currentValueElement.textContent = currentValue
+
+        // Check if this objective is complete
+        if (completionCrown && completionPercentage >= 100) {
+          // Show crown
+          completionCrown.classList.remove('hidden')
+        }
+      }
+    })
+  }
+
+  /**
    * Initialize tooltip functionality
    */
   setupTooltip() {
@@ -126,67 +162,77 @@ export default class ObjectivesManager {
     // Define delay before showing the tooltip
     const HOVER_DELAY = 500
 
-    // Add event delegation on the container instead of directly on .info-icon
-    document.getElementById('current-objectives-container').addEventListener(
-      'mouseover',
-      (e) => {
-        // Check if the mouse is over the info-icon or any of its children
-        const infoIcon = e.target.closest('.info-icon')
-        if (infoIcon) {
-          clearTimeout(hoverTimeout)
-          hoverTimeout = setTimeout(() => {
-            this.positionTooltip(infoIcon)
-            this.objectiveTooltip.classList.add('tooltip-show')
-          }, HOVER_DELAY)
-        }
-      },
-      true
-    )
+    // Helper function to add event listeners to a container
+    const addTooltipListeners = (containerId) => {
+      const container = document.getElementById(containerId)
+      if (!container) return
 
-    // Handle mouseout with event delegation
-    document.getElementById('current-objectives-container').addEventListener(
-      'mouseout',
-      (e) => {
-        const fromElement = e.target
-        const toElement = e.relatedTarget
+      // Add mouseover event listener with delegation (to avoid problem with template cloning)
+      container.addEventListener(
+        'mouseover',
+        (e) => {
+          // Check if the mouse is over the info-icon or any of its children
+          const infoIcon = e.target.closest('.info-icon')
+          if (infoIcon) {
+            clearTimeout(hoverTimeout)
+            hoverTimeout = setTimeout(() => {
+              this.positionTooltip(infoIcon)
+              this.objectiveTooltip.classList.add('tooltip-show')
+            }, HOVER_DELAY)
+          }
+        },
+        true
+      )
 
-        // Check if we're leaving the info-icon area completely
-        if (fromElement.closest('.info-icon') && !toElement?.closest('.info-icon')) {
-          clearTimeout(hoverTimeout)
-          this.objectiveTooltip.classList.remove('tooltip-show')
-        }
-      },
-      true
-    )
+      // Handle mouseout with event delegation
+      container.addEventListener(
+        'mouseout',
+        (e) => {
+          const fromElement = e.target
+          const toElement = e.relatedTarget
 
-    // Additional handler for focus events (accessibility)
-    document.getElementById('current-objectives-container').addEventListener(
-      'focus',
-      (e) => {
-        const infoIcon = e.target.closest('.info-icon')
-        if (infoIcon) {
-          clearTimeout(hoverTimeout)
-          hoverTimeout = setTimeout(() => {
-            this.positionTooltip(infoIcon)
-            this.objectiveTooltip.classList.add('tooltip-show')
-          }, HOVER_DELAY)
-        }
-      },
-      true
-    )
+          // Check if we're leaving the info-icon area completely
+          if (fromElement.closest('.info-icon') && !toElement?.closest('.info-icon')) {
+            clearTimeout(hoverTimeout)
+            this.objectiveTooltip.classList.remove('tooltip-show')
+          }
+        },
+        true
+      )
 
-    // Remove tooltip on blur
-    document.getElementById('current-objectives-container').addEventListener(
-      'blur',
-      (e) => {
-        const infoIcon = e.target.closest('.info-icon')
-        if (infoIcon) {
-          clearTimeout(hoverTimeout)
-          this.objectiveTooltip.classList.remove('tooltip-show')
-        }
-      },
-      true
-    )
+      // Additional handler for focus events (accessibility)
+      container.addEventListener(
+        'focus',
+        (e) => {
+          const infoIcon = e.target.closest('.info-icon')
+          if (infoIcon) {
+            clearTimeout(hoverTimeout)
+            hoverTimeout = setTimeout(() => {
+              this.positionTooltip(infoIcon)
+              this.objectiveTooltip.classList.add('tooltip-show')
+            }, HOVER_DELAY)
+          }
+        },
+        true
+      )
+
+      // Remove tooltip on blur
+      container.addEventListener(
+        'blur',
+        (e) => {
+          const infoIcon = e.target.closest('.info-icon')
+          if (infoIcon) {
+            clearTimeout(hoverTimeout)
+            this.objectiveTooltip.classList.remove('tooltip-show')
+          }
+        },
+        true
+      )
+    }
+
+    // Add listeners to both containers
+    addTooltipListeners('current-objectives-container')
+    addTooltipListeners('more-objectives')
   }
 
   /**
@@ -196,14 +242,16 @@ export default class ObjectivesManager {
   positionTooltip(infoIcon) {
     // Get the objective name from the parent element
     const objectiveItem = infoIcon.closest('.objective-item')
-    const objectiveName = objectiveItem.querySelector('.objective-name').textContent
+    const objectiveName = objectiveItem.querySelector('.objective-name').textContent.trim()
 
     // Update the tooltip content based on the objective
     if (objectiveName && this.objectiveDescription) {
-      this.objectiveDescription.textContent = this.objectiveDescriptions[objectiveName]
+      this.objectiveDescription.textContent =
+        this.objectiveDescriptions[objectiveName] ||
+        `Information about the ${objectiveName} objective.`
     }
 
-    // Position the tooltip near the info icon
+    // Use the container and the objective coordinates to place the tooltip
     const objectiveItemRect = objectiveItem.getBoundingClientRect()
     const containerRect = this.objectiveTooltip.parentElement.getBoundingClientRect()
 
@@ -259,6 +307,7 @@ export default class ObjectivesManager {
           const cloneItem = clone.querySelector('.objective-item')
           if (cloneItem) {
             cloneItem.dataset.objectiveName = objectiveName
+            cloneItem.querySelector('.objective-progress-bar').dataset.objectiveName = objectiveName
           }
 
           // Set objective name
@@ -286,6 +335,8 @@ export default class ObjectivesManager {
           // Update progress bar
           const progressBar = clone.querySelector('.objective-progress-bar')
           progressBar.style.width = `${completionValue}%`
+          // Add data-objective-name attribute to the progress bar
+          progressBar.dataset.objectiveName = objectiveName
 
           // Set target values
           clone.querySelector('.objective-target').textContent =
@@ -300,7 +351,15 @@ export default class ObjectivesManager {
             seeMoreBtn.classList.add('hidden')
           }
 
-          // Append the populated clone to the container
+          // Check if we need to show completion crown
+          const completionCrown = clone.querySelector('.completion-crown')
+
+          if (completionCrown && completionValue >= 100) {
+            // Show crown
+            completionCrown.classList.remove('hidden')
+          }
+
+          // Append the clone to the container
           container.appendChild(clone)
         }
       })
@@ -364,6 +423,23 @@ export default class ObjectivesManager {
       this.seeAllBtn.setAttribute('aria-label', 'Deploy objectives')
       // Update aria expanded
       this.seeAllBtn.setAttribute('aria-expanded', 'false')
+
+      // Also hide more objectives if they're visible
+      if (!this.moreObjectives.classList.contains('hidden')) {
+        this.moreObjectives.classList.add('hidden')
+
+        // Reset the "See more/less" buttons state
+        const seeMoreButtons = document.querySelectorAll(
+          '#current-objectives-container .see-more-btn'
+        )
+        seeMoreButtons.forEach((button) => {
+          const seeMore = button.querySelector('.see-more-targets')
+          const seeLess = button.querySelector('.see-less-targets')
+
+          seeMore.classList.remove('hidden')
+          seeLess.classList.add('hidden')
+        })
+      }
     } else {
       // Show all objectives
       this.allObjectives.classList.remove('hidden')
@@ -389,7 +465,7 @@ export default class ObjectivesManager {
 
       // Also update progress bar width in list
       const listProgressBar = document.querySelector(
-        `#all-objectives .objective-progress-bar[data-objective-name="${objectiveName}"]`
+        `#more-objectives .objective-progress-bar[data-objective-name="${objectiveName}"]`
       )
       if (listProgressBar) {
         listProgressBar.style.width = `${completion}%`
@@ -400,30 +476,83 @@ export default class ObjectivesManager {
         void listProgressBar.offsetWidth
         listProgressBar.classList.add('pulse-update')
       }
+
+      // Update current value in more-objectives container
+      const moreObjectivesItem = document.querySelector(
+        `#more-objectives .objective-item[data-objective-name="${objectiveName}"]`
+      )
+      if (moreObjectivesItem) {
+        const targetElement = moreObjectivesItem.querySelector('.objective-target')
+        const currentValueElement = moreObjectivesItem.querySelector('.current-value')
+
+        if (targetElement && currentValueElement) {
+          const targetValue = parseFloat(targetElement.textContent)
+          const currentValue = Math.round((completion * targetValue) / 100)
+          currentValueElement.textContent = currentValue
+        }
+
+        // Update completion crown visibility
+        const completionCrown = moreObjectivesItem.querySelector('.completion-crown')
+
+        if (completionCrown) {
+          if (completion >= 100) {
+            completionCrown.classList.remove('hidden')
+          } else {
+            completionCrown.classList.add('hidden')
+          }
+        }
+      }
     }
 
     // Update in current objective if visible
-    const currentObjectives = document.querySelectorAll(
-      `#current-objectives-container .objective-progress-bar[data-objective-name="${objectiveName}"]`
+    const currentObjectiveItems = document.querySelectorAll(
+      `#current-objectives-container .objective-item[data-objective-name="${objectiveName}"]`
     )
 
-    currentObjectives.forEach((bar) => {
-      // Update progress bar
-      bar.style.width = `${completion}%`
+    currentObjectiveItems.forEach((item) => {
+      // Find the progress bar element inside the objective item
+      const progressBar = item.querySelector('.objective-progress-bar')
 
-      // Update completion text (find parent then the completion span)
-      const parent = bar.closest('.objective-item')
-      if (parent) {
-        const completionSpan = parent.querySelector('.objective-completion')
-        if (completionSpan) {
-          completionSpan.textContent = completion
-        }
+      if (progressBar) {
+        // Update progress bar width
+        progressBar.style.width = `${completion}%`
+
+        progressBar.dataset.objectiveName = objectiveName
+
+        // Add pulse animation to the progress bar
+        progressBar.classList.remove('pulse-update')
+        void progressBar.offsetWidth
+        progressBar.classList.add('pulse-update')
       }
 
-      // Add pulse animation
-      bar.classList.remove('pulse-update')
-      void bar.offsetWidth
-      bar.classList.add('pulse-update')
+      // Update completion text
+      const completionSpan = item.querySelector('.objective-completion')
+      if (completionSpan) {
+        completionSpan.textContent = completion
+      }
+
+      // Update current value
+      const targetElement = item.querySelector('.objective-target')
+      const currentValueElement = item.querySelector('.current-value')
+
+      if (targetElement && currentValueElement) {
+        const targetValue = parseFloat(targetElement.textContent)
+        const currentValue = Math.round((completion * targetValue) / 100)
+        currentValueElement.textContent = currentValue
+      }
+
+      // Update completion crown in current objectives
+      const completionCrown = item.querySelector('.completion-crown')
+
+      if (completionCrown) {
+        if (completion >= 100) {
+          // Show crown
+          completionCrown.classList.remove('hidden')
+        } else {
+          // Hide crown
+          completionCrown.classList.add('hidden')
+        }
+      }
     })
 
     // Update this.objectives array

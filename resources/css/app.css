@@ -35,7 +35,7 @@
   --color-lightning-900: #7c430b;
   --color-lightning-950: #482300;
 
-  --color-bush: #81b995;
+  --color-shrub: #81b995;
   --color-tree: #b6d5a0;
   --color-perch: #d2db93;
   --color-shelter: #f4cf8c;
@@ -207,6 +207,15 @@
   --bamboo-400: #ffa92f;
   --bamboo-600: #f1781e;
   --bamboo-950: #471a03;
+
+  --shrub: #81b995;
+  --tree: #b6d5a0;
+  --perch: #d2db93;
+  --shelter: #f4cf8c;
+  --fence: #ecbb95;
+  --dustbath: #d0bea8;
+  --waterer: #a8d1c6;
+  --insectary: #b8c6e2;
 
   --radius: 0.375rem;
 }

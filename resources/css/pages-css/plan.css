@@ -6,7 +6,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background-color: var(--bamboo-0);
+  background-color: var(--bamboo-100);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -60,8 +60,56 @@
 }
 
 /* Current objective icon and color */
-.objective-item {
+.current-objective-icon {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  width: 32px;
+  height: auto;
 }
+.objective-item[data-objective-name='perch'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-perch.svg);
+}
+.objective-item[data-objective-name='dustbath'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-dustbath.svg);
+}
+.objective-item[data-objective-name='area'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-fence.svg);
+}
+.objective-item[data-objective-name='insectary'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-insectary.svg);
+}
+.objective-item[data-objective-name='shelter'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-shelter.svg);
+}
+.objective-item[data-objective-name='shrubs'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-shrub.svg);
+}
+.objective-item[data-objective-name='waterer'] .current-objective-icon {
+  background-image: url(../../assets/images/plan-img/icon-waterer.svg);
+}
+.objective-progress-bar[data-objective-name='perch'] {
+  background-color: var(--perch);
+}
+.objective-progress-bar[data-objective-name='dustbath'] {
+  background-color: var(--dustbath);
+}
+.objective-progress-bar[data-objective-name='area'] {
+  background-color: var(--fence);
+}
+.objective-progress-bar[data-objective-name='insectary'] {
+  background-color: var(--insectary);
+}
+.objective-progress-bar[data-objective-name='shelter'] {
+  background-color: var(--shelter);
+}
+.objective-progress-bar[data-objective-name='shrubs'] {
+  background-color: var(--shrub);
+}
+.objective-progress-bar[data-objective-name='waterer'] {
+  background-color: var(--waterer);
+}
+
 /* Tooltip */
 .info-icon {
   transition: transform 300ms ease;

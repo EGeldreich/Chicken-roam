@@ -14,7 +14,7 @@
 </script>
 
 {{-- Whole page container --}}
-<main class="relative h-screen w-screen overflow-hidden">
+<main class="relative h-screen w-screen overflow-hidden text-bamboo-950">
 
   {{-- Main Canvas Area // Takes whole screen --}}
   <div class="absolute inset-0 z-5">
@@ -564,6 +564,7 @@
 
   {{-- Objectives --}}
   <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 w-85">
+
     {{-- Global compliance --}}
     <div class="flex items-center justify-between w-full px-2 py-1.5 bg-white rounded-md">
 
@@ -637,7 +638,7 @@
     </div>
 
     {{-- Current + all container --}}
-    <div id="all-objectives">
+    <div id="all-objectives" class="w-full">
       {{-- Current objective and tooltip --}}
       <div class="w-full relative">
 
@@ -646,16 +647,16 @@
 
           {{-- Template for objective that will be cloned --}}
           <template id="objective-template">
-            <div class="objective-item bg-white rounded-lg mb-2">
+            <div class="objective-item bg-white rounded-md mb-2 w-full">
               <div class="p-4 flex flex-col">
 
                 {{-- Above bar info --}}
-                <div class="flex justify-between">
-                  <div class="flex">
+                <div class="flex justify-between mb-2">
+                  <div class="flex gap-2">
                     {{-- Current objective icon --}}
-                    <div id="current-objective-icon">
+                    <div class="current-objective-icon">
                     </div>
-                    <div class="flex flex-col">
+                    <div class="flex flex-col text-sm leading-none self-center">
                       {{-- Current objective name --}}
                       <p>
                         <strong class="objective-name capitalize"></strong>
@@ -668,28 +669,42 @@
                       </p>
                     </div>
                   </div>
-                  {{-- Info hover (i) --}}
-                  <div class="info-icon h-6 cursor-help p-1">
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      aria-label="Objective information"
-                    >
-                      <path
-                        d="M8.36599 4.01745e-06C4.60233 -0.00399598 1.13752 2.97947 0.605894 6.70916C-0.190387 11.3772 3.61164 15.7213 8.39539 15.1389C12.2904 14.7235 15.3149 11.112 15.2675 7.23147C15.3768 3.47128 12.1454 0.031129 8.36599 4.01745e-06ZM7.50196 13.4482C5.58911 13.4379 3.8178 12.2571 2.87939 10.6305C2.23639 9.51869 2.15986 8.0966 2.33914 6.85178C3.23736 0.886379 11.703 -0.283215 13.3617 5.848C14.3354 9.49041 11.3408 13.5821 7.50196 13.4482ZM9.22071 10.2299C8.28239 9.95178 8.46243 8.70907 8.43102 7.93816C8.41755 6.96422 8.59074 6.47925 8.07408 6.06188C7.8826 5.94504 7.66045 5.88841 7.4364 5.89931C7.21236 5.9102 6.99675 5.98814 6.81752 6.123C6.58858 6.34657 6.62571 6.62141 6.60055 6.91153C6.48749 8.15546 6.55915 9.40928 6.81321 10.6322C6.95605 11.5612 7.45561 11.9753 8.38946 11.9953C8.80724 12.0043 9.29911 11.9553 9.56064 11.5713C9.63901 11.4456 9.69107 11.3053 9.71368 11.159C9.73629 11.0126 9.72897 10.8631 9.69217 10.7197C9.62827 10.4208 9.52808 10.2906 9.22071 10.2299ZM6.95318 5.18497C7.14233 5.26332 7.34659 5.29846 7.55106 5.28785C7.75553 5.27724 7.95505 5.22113 8.13508 5.12363C8.36833 4.90363 8.40021 4.31425 8.36733 3.70713C8.34155 3.23138 7.73296 3.04529 7.28342 3.07635C6.6948 3.11697 6.52283 3.61803 6.54418 4.08482C6.55821 4.39032 6.6158 5.0245 6.95318 5.18497Z"
-                        fill="#3B1502"
-                      />
-                    </svg>
+
+                  <div class="flex items-center gap-1">
+                    {{-- Info hover (i) --}}
+                    <div class="info-icon h-6 cursor-help p-1">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-label="Objective information"
+                      >
+                        <path
+                          d="M8.36599 4.01745e-06C4.60233 -0.00399598 1.13752 2.97947 0.605894 6.70916C-0.190387 11.3772 3.61164 15.7213 8.39539 15.1389C12.2904 14.7235 15.3149 11.112 15.2675 7.23147C15.3768 3.47128 12.1454 0.031129 8.36599 4.01745e-06ZM7.50196 13.4482C5.58911 13.4379 3.8178 12.2571 2.87939 10.6305C2.23639 9.51869 2.15986 8.0966 2.33914 6.85178C3.23736 0.886379 11.703 -0.283215 13.3617 5.848C14.3354 9.49041 11.3408 13.5821 7.50196 13.4482ZM9.22071 10.2299C8.28239 9.95178 8.46243 8.70907 8.43102 7.93816C8.41755 6.96422 8.59074 6.47925 8.07408 6.06188C7.8826 5.94504 7.66045 5.88841 7.4364 5.89931C7.21236 5.9102 6.99675 5.98814 6.81752 6.123C6.58858 6.34657 6.62571 6.62141 6.60055 6.91153C6.48749 8.15546 6.55915 9.40928 6.81321 10.6322C6.95605 11.5612 7.45561 11.9753 8.38946 11.9953C8.80724 12.0043 9.29911 11.9553 9.56064 11.5713C9.63901 11.4456 9.69107 11.3053 9.71368 11.159C9.73629 11.0126 9.72897 10.8631 9.69217 10.7197C9.62827 10.4208 9.52808 10.2906 9.22071 10.2299ZM6.95318 5.18497C7.14233 5.26332 7.34659 5.29846 7.55106 5.28785C7.75553 5.27724 7.95505 5.22113 8.13508 5.12363C8.36833 4.90363 8.40021 4.31425 8.36733 3.70713C8.34155 3.23138 7.73296 3.04529 7.28342 3.07635C6.6948 3.11697 6.52283 3.61803 6.54418 4.08482C6.55821 4.39032 6.6158 5.0245 6.95318 5.18497Z"
+                          fill="#3B1502"
+                        />
+                      </svg>
+                    </div>
+
+                    {{-- Completion crown --}}
+                    <div class="hidden completion-crown">
+                      <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect y="0.5" width="32" height="32" rx="16" fill="#FFC300" />
+                        <path
+                          d="M15.5162 24.2C14.6579 24.2 13.8495 24.1417 13.1329 24.0417C11.6829 23.8333 9.18285 23.2417 8.69119 21.6083C8.31619 20.325 6.44952 13.9 6.91619 12.4833L6.95785 12.3833C7.03285 12.225 7.23285 11.95 7.67452 11.875C8.57452 11.7167 10.5162 12.6583 12.0329 13.7667C12.1912 13.3667 12.3495 13.0167 12.4745 12.75C13.1412 11.3083 14.4495 8.87502 15.6495 8.80835H15.7079H15.7662C16.9245 8.91668 18.6662 10.625 19.7079 12.5417C20.9579 11.3583 22.3162 10.4 23.0745 10.125C23.7995 9.86668 24.1912 10.1417 24.3495 10.3333C26.0912 12.3667 24.7245 19.625 23.8412 21.2583C22.4329 23.4083 18.6995 24.1917 15.5329 24.1917L15.5162 24.2ZM10.0995 21.175C10.2495 21.6667 11.3079 22.2917 13.3412 22.575C16.8079 23.0667 21.3412 22.3583 22.5579 20.5083C23.3245 19.0833 24.1829 13.3167 23.3829 11.575C22.7412 11.875 21.4329 12.875 20.3079 13.9917C20.8245 15.675 20.6079 17.4333 19.7495 18.275C19.2662 18.7417 18.6412 18.875 18.0329 18.6334C17.2745 18.3334 16.8495 17.7167 16.8579 16.9417C16.8745 15.9917 17.6162 14.7917 18.5995 13.6667C17.7912 11.925 16.3329 10.5417 15.7329 10.3083C15.1495 10.725 13.9329 12.8167 13.1995 14.75C14.8495 16.35 14.9412 17.4917 14.7245 18.175C14.5162 18.825 13.9412 19.275 13.1745 19.3833C12.2329 19.5167 11.7412 19.0667 11.5245 18.7833C10.9245 17.975 11.1162 16.55 11.4995 15.225C10.3495 14.3083 9.00785 13.6333 8.29952 13.4167C8.38285 14.5083 8.91619 17.2333 10.0912 21.175H10.0995ZM12.7079 16.3833C12.5912 16.95 12.5579 17.4417 12.6662 17.7917C12.7079 17.925 12.7162 17.9667 12.9662 17.925C13.0579 17.9083 13.2745 17.8667 13.3162 17.725C13.3745 17.5417 13.2829 17.0833 12.6995 16.3833H12.7079ZM19.0829 15.3667C18.6662 15.925 18.3829 16.4584 18.3329 16.8917C18.3162 17.075 18.3329 17.1583 18.5745 17.2583C18.6245 17.275 18.6412 17.2833 18.7162 17.2167C18.9829 16.9583 19.1745 16.2583 19.0912 15.375L19.0829 15.3667Z"
+                          fill="#3B1502"
+                        />
+                      </svg>
+                    </div>
                   </div>
                 </div>
 
                 {{-- Progress bar --}}
                 <div class="w-full bg-bamboo-100 rounded-full h-2">
                   <div
-                    class="objective-progress-bar bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out z-12"
+                    class="objective-progress-bar h-2 rounded-full transition-all duration-300 ease-in-out z-12"
                     style="width: 0%"
                   >
                   </div>
@@ -727,39 +742,82 @@
       </div>
 
       {{-- All objectives list --}}
-      <div id="more-objectives" class="w-full mr-4 hidden mt-2 bg-white p-3 rounded-lg shadow-sm space-y-4">
+      <div id="more-objectives" class="w-full mr-4 hidden mt-2 bg-white p-3 rounded-md shadow-sm space-y-4">
 
         @each(objective in plan.objectives)
 
           <div class="objective-item" data-objective-name="{{ objective.name }}">
 
+            <p id="{{ objective.name }}" class="hidden objective-completion">
+              {{ objective.$extras.pivot_completion_percentage }}
+            </p>
             {{-- Name target and completion % --}}
-            <div class="flex justify-between items-center">
-              <span class="text-base font-medium capitalize">{{ objective.name }}</span>
-              <span class="text-sm font-medium">
-                <span id="{{ objective.name }}" class="objective-completion">{{ objective.$extras.pivot_completion_percentage }}</span>%
-                </span>
+            {{-- Above bar info --}}
+            <div class="flex justify-between mb-1">
+
+              <div class="flex gap-2">
+
+                {{-- Current objective icon --}}
+                <div class="current-objective-icon">
+                </div>
+
+                <div class="flex flex-col text-sm self-center leading-none">
+
+                  {{-- Current objective name --}}
+                  <p class="flex gap-2">
+                    <strong class="objective-name capitalize">{{ objective.name }}</strong>
+                  </p>
+
+                  {{-- Current value / target --}}
+                  <p>
+                    <span class="font-bold current-value">{{ (objective.$extras.pivot_completion_percentage * objective.$extras.pivot_target_value )/100 }} </span>
+                    /
+                  <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
+                    <span class="objective-unit">{{ objective.unit }}</span>
+                  </p>
+
+                </div>
+              </div>
+
+              <div class="flex items-center gap-1">
+                {{-- Info hover (i) --}}
+                <div class="info-icon h-6 cursor-help p-1">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Objective information"
+                  >
+                    <path
+                      d="M8.36599 4.01745e-06C4.60233 -0.00399598 1.13752 2.97947 0.605894 6.70916C-0.190387 11.3772 3.61164 15.7213 8.39539 15.1389C12.2904 14.7235 15.3149 11.112 15.2675 7.23147C15.3768 3.47128 12.1454 0.031129 8.36599 4.01745e-06ZM7.50196 13.4482C5.58911 13.4379 3.8178 12.2571 2.87939 10.6305C2.23639 9.51869 2.15986 8.0966 2.33914 6.85178C3.23736 0.886379 11.703 -0.283215 13.3617 5.848C14.3354 9.49041 11.3408 13.5821 7.50196 13.4482ZM9.22071 10.2299C8.28239 9.95178 8.46243 8.70907 8.43102 7.93816C8.41755 6.96422 8.59074 6.47925 8.07408 6.06188C7.8826 5.94504 7.66045 5.88841 7.4364 5.89931C7.21236 5.9102 6.99675 5.98814 6.81752 6.123C6.58858 6.34657 6.62571 6.62141 6.60055 6.91153C6.48749 8.15546 6.55915 9.40928 6.81321 10.6322C6.95605 11.5612 7.45561 11.9753 8.38946 11.9953C8.80724 12.0043 9.29911 11.9553 9.56064 11.5713C9.63901 11.4456 9.69107 11.3053 9.71368 11.159C9.73629 11.0126 9.72897 10.8631 9.69217 10.7197C9.62827 10.4208 9.52808 10.2906 9.22071 10.2299ZM6.95318 5.18497C7.14233 5.26332 7.34659 5.29846 7.55106 5.28785C7.75553 5.27724 7.95505 5.22113 8.13508 5.12363C8.36833 4.90363 8.40021 4.31425 8.36733 3.70713C8.34155 3.23138 7.73296 3.04529 7.28342 3.07635C6.6948 3.11697 6.52283 3.61803 6.54418 4.08482C6.55821 4.39032 6.6158 5.0245 6.95318 5.18497Z"
+                      fill="#3B1502"
+                    />
+                  </svg>
+                </div>
+
+                {{-- Completion crown --}}
+                <div class="hidden completion-crown">
+                  <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect y="0.5" width="32" height="32" rx="16" fill="#FFC300" />
+                    <path
+                      d="M15.5162 24.2C14.6579 24.2 13.8495 24.1417 13.1329 24.0417C11.6829 23.8333 9.18285 23.2417 8.69119 21.6083C8.31619 20.325 6.44952 13.9 6.91619 12.4833L6.95785 12.3833C7.03285 12.225 7.23285 11.95 7.67452 11.875C8.57452 11.7167 10.5162 12.6583 12.0329 13.7667C12.1912 13.3667 12.3495 13.0167 12.4745 12.75C13.1412 11.3083 14.4495 8.87502 15.6495 8.80835H15.7079H15.7662C16.9245 8.91668 18.6662 10.625 19.7079 12.5417C20.9579 11.3583 22.3162 10.4 23.0745 10.125C23.7995 9.86668 24.1912 10.1417 24.3495 10.3333C26.0912 12.3667 24.7245 19.625 23.8412 21.2583C22.4329 23.4083 18.6995 24.1917 15.5329 24.1917L15.5162 24.2ZM10.0995 21.175C10.2495 21.6667 11.3079 22.2917 13.3412 22.575C16.8079 23.0667 21.3412 22.3583 22.5579 20.5083C23.3245 19.0833 24.1829 13.3167 23.3829 11.575C22.7412 11.875 21.4329 12.875 20.3079 13.9917C20.8245 15.675 20.6079 17.4333 19.7495 18.275C19.2662 18.7417 18.6412 18.875 18.0329 18.6334C17.2745 18.3334 16.8495 17.7167 16.8579 16.9417C16.8745 15.9917 17.6162 14.7917 18.5995 13.6667C17.7912 11.925 16.3329 10.5417 15.7329 10.3083C15.1495 10.725 13.9329 12.8167 13.1995 14.75C14.8495 16.35 14.9412 17.4917 14.7245 18.175C14.5162 18.825 13.9412 19.275 13.1745 19.3833C12.2329 19.5167 11.7412 19.0667 11.5245 18.7833C10.9245 17.975 11.1162 16.55 11.4995 15.225C10.3495 14.3083 9.00785 13.6333 8.29952 13.4167C8.38285 14.5083 8.91619 17.2333 10.0912 21.175H10.0995ZM12.7079 16.3833C12.5912 16.95 12.5579 17.4417 12.6662 17.7917C12.7079 17.925 12.7162 17.9667 12.9662 17.925C13.0579 17.9083 13.2745 17.8667 13.3162 17.725C13.3745 17.5417 13.2829 17.0833 12.6995 16.3833H12.7079ZM19.0829 15.3667C18.6662 15.925 18.3829 16.4584 18.3329 16.8917C18.3162 17.075 18.3329 17.1583 18.5745 17.2583C18.6245 17.275 18.6412 17.2833 18.7162 17.2167C18.9829 16.9583 19.1745 16.2583 19.0912 15.375L19.0829 15.3667Z"
+                      fill="#3B1502"
+                    />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             {{-- Progress bar --}}
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
+            <div class="w-full bg-bamboo-100 rounded-full h-2">
               <div
-                class="bg-blue-600 h-2.5 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
+                class="h-2 rounded-full objective-progress-bar transition-all duration-300 ease-in-out"
                 style="width: {{ objective.$extras.pivot_completion_percentage }}%"
                 data-objective-name="{{ objective.name }}"
               >
               </div>
-            </div>
-
-            {{-- Target value --}}
-            <div class="flex justify-between items-center">
-              <p class="text-sm font-light text-gray-700">
-                Target value:
-              </p>
-              <span class="text-sm font-light text-gray-700">
-                <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
-                <span class="objective-unit">{{ objective.unit }}</span>
-              </span>
             </div>
 
           </div>
@@ -837,7 +895,7 @@
   {{-- TO PLACE ACCORDING TO ELEMENT --}}
   <div
     id="elementMenu"
-    class="hidden bg-white rounded-lg p-2 z-20 col-span-4 row-span-1 col-start-5 row-start-12"
+    class="hidden bg-white rounded-md p-2 z-20 col-span-4 row-span-1 col-start-5 row-start-12"
   >
     <div class="flex gap-4">
       <button class="btn btn-danger delete-btn">Delete</button>
