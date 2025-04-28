@@ -585,7 +585,7 @@ export default class FenceDrawer {
           )
         }
 
-        // Observer pattern
+        // Personnalized event
         // Create ability to listen for an 'enclosureComplete' event on other files
         const event = new CustomEvent('enclosureComplete', {
           detail: {

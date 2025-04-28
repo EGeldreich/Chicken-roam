@@ -1,11 +1,32 @@
 .cc-window {
   font-family: 'Roundo', 'Sora', sans-serif !important;
-  border-radius: 4px !important;
+  display: flex;
 }
-
+.cc-revoke {
+  display: none !important;
+}
 .cc-btn {
   border-radius: 4px !important;
   text-transform: none !important;
   padding: 0.5em 1.5em !important;
   min-width: 140px;
+  transition: 300ms;
+}
+.cc-deny {
+  border: 1px solid var(--bamboo-0) !important;
+  &:hover {
+    background-color: var(--bamboo-400) !important;
+    text-decoration: none !important;
+    border: 1px solid var(--bamboo-400) !important;
+  }
+}
+
+/* Media queries */
+@media (width <= 48rem) {
+  .cc-window {
+    flex-direction: column !important;
+  }
+  .cc-compliance {
+    align-self: end;
+  }
 }

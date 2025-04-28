@@ -14,66 +14,70 @@ export function initCookieConsent() {
     },
     theme: 'classic',
     position: 'bottom',
-    type: 'info',
-    // info because there is only essential cookies, type:opt-in otherwise
-    revokable: true,
+    type: 'opt-in',
+    revokable: false,
     content: {
-      message: 'This website use only cookies that are necessary for the user experience.',
-      dismiss: 'Got it',
-      //   deny: 'Decline',
-      //   allow: 'Accept',
+      message: 'This website uses essential cookies and optional "remember me" functionality.',
+      deny: 'Essential cookies only',
+      allow: 'Accept all',
       link: 'Learn more',
       href: '/cookies-policy',
       policy: 'Cookie Policy',
     },
     // Callbacks
-    // onInitialise: function (status) {
-    //   if (this.hasConsented()) {
-    //     enableCookies()
-    //   }
-    // },
-    // onStatusChange: function () {
-    //   if (this.hasConsented()) {
-    //     enableCookies()
-    //   } else {
-    //     disableCookies()
-    //   }
-    // },
-    // onRevokeChoice: function () {
-    //   disableCookies()
-    // },
+    onInitialise: function (status) {
+      const type = this.options.type
+      const didConsent = this.hasConsented()
+
+      if (type == 'opt-in' && didConsent) {
+        // Consent given, enable remember me
+        enableRememberMeCookie()
+      }
+    },
+    onStatusChange: function (status, chosenBefore) {
+      const type = this.options.type
+      const didConsent = this.hasConsented()
+
+      if (type == 'opt-in' && didConsent) {
+        enableRememberMeCookie()
+      } else {
+        disableRememberMeCookie()
+      }
+    },
+    onRevokeChoice: function () {
+      // Consent not given, disable
+      disableRememberMeCookie()
+    },
   })
 }
 
-// function enableCookies() {
-//   // Activez ici vos scripts qui déposent des cookies
-//   console.log('Cookies enabled')
-//   // Par exemple, pour Google Analytics:
-//   if (window.GOOGLE_ANALYTICS_ID) {
-//     loadGoogleAnalytics(window.GOOGLE_ANALYTICS_ID)
-//   }
-// }
+// Local storage is used with Alpine on login.edge to check cookie status
 
-// function disableCookies() {
-//   // Désactivez les cookies non essentiels
-//   console.log('Cookies disabled')
-//   // Par exemple, supprimez les cookies Google Analytics
-//   document.cookie = '_ga=; Max-Age=-99999999; Path=/'
-//   document.cookie = '_gat=; Max-Age=-99999999; Path=/'
-//   document.cookie = '_gid=; Max-Age=-99999999; Path=/'
-// }
+// Send info to allow cookie
+function enableRememberMeCookie() {
+  console.log('Remember Me cookie enabled')
+  localStorage.setItem('remember_me_allowed', 'true')
 
-// function loadGoogleAnalytics(id) {
-//   // Code pour charger Google Analytics
-//   const script = document.createElement('script')
-//   script.async = true
-//   script.src = `https://www.googletagmanager.com/gtag/js?id=${id}`
-//   document.head.appendChild(script)
+  // Custom event to be catched
+  document.dispatchEvent(
+    new CustomEvent('remember_me_status_change', {
+      detail: { allowed: true },
+    })
+  )
+}
 
-//   window.dataLayer = window.dataLayer || []
-//   function gtag() {
-//     dataLayer.push(arguments)
-//   }
-//   gtag('js', new Date())
-//   gtag('config', id)
-// }
+// Send info to disable cookie
+function disableRememberMeCookie() {
+  console.log('Remember Me cookie disabled')
+  localStorage.setItem('remember_me_allowed', 'false')
+
+  // Delete any existing remember-me cookie
+  document.cookie = 'remember_me=; Max-Age=-99999999; Path=/'
+
+  // Custom event to be catched
+  document.dispatchEvent(
+    new CustomEvent('remember_me_status_change', {
+      detail: { allowed: false },
+    })
+  )
+}

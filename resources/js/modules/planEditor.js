@@ -655,8 +655,8 @@ export default class PlanEditor {
   }
 
   /**
-   * Function to find canvas coordinates when called
-   * @param {MouseEvent} event - Mouse event sent by different methods, initially defined in InitializeCanvasEvents
+   * Transform client coordinates into canvas coordinates
+   * @param {MouseEvent} event - Mouse event sent by different methods
    * @returns {Object} Coordinates of the mouse on the canvas
    */
   getCanvasPoint(event) {
@@ -666,6 +666,7 @@ export default class PlanEditor {
     // Calculate mouse position relative to canvas offset
     const transformedX = event.clientX - rect.left
     const transformedY = event.clientY - rect.top
+
     // Take zoom into account
     const worldX = transformedX / this.zoom
     const worldY = transformedY / this.zoom
