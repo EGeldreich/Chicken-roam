@@ -4,7 +4,7 @@ export default class DustbathDrawer extends ElementDrawer {
   constructor(canvas, planId, planEditor) {
     super(canvas, planId, planEditor)
     this.elementType = 'dustbath'
-    this.elementSize = { width: 100, height: 100 }
+    this.elementSize = { width: 75, height: 75 }
     this.objectiveValue = 1
   }
   // Override original method to create element-specific temporary appearance

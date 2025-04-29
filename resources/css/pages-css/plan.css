@@ -163,38 +163,71 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+.shelter::before,
+.waterer::before,
+.perch::before,
+.shrub::before,
+.insectary::before,
+.dustbath::before,
+.tree::before {
+  content: '';
+  position: absolute;
+  background-size: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+
 .fence {
 }
 .door {
 }
-.shelter {
-  background-image: url(../../assets/images/elements/shelter.png);
+.shelter::before {
+  width: 176px;
+  height: 165px;
+  top: -15px;
+  left: -5px;
+  background-image: url('../../assets/images/elements/shelter.svg');
 }
-.waterer {
-  background-image: url(../../assets/images/elements/waterer.png);
+.waterer::before {
+  width: 65px;
+  height: 65px;
+  top: -2.5px;
+  left: -2.5px;
+  background-image: url('../../assets/images/elements/waterer.svg');
 }
-.perch {
-  background-image: url(../../assets/images/elements/perch3.png);
+.perch::before {
+  width: 46px;
+  height: 50px;
+  top: 0;
+  left: 0;
+  background-image: url('../../assets/images/elements/perch3.svg');
 }
-.shrub {
-  background-image: url(../../assets/images/elements/shrub1.png);
+.shrub::before {
+  width: 100px;
+  height: 95px;
+  top: 0;
+  left: 0;
+  background-image: url('../../assets/images/elements/shrub1.svg');
 }
-.insectary {
-  background-image: url(../../assets/images/elements/insectary.png);
+.insectary::before {
+  width: 100px;
+  height: 92px;
+  top: -3.5px;
+  left: -7.5px;
+  background-image: url('../../assets/images/elements/insectary.svg');
 }
-.dustbath {
-  background-image: url(../../assets/images/elements/dustbath.png);
+.dustbath::before {
+  width: 100px;
+  height: 92px;
+  top: -8.5px;
+  left: -12.5px;
+  background-image: url('../../assets/images/elements/dustbath.svg');
 }
 .tree::before {
-  content: '';
-  position: absolute;
   width: 200px;
   height: 200px;
   top: -75px;
   left: -75px;
   background-image: url('../../assets/images/elements/tree.svg');
-  background-size: cover;
-  z-index: -1;
-  pointer-events: none;
 }
 /* ____________________ END ELEMENTS */

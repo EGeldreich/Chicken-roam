@@ -4,7 +4,7 @@ export default class InsectaryDrawer extends ElementDrawer {
   constructor(canvas, planId, planEditor) {
     super(canvas, planId, planEditor)
     this.elementType = 'insectary'
-    this.elementSize = { width: 100, height: 100 }
+    this.elementSize = { width: 85, height: 85 }
     this.objectiveValue = 1
   }
   // Override original method to create element-specific temporary appearance

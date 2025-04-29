@@ -4,7 +4,7 @@ export default class ShelterDrawer extends ElementDrawer {
   constructor(canvas, planId, planEditor) {
     super(canvas, planId, planEditor)
     this.elementType = 'shelter'
-    this.elementSize = { width: 175, height: 150 }
+    this.elementSize = { width: 170, height: 135 }
     this.objectiveValue = 1
   }
   // Override original method to create element-specific temporary appearance
