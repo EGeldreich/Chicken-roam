@@ -162,13 +162,13 @@
     @apply absolute h-2 -translate-y-1/2 border-2 border-dashed border-bamboo-950 transform origin-left;
   }
   .selected.fence {
-    @apply border-bamboo-500;
+    @apply bg-bamboo-500;
   }
   .door {
     @apply outline-2 outline-dashed outline-gray-500;
   }
   .selected::before {
-    @apply border-3 rounded-md border-bamboo-500;
+    @apply border-2 rounded-md border-bamboo-500;
   }
   .point {
     @apply h-4 w-4 rounded-full border-2 border-bamboo-950 absolute transform -translate-x-1/2 -translate-y-1/2;
@@ -187,6 +187,8 @@
   --bamboo-0: rgba(71, 26, 3, 0.25);
   --bamboo-50: #f7f3e9;
   --bamboo-100: #f6edd9;
+  --bamboo-200: #f2e9d5;
+  --bamboo-300: #ffcb6b;
   --bamboo-400: #ffa92f;
   --bamboo-600: #f1781e;
   --bamboo-950: #471a03;

@@ -30,9 +30,9 @@
   {{-- Interface --}}
 
   {{-- Top left menu --}}
-  <div class="absolute top-4 left-4 z-10 flex w-auto gap-2">
+  <div class="absolute top-4 left-4 z-10 flex lg:w-auto w-70 gap-2">
 
-    <div class="bg-white rounded-md flex gap-4 px-2 py-1 items-center w-auto min-w-80">
+    <div class="bg-white rounded-md flex gap-4 px-2 py-1 items-center lg:w-auto lg:min-w-80 min-w-40">
       <a href="{{ route('user-page') }}" type="button" aria-label="user page" class=" arrow-btn">
         <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
@@ -56,7 +56,7 @@
 
     {{-- ... button --}}
     <button
-      class="bg-white w-10 h-10 rounded-full flex justify-center items-center"
+      class="bg-white min-w-10 h-10 rounded-full flex justify-center items-center"
       type="button"
       arial-label="plan options"
     >
@@ -80,7 +80,7 @@
   {{-- Plan state --}}
   <div
     id="planStateLabelHolder"
-    class="absolute top-16 left-4 z-10 w-auto border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
+    class="absolute block lg:top-16 top-20 left-4 z-10 w-auto border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
   >
     <p id="planStateLabel">
       {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
@@ -547,7 +547,7 @@
   </div>
 
   {{-- Objectives --}}
-  <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 w-85">
+  <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 lg:w-85 w-50">
 
     {{-- Global compliance --}}
     <div class="flex items-center justify-between w-full px-2 py-1.5 bg-white rounded-md">
@@ -830,7 +830,7 @@
 
   {{-- Guidance messages --}}
   <div
-    class="guidance-message text-sm p-2 absolute top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white"
+    class="guidance-message text-sm p-2 absolute bottom-20 lg:bottom-auto lg:top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white"
   >
     @if(plan.isEnclosed)
       Enclosure complete! You can now place elements

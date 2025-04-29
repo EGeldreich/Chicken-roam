@@ -47,7 +47,7 @@ export default class AuthController {
     await auth.use('web').login(user)
 
     // Add flash message and redirect
-    session.flash('success', 'Register Ok')
+    session.flash('success', 'You are now registered.')
     return response.redirect().toRoute('user-page')
   }
   //

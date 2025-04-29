@@ -716,5 +716,3 @@ this.showMenu()
 Ajout d'un validator pour les éléments
 **MUST DO**
 **MUST DO**
-
-MESSAGE GESTION ELEMENTS après re-fermeture de l'encloss
