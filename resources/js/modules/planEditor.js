@@ -581,13 +581,13 @@ export default class PlanEditor {
     if (existingMessage) {
       existingMessage.textContent = message
       // Remove hidden class
-      existingMessage.classList.remove('hidden', 'border-gray-300', 'border-red-400')
+      existingMessage.classList.remove('hidden', 'border-bamboo-0', 'border-bamboo-400')
       // Animate to draw attention
       existingMessage.classList.add('pulse')
       if (isError) {
-        existingMessage.classList.add('border-red-400')
+        existingMessage.classList.add('border-bamboo-400')
       } else {
-        existingMessage.classList.add('border-gray-300')
+        existingMessage.classList.add('border-bamboo-0')
       }
 
       // Remove pulse after 1s

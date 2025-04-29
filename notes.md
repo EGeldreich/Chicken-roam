@@ -717,8 +717,4 @@ Ajout d'un validator pour les éléments
 **MUST DO**
 **MUST DO**
 
-Nécessité de mettre un limitateur de login ?
-
-cookie settings
-
-modifier cookies info page
+MESSAGE GESTION ELEMENTS après re-fermeture de l'encloss

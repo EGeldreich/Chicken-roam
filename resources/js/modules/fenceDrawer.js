@@ -605,11 +605,8 @@ export default class FenceDrawer {
 
         // If elements were removed or updated, show a message
         if (elementsToRemove.length > 0 || elementsToUpdate.length > 0) {
-          const message = document.createElement('div')
-          message.className = 'enclosure-update-toast'
-          message.textContent = `Enclosure complete! ${elementsToUpdate.length} elements reactivated, ${elementsToRemove.length} elements removed.`
-          document.body.appendChild(message)
-          setTimeout(() => message.remove(), 5000)
+          const message = `Enclosure complete! ${elementsToUpdate.length} elements reactivated, ${elementsToRemove.length} elements removed.`
+          this.planEditor.showGuidanceMessage(message)
         }
       }
     } catch (error) {
