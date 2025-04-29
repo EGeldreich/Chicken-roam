@@ -4,7 +4,7 @@ export default class WatererDrawer extends ElementDrawer {
   constructor(canvas, planId, planEditor) {
     super(canvas, planId, planEditor)
     this.elementType = 'waterer'
-    this.elementSize = { width: 100, height: 100 }
+    this.elementSize = { width: 50, height: 50 }
     this.objectiveValue = 1
   }
   // Override original method to create element-specific temporary appearance

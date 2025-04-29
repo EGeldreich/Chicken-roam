@@ -187,7 +187,6 @@ export default class ElementDrawer {
           width: parseFloat(element.width),
           height: parseFloat(element.height),
         })
-        console.table(this.planEditor.placedElements)
 
         // If objectives were returned, update their display
         if (data.objectives) {

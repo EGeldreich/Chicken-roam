@@ -1,5 +1,5 @@
-/* OBJECTIVES _______________ */
-
+/* ____________________ INTERFACE */
+/* __________ OBJECTIVES */
 /* Global Progress bar */
 .circular-progress-bar {
   position: relative;
@@ -129,9 +129,8 @@
   opacity: 1 !important;
   visibility: visible !important;
 }
-/* END OBJECTIVES */
-
-/* SCALE */
+/* __________ END OBJECTIVES */
+/* __________ SCALE */
 #scale-bar {
   width: 100px;
   transition: width 0.3s ease;
@@ -148,4 +147,54 @@
   height: 8px;
   background-color: var(--bamboo-950);
 }
-/* END SCALE */
+/* __________ END SCALE */
+/* ____________________ END INTERFACE */
+
+/* ____________________ ELEMENTS */
+.shelter,
+.waterer,
+.perch,
+.shrub,
+.insectary,
+.dustbath,
+.tree {
+  position: absolute;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.fence {
+}
+.door {
+}
+.shelter {
+  background-image: url(../../assets/images/elements/shelter.png);
+}
+.waterer {
+  background-image: url(../../assets/images/elements/waterer.png);
+}
+.perch {
+  background-image: url(../../assets/images/elements/perch3.png);
+}
+.shrub {
+  background-image: url(../../assets/images/elements/shrub1.png);
+}
+.insectary {
+  background-image: url(../../assets/images/elements/insectary.png);
+}
+.dustbath {
+  background-image: url(../../assets/images/elements/dustbath.png);
+}
+.tree::before {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: -75px;
+  left: -75px;
+  background-image: url('../../assets/images/elements/tree.svg');
+  background-size: cover;
+  z-index: -1;
+  pointer-events: none;
+}
+/* ____________________ END ELEMENTS */

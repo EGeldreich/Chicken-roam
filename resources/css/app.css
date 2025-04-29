@@ -157,27 +157,6 @@
   .door {
     @apply outline-2 outline-dashed outline-gray-500;
   }
-  .shelter {
-    @apply absolute bg-gray-700;
-  }
-  .waterer {
-    @apply absolute bg-blue-300 rounded-full;
-  }
-  .perch {
-    @apply absolute bg-amber-900;
-  }
-  .shrub {
-    @apply absolute bg-green-950;
-  }
-  .insectary {
-    @apply absolute bg-yellow-700;
-  }
-  .dustbath {
-    @apply absolute bg-gray-500;
-  }
-  .tree {
-    @apply absolute bg-green-300;
-  }
   /*  */
   /* SELECTION */
   /*  */
