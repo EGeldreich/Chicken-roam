@@ -129,5 +129,23 @@
   opacity: 1 !important;
   visibility: visible !important;
 }
-
 /* END OBJECTIVES */
+
+/* SCALE */
+#scale-bar {
+  width: 100px;
+  transition: width 0.3s ease;
+}
+.scale-bar-divisions {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.scale-bar-division {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 8px;
+  background-color: var(--bamboo-950);
+}
+/* END SCALE */

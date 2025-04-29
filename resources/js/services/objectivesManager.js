@@ -469,12 +469,6 @@ export default class ObjectivesManager {
       )
       if (listProgressBar) {
         listProgressBar.style.width = `${completion}%`
-
-        // Add pulse animation for visual feedback
-        listProgressBar.classList.remove('pulse-update')
-        // Trigger reflow to restart animation
-        void listProgressBar.offsetWidth
-        listProgressBar.classList.add('pulse-update')
       }
 
       // Update current value in more-objectives container
@@ -510,25 +504,14 @@ export default class ObjectivesManager {
     )
 
     currentObjectiveItems.forEach((item) => {
-      // Find the progress bar element inside the objective item
+      // Find the progress bar element inside the current objective item
       const progressBar = item.querySelector('.objective-progress-bar')
 
       if (progressBar) {
         // Update progress bar width
-        progressBar.style.width = `${completion}%`
-
-        progressBar.dataset.objectiveName = objectiveName
-
-        // Add pulse animation to the progress bar
-        progressBar.classList.remove('pulse-update')
-        void progressBar.offsetWidth
-        progressBar.classList.add('pulse-update')
-      }
-
-      // Update completion text
-      const completionSpan = item.querySelector('.objective-completion')
-      if (completionSpan) {
-        completionSpan.textContent = completion
+        setTimeout(() => {
+          progressBar.style.width = `${completion}%`
+        }, 10)
       }
 
       // Update current value
@@ -583,9 +566,6 @@ export default class ObjectivesManager {
 
     // Calculate and update total completion
     this.updateTotalCompletion()
-
-    // Update current objective
-    this.updateCurrentObjective(this.planEditor.currentTool)
   }
 
   /**

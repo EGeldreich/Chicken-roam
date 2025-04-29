@@ -377,7 +377,7 @@ html {
 
 /* Guidance message */
 .guidance-message.pulse {
-  animation: pulse-blue 0.5s;
+  animation: pulse 0.5s;
 }
 
 /* Disabled tool buttons */
@@ -386,57 +386,17 @@ html {
   cursor: not-allowed;
 }
 
-/* Animations */
-@keyframes pulse-red {
-  0% {
-    box-shadow: 0 0 0 0 rgba(204, 0, 0, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(204, 0, 0, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(204, 0, 0, 0);
-  }
-}
-
-@keyframes pulse-blue {
+@keyframes pulse {
   0% {
     transform: scale(1);
   }
   50% {
-    transform: scale(1.05);
+    transform: scale(1.15);
   }
   100% {
     transform: scale(1);
   }
 }
-
-/* Scale */
-.scale-container {
-  margin-bottom: 10px;
-}
-
-#scale-bar {
-  width: 100px; /* Largeur par défaut pour 1m à zoom 100% */
-  border-radius: 1px;
-  transition: width 0.3s ease;
-}
-
-.scale-bar-divisions {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.scale-bar-division {
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 8px;
-  background-color: black;
-}
-
-/* Scale end */
 
 /* Tool btns */
 .tool-btn svg rect,
