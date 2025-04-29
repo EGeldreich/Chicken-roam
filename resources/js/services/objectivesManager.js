@@ -7,6 +7,7 @@ export default class ObjectivesManager {
 
     // Map to link tools and objectives
     this.toolToObjectiveMap = {
+      move: 'area',
       select: 'area',
       point: 'area',
       shelter: 'shelter',

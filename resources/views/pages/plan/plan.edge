@@ -18,10 +18,10 @@
 
   {{-- Main Canvas Area // Takes whole screen --}}
   <div class="absolute inset-0 z-5">
-    <div class="viewport-container">
+    <div class="viewport-container w-full h-full overflow-hidden relative bg-bamboo-50">
       <div
         id="planCanvas"
-        class="canvas-content w-full h-full bg-bamboo-100 relative state-{{ plan.state || 'construction' }}"
+        class="canvas-content bg-bamboo-100 relative state-{{ plan.state || 'construction' }}"
       >
       </div>
     </div>
@@ -79,9 +79,10 @@
 
   {{-- Plan state --}}
   <div
-    class="absolute top-16 left-4 z-10 w-auto border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm"
+    id="planStateLabelHolder"
+    class="absolute top-16 left-4 z-10 w-auto border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
   >
-    <p id="planStateLabel" class="label-{{ plan.state || 'construction' }}">
+    <p id="planStateLabel">
       {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
     </p>
   </div>
@@ -851,7 +852,7 @@
             />
           </svg>
         </button>
-        <span id="zoomLevel" class="mx-2">100%</span>
+        <span id="zoomLevel" class="mx-2 text-sm text-center min-w-9">100%</span>
         <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">
           <svg width="16" height="3" viewBox="0 0 16 3" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path

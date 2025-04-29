@@ -486,23 +486,24 @@ export default class PlanEditor {
    * @param {Boolean} onLoad - true if the method is called on page load
    */
   updatePlanState(newState, onLoad = false) {
+    // Store old state
+    let oldState = this.planState
+
     // Update state property
     this.planState = newState
 
-    // Add state class to canvas
-    this.canvas.classList.remove('state-construction', 'state-enclosed', 'state-broken')
-    this.canvas.classList.add(`state-${newState}`)
-
     // Update UI based on state
     const stateLabel = document.getElementById('planStateLabel')
-    if (stateLabel) {
+    const stateLabelHolder = document.getElementById('planStateLabelHolder')
+    if (stateLabel && stateLabelHolder) {
       const stateLabels = {
         construction: 'Under Construction',
         enclosed: 'Enclosure Complete',
         broken: 'Enclosure Broken',
       }
       stateLabel.textContent = stateLabels[newState] || 'Unknown State'
-      stateLabel.className = `label-${newState}`
+      stateLabelHolder.classList.remove(`label-${oldState}`)
+      stateLabelHolder.classList.add(`label-${newState}`)
     }
 
     // Update tool availability based on state

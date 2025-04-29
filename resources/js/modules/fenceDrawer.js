@@ -214,7 +214,8 @@ export default class FenceDrawer {
     // Create a new element to show the fence line
     this.temporaryFence = document.createElement('div')
     // Add classes
-    this.temporaryFence.className = 'absolute h-1 bg-black transform origin-left'
+    this.temporaryFence.className =
+      'absolute h-2 -translate-y-1/2 border-2 border-dashed border-bamboo-950 transform origin-left'
     // Handle placement via coordinates
     this.temporaryFence.style.left = `${point.x}px`
     this.temporaryFence.style.top = `${point.y}px`
@@ -225,7 +226,7 @@ export default class FenceDrawer {
     this.lengthIndicator = document.createElement('div')
     // Add styling classes
     this.lengthIndicator.className =
-      'fence-length-indicator absolute bg-white border border-gray-500 px-2 py-1 rounded-md text-sm z-50'
+      'fence-length-indicator absolute bg-white border border-bamboo-0 px-2 py-1 rounded-md text-bamboo-950 text-sm z-50'
     // Append to canvas
     this.canvas.appendChild(this.lengthIndicator)
   }
@@ -318,11 +319,11 @@ export default class FenceDrawer {
 
       // Add color to text according to the fence validity
       if (isInvalid) {
-        this.lengthIndicator.classList.add('text-red-500')
-        this.lengthIndicator.classList.remove('text-green-500')
+        this.lengthIndicator.classList.add('text-bamboo-500')
+        this.lengthIndicator.classList.remove('text-bamboo-950')
       } else {
-        this.lengthIndicator.classList.add('text-green-500')
-        this.lengthIndicator.classList.remove('text-red-500')
+        this.lengthIndicator.classList.add('text-bamboo-950')
+        this.lengthIndicator.classList.remove('text-bamboo-500')
       }
     }
   }

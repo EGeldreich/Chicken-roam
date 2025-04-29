@@ -76,6 +76,8 @@
 }
 
 @layer components {
+  /* 
+   */
   /* BUTTONS */
   /* main */
   .btn {
@@ -107,9 +109,9 @@
     @apply bg-black hover:bg-black;
   } */
 
-  /*  */
+  /* 
+  */
   /* TEXT */
-  /*  */
   .link {
     @apply text-bamboo-800 underline font-sora;
   }
@@ -126,7 +128,9 @@
     @apply text-bamboo-950 md:text-2xl text-lg font-semibold font-averia;
   }
 
-  /* FLASH MSGS */
+  /* 
+   */
+  /* FLASH */
   .flash {
     @apply font-sora text-sm border border-bamboo-0 rounded-md text-bamboo-950 px-4 py-3 absolute top-18 left-18;
   }
@@ -137,6 +141,8 @@
     @apply bg-lightning-100;
   }
 
+  /* 
+   */
   /* INPUTS */
   .text-input {
     @apply border-1 border-bamboo-0 rounded-md w-full py-2 px-3 text-bamboo-800 leading-tight focus:outline-1 focus:outline-bamboo-950;
@@ -145,35 +151,33 @@
     @apply block text-bamboo-950 text-lg mb-2 font-averia;
   }
 
-  /*  */
-  /* ELEMENTS STYLING */
+  /* 
+  */
+  /* PLAN ELEMENTS */
   /*  */
   .temporary {
-    @apply opacity-40 border-dashed border-2 border-black;
+    @apply opacity-40;
   }
   .fence {
-    @apply absolute h-1 bg-black transform origin-left;
+    @apply absolute h-2 -translate-y-1/2 border-2 border-dashed border-bamboo-950 transform origin-left;
+  }
+  .selected.fence {
+    @apply border-bamboo-500;
   }
   .door {
     @apply outline-2 outline-dashed outline-gray-500;
   }
-  /*  */
-  /* SELECTION */
-  /*  */
-  .selected {
-    @apply border-3 border-green-800;
+  .selected::before {
+    @apply border-3 rounded-md border-bamboo-500;
   }
-  /*  */
-  /* POINTS */
-  /*  */
   .point {
-    @apply h-4 w-4 rounded-full absolute transform -translate-x-1/2 -translate-y-1/2;
+    @apply h-4 w-4 rounded-full border-2 border-bamboo-950 absolute transform -translate-x-1/2 -translate-y-1/2;
   }
   .connection-point {
-    @apply bg-green-500;
+    @apply bg-bamboo-400;
   }
   .movable-point {
-    @apply bg-orange-500;
+    @apply bg-bamboo-100;
   }
 }
 
@@ -204,56 +208,19 @@ html {
   scroll-behavior: smooth;
 }
 
-.viewport-container {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  position: relative;
-}
-
-.viewport-container.panning {
-  cursor: grabbing;
-}
-
-.canvas-content {
-  transform-origin: 0 0;
-  position: absolute;
-  width: 10000px;
-  height: 10000px;
-}
-
-.btn-sm {
-  font-size: 0.875rem;
-  line-height: 1;
-  padding: 0.25rem 0.5rem;
-  height: auto;
-}
-
-/* Style pour l'indicateur de zoom */
-#zoomLevel {
-  font-size: 0.875rem;
-  font-weight: 500;
-  min-width: 3rem;
-  text-align: center;
-}
-
-.enclosure-complete {
-  border: 2px solid #4caf50;
-}
 .snapping-to-connection {
-  background-color: #4caf50 !important;
+  background-color: var(--shrub) !important;
   height: 0.2rem !important; /* Slightly thicker when snapping */
   box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
 }
 .placement-error {
   animation: shake 0.5s;
 }
-
 .invalid-placement {
-  background-color: red !important;
+  background-color: var(--bamboo-600) !important;
 }
 .valid-placement {
-  background-color: black;
+  background-color: var(--perch);
 }
 .moving {
   opacity: 0.4;
@@ -297,39 +264,6 @@ html {
   }
 }
 /* ---- State indicators */
-/* Plan BG */
-.state-construction {
-  background-color: #ffeecc;
-}
-.state-enclosed {
-  background-color: #d1ffd1;
-}
-.state-broken {
-  background-color: #ffdddd;
-}
-/* Plan State Label */
-.label-construction {
-  background-color: #ffeecc;
-}
-.label-enclosed {
-  background-color: #d1ffd1;
-}
-.label-broken {
-  background-color: #ffdddd;
-}
-
-/* Canvas state styling */
-#planCanvas.state-broken {
-  border: 2px dashed #cc0000;
-}
-
-#planCanvas.state-enclosed {
-  border: 2px solid #00aa00;
-}
-
-#planCanvas.state-construction {
-  border: 2px dotted #ff9900;
-}
 
 /* Element states */
 .element.inactive-element {
@@ -359,12 +293,6 @@ html {
   animation: pulse 0.5s;
 }
 
-/* Disabled tool buttons */
-.tool-btn.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 @keyframes pulse {
   0% {
     transform: scale(1);
@@ -374,54 +302,5 @@ html {
   }
   100% {
     transform: scale(1);
-  }
-}
-
-/* Tool btns */
-.tool-btn svg rect,
-.tool-btn svg .blob,
-.tool-btn svg [id$='-bg'] {
-  transition:
-    fill 0.3s ease,
-    opacity 0.3s ease;
-}
-
-.tool-btn:hover rect {
-  fill: #f2e9d5;
-}
-.active-tool {
-  /* Change blob */
-  & .blob {
-    fill: #fff;
-    opacity: 0.5;
-  }
-  /* Change bg color */
-  & #tree-bg {
-    fill: #b6d5a0;
-  }
-  & #dustbath-bg {
-    fill: #d0bea8;
-  }
-  & #fence-bg {
-    fill: #ecbb95;
-  }
-  & #insectary-bg {
-    fill: #b8c6e1;
-  }
-  & #waterer-bg {
-    fill: #a7d1c6;
-  }
-  & #shrub-bg {
-    fill: #81b994;
-  }
-  & #shelter-bg {
-    fill: #f4cf8c;
-  }
-  & #perch-bg {
-    fill: #d2db93;
-  }
-  /* mini tools */
-  &.mini-tool {
-    background-color: #f1781e !important;
   }
 }
