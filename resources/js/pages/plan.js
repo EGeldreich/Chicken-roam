@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const planEditor = new PlanEditor(planId) // initialize planEditor
 
-  setupPDFExport(planEditor) // initialize pdf export
+  setupPDFExport() // initialize pdf export
 })
 
 document.querySelectorAll('*').forEach((el) => {

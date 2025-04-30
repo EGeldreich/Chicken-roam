@@ -244,6 +244,21 @@
 /* 
  */
 /* ____________________ ELEMENTS */
+.fence {
+  position: absolute;
+  height: 0.5rem;
+  border: 2px dashed var(--bamboo-950);
+  transform: translateY(-50%);
+  transform-origin: left;
+}
+.point {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 99px;
+  border: 2px solid var(--bamboo-950);
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
 .shelter,
 .waterer,
 .perch,

@@ -1,40 +1,34 @@
 import html2canvas from 'html2canvas'
 
 // Exported function, called in plan.js
-export default function setupPDFExport(planEditor) {
+export default function setupPDFExport() {
   const exportButton = document.getElementById('exportPDF')
 
   if (!exportButton) return
 
-  exportButton.addEventListener('click', () => exportPlanToPDF(planEditor))
+  exportButton.addEventListener('click', () => exportPlanToPDF())
 }
 
-async function exportPlanToPDF(planEditor) {
-  // Create a loading screen (full screen with text)
-  // const loadingIndicator = document.createElement('div')
-  // loadingIndicator.textContent = 'Preparing PDF...'
-  // loadingIndicator.className =
-  //   'fixed top-0 left-0 w-full h-full flex items-center justify-center bg-green-main bg-opacity-50 text-white text-xl z-50'
-  // document.body.appendChild(loadingIndicator)
-
-  // Array to keep track of elements we've removed
-  // Part of oklch handling, need a better solution
-  const removedElements = []
-
+async function exportPlanToPDF() {
   try {
-    // Get required DOM elements
+    // Get required DOM element
     const canvas = document.getElementById('planCanvas')
-    const viewport = document.querySelector('.viewport-container')
 
-    // Security
-    if (!canvas || !viewport) {
-      throw new Error('Canvas or viewport not found')
-    }
-
-    // Find all relevant elements (fence and elements)
-    const allElements = Array.from(canvas.querySelectorAll('.fence, .element:not(.temporary)'))
+    // Hide temporary element while dealing with export
+    // Get all elements
+    const temporaryElements = Array.from(canvas.querySelectorAll('.temporary'))
+    // Store them
+    const temporaryVisibilityStates = temporaryElements.map((el) => {
+      const currentDisplay = el.style.display // get current display
+      el.style.display = 'none' // Hide element
+      return currentDisplay || '' // Store original display value
+    })
 
     // Security, to avoid exporting an empty plan
+    // Find all relevant elements (fence, point and elements)
+    const allElements = Array.from(
+      canvas.querySelectorAll('.fence, .point, .element:not(.temporary)')
+    )
     if (allElements.length === 0) {
       throw new Error('No elements found in the plan')
     }
@@ -45,62 +39,46 @@ async function exportPlanToPDF(planEditor) {
       document.querySelector('h1')?.textContent?.trim() ||
       'Chicken Realm'
 
-    // Create a clone of the viewport for html2canvas
-    // This way we don't modify the original DOM
-    const viewportClone = viewport.cloneNode(true)
-    viewportClone.style.position = 'absolute'
-    viewportClone.style.left = '-9999px'
-    viewportClone.style.visibility = 'hidden'
-    document.body.appendChild(viewportClone)
+    // Get correct size to export
+    // Calculate bounding box of all elements
+    const boundingBox = calculateBoundingBox(allElements)
 
-    // Color handling part, need a better solution
-    // Remove elements with oklch colors from the clone
-    const allClonedElements = viewportClone.querySelectorAll('*')
-    allClonedElements.forEach((el) => {
-      try {
-        // Remove problematic elements - all UI controls
-        if (
-          el.classList &&
-          (el.classList.contains('point') ||
-            el.classList.contains('temporary-point') ||
-            el.classList.contains('temporary-element') ||
-            el.classList.contains('tool-btn') ||
-            el.id === 'elementMenu' ||
-            el.classList.contains('guidance-message') ||
-            el.classList.contains('tooltip-content') ||
-            el.classList.contains('progress-bar') ||
-            el.classList.contains('bg-blue-600') ||
-            el.classList.contains('bg-green-500') ||
-            el.classList.contains('bg-yellow-500') ||
-            el.classList.contains('bg-orange-500') ||
-            el.classList.contains('bg-red-500') ||
-            el.classList.contains('bg-gray-200'))
-        ) {
-          if (el.parentNode) {
-            el.parentNode.removeChild(el)
-          }
-        }
-      } catch (e) {
-        console.log('Error processing element', e)
-      }
-    })
+    // Add padding
+    const padding = 50 // in pixels
+    boundingBox.left = Math.max(0, boundingBox.left - padding)
+    boundingBox.top = Math.max(0, boundingBox.top - padding)
+    boundingBox.right = Math.min(canvas.offsetWidth, boundingBox.right + padding)
+    boundingBox.bottom = Math.min(canvas.offsetHeight, boundingBox.bottom + padding)
 
-    // Capture the clean clone with html2canvas
-    const viewportCapture = await html2canvas(viewportClone, {
+    // Calculate width and height
+    const width = boundingBox.right - boundingBox.left
+    const height = boundingBox.bottom - boundingBox.top
+
+    // Set the clipping area to focus only on the elements
+    const canvasClip = {
+      x: boundingBox.left,
+      y: boundingBox.top,
+      width: width,
+      height: height,
+    }
+
+    // Capture the canvas with html2canvas, with calculated clipping area
+    const canvasCapture = await html2canvas(canvas, {
       scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: '#ffffff',
       logging: false,
+      x: canvasClip.x,
+      y: canvasClip.y,
+      width: canvasClip.width,
+      height: canvasClip.height,
     })
 
-    // Remove the clone from the DOM
-    document.body.removeChild(viewportClone)
-
     // Convert canvas to Data URL
-    const imageDataUrl = viewportCapture.toDataURL('image/png')
+    const imageDataUrl = canvasCapture.toDataURL('image/png')
 
-    // Open the pdf template in a new window
+    // Open the pdf template in a new window (send plan name in the url)
     const templateUrl = `/pdf-template?planName=${encodeURIComponent(planName)}`
     const printWindow = window.open(templateUrl, '_blank', 'width=800,height=600')
 
@@ -123,9 +101,47 @@ async function exportPlanToPDF(planEditor) {
     console.error('Error generating PDF:', error)
     alert('Failed to generate PDF: ' + error.message)
   } finally {
-    // Remove loading indicator
-    if (loadingIndicator && loadingIndicator.parentElement) {
-      document.body.removeChild(loadingIndicator)
+    // Restore visibility of temporary elements
+    if (temporaryElements && temporaryVisibilityStates) {
+      temporaryElements.forEach((el, index) => {
+        el.style.display = temporaryVisibilityStates[index]
+      })
     }
   }
+}
+
+/**
+ * Calculate the bounding box containing all elements
+ * @param {Array} elements - DOM elements to include in the bounding box
+ * @returns {Object} - The bounding box coordinates
+ */
+function calculateBoundingBox(elements) {
+  // Initialize with extreme values
+  let boundingBox = {
+    left: Infinity,
+    top: Infinity,
+    right: -Infinity,
+    bottom: -Infinity,
+  }
+
+  // Find the bounding box containing all elements
+  elements.forEach((el) => {
+    const rect = el.getBoundingClientRect()
+    const { scrollLeft, scrollTop } = document.documentElement
+
+    // Get position relative to the canvas, accounting for scroll
+    const canvasRect = document.getElementById('planCanvas').getBoundingClientRect()
+    const elLeft = rect.left - canvasRect.left + scrollLeft
+    const elTop = rect.top - canvasRect.top + scrollTop
+    const elRight = elLeft + rect.width
+    const elBottom = elTop + rect.height
+
+    // Update bounding box
+    boundingBox.left = Math.min(boundingBox.left, elLeft)
+    boundingBox.top = Math.min(boundingBox.top, elTop)
+    boundingBox.right = Math.max(boundingBox.right, elRight)
+    boundingBox.bottom = Math.max(boundingBox.bottom, elBottom)
+  })
+
+  return boundingBox
 }
