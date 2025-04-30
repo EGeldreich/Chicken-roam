@@ -2,9 +2,9 @@
 @source "../views";
 
 @theme {
-  /* breakpoints override */
+  /* breakpoints */
   --breakpoint-xs: 30rem;
-  --breakpoint-xxs: 5rem;
+  --breakpoint-xxs: 20rem;
 
   /* Colors */
   --color-green-main: #05804d;
@@ -94,7 +94,7 @@
     @apply bg-transparent text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;
   }
   .btn-danger {
-    @apply rounded-md text-red-800 hover:bg-bamboo-300;
+    @apply rounded-md text-bamboo-800 hover:bg-bamboo-300;
   }
   /* plan */
   .arrow-btn {
