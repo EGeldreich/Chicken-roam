@@ -123,7 +123,10 @@ export default class FencesController {
             .pivotQuery()
             .where('plan_id', plan.id)
             .where('objective_id', areaObjective.id)
-            .update({ completion_percentage: 0 })
+            .update({
+              completion_percentage: 0,
+              current_value: 0,
+            })
         }
       }
 
@@ -152,6 +155,7 @@ export default class FencesController {
                 name: areaObjective.name,
                 description: areaObjective.description,
                 target_value: areaObjective.$extras.pivot_target_value,
+                current_value: 0,
                 completion_percentage: 0,
                 unit: areaObjective.unit,
               },

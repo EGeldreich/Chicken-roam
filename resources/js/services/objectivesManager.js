@@ -126,24 +126,17 @@ export default class ObjectivesManager {
 
     objectiveItems.forEach((item) => {
       // Find relevant elements
-      const completionElement = item.querySelector('.objective-completion')
       const targetElement = item.querySelector('.objective-target')
       const currentValueElement = item.querySelector('.current-value')
 
-      if (completionElement && targetElement && currentValueElement) {
+      if (targetElement && currentValueElement) {
         // Get values
-        const completionPercentage = parseFloat(completionElement.textContent)
         const targetValue = parseFloat(targetElement.textContent)
+        const currentValue = parseFloat(currentValueElement.textContent)
         const completionCrown = item.querySelector('.completion-crown')
 
-        // Calculate and round
-        const currentValue = Math.round((completionPercentage * targetValue) / 100)
-
-        // Update display
-        currentValueElement.textContent = currentValue
-
         // Check if this objective is complete
-        if (completionCrown && completionPercentage >= 100) {
+        if (completionCrown && currentValue >= targetValue) {
           // Show crown
           completionCrown.classList.remove('hidden')
         }
@@ -314,18 +307,15 @@ export default class ObjectivesManager {
           // Set objective name
           clone.querySelector('.objective-name').textContent = objectiveName
 
-          // Get completion values
-          const completionValue = parseInt(
-            objectiveItem.querySelector('.objective-completion').textContent,
+          // Get current
+          const currentValue = parseInt(
+            objectiveItem.querySelector('.current-value').textContent,
             10
           )
           const targetValue = parseInt(
             objectiveItem.querySelector('.objective-target').textContent,
             10
           )
-
-          // Calculate current value from percentage
-          const currentValue = Math.round((completionValue * targetValue) / 100)
 
           // Set current value
           const currentValueElement = clone.querySelector('.current-value')
@@ -334,7 +324,11 @@ export default class ObjectivesManager {
           }
 
           // Update progress bar
+          // Get completion percentage
+          let completionValue = Math.min(Math.round((currentValue / targetValue) * 100), 100)
+          // Get progress bar
           const progressBar = clone.querySelector('.objective-progress-bar')
+          // Set completion percentage as width
           progressBar.style.width = `${completionValue}%`
           // Add data-objective-name attribute to the progress bar
           progressBar.dataset.objectiveName = objectiveName
@@ -355,7 +349,7 @@ export default class ObjectivesManager {
           // Check if we need to show completion crown
           const completionCrown = clone.querySelector('.completion-crown')
 
-          if (completionCrown && completionValue >= 100) {
+          if (completionCrown && currentValue >= targetValue) {
             // Show crown
             completionCrown.classList.remove('hidden')
           }
@@ -457,17 +451,18 @@ export default class ObjectivesManager {
    * Update completion percentage of an objective
    * @param {String} objectiveName Name of the objective to update
    * @param {Number} completion completion percentage
+   * @param {Number} currentValue current value of the objective
    */
-  updateObjectiveCompletion(objectiveName, completion) {
-    // Update in list
-    const objectiveSpan = document.getElementById(objectiveName)
-    if (objectiveSpan) {
-      objectiveSpan.textContent = completion
+  updateObjectiveCompletion(objectiveName, completion, currentValue) {
+    currentValue = Math.floor(currentValue)
 
+    // Update in list
+    const objectiveBlock = document.querySelector(
+      `#more-objectives .objective-item[data-objective-name="${objectiveName}"]`
+    )
+    if (objectiveBlock) {
       // Also update progress bar width in list
-      const listProgressBar = document.querySelector(
-        `#more-objectives .objective-progress-bar[data-objective-name="${objectiveName}"]`
-      )
+      const listProgressBar = objectiveBlock.querySelector(`.objective-progress-bar`)
       if (listProgressBar) {
         listProgressBar.style.width = `${completion}%`
       }
@@ -477,12 +472,10 @@ export default class ObjectivesManager {
         `#more-objectives .objective-item[data-objective-name="${objectiveName}"]`
       )
       if (moreObjectivesItem) {
-        const targetElement = moreObjectivesItem.querySelector('.objective-target')
         const currentValueElement = moreObjectivesItem.querySelector('.current-value')
 
-        if (targetElement && currentValueElement) {
-          const targetValue = parseFloat(targetElement.textContent)
-          const currentValue = Math.round((completion * targetValue) / 100)
+        if (currentValueElement) {
+          // Utiliser la valeur actuelle fournie plutôt que de la calculer
           currentValueElement.textContent = currentValue
         }
 
@@ -516,12 +509,8 @@ export default class ObjectivesManager {
       }
 
       // Update current value
-      const targetElement = item.querySelector('.objective-target')
       const currentValueElement = item.querySelector('.current-value')
-
-      if (targetElement && currentValueElement) {
-        const targetValue = parseFloat(targetElement.textContent)
-        const currentValue = Math.round((completion * targetValue) / 100)
+      if (currentValueElement) {
         currentValueElement.textContent = currentValue
       }
 
@@ -551,12 +540,17 @@ export default class ObjectivesManager {
 
   /**
    * Update all objectives simultaneously
+   * Called when deleting an element
    * @param {Array} objectives - Objectives array with objective name and completion percentage
    */
   updateAllObjectives(objectives) {
     //updateObjectiveCompletion for each objective
     objectives.forEach((objective) => {
-      this.updateObjectiveCompletion(objective.name, objective.completion_percentage)
+      this.updateObjectiveCompletion(
+        objective.name,
+        objective.completion_percentage,
+        objective.current_value
+      )
 
       // Also update this.objectives array
       const index = this.objectives.findIndex((obj) => obj.name === objective.name)

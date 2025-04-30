@@ -15,6 +15,7 @@ export default class extends BaseSchema {
         .inTable('objectives')
         .onDelete('CASCADE')
       table.integer('completion_percentage').defaultTo('0').notNullable()
+      table.float('current_value').defaultTo('0').notNullable()
       table.integer('target_value').notNullable()
     })
   }

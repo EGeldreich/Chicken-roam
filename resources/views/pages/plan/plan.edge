@@ -760,7 +760,7 @@
 
           <div class="objective-item" data-objective-name="{{ objective.name }}">
 
-            <p id="{{ objective.name }}" class="hidden objective-completion">
+            <p class="hidden objective-completion">
               {{ objective.$extras.pivot_completion_percentage }}
             </p>
             {{-- Name target and completion % --}}
@@ -782,7 +782,7 @@
 
                   {{-- Current value / target --}}
                   <p>
-                    <span class="font-bold current-value">{{ (objective.$extras.pivot_completion_percentage * objective.$extras.pivot_target_value )/100 }} </span>
+                    <span class="font-bold current-value">{{ Math.floor(objective.$extras.pivot_current_value) }}</span>
                     /
                   <span class="objective-target">{{ objective.$extras.pivot_target_value }}</span>
                     <span class="objective-unit">{{ objective.unit }}</span>

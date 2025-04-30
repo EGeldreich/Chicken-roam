@@ -76,7 +76,10 @@ export default class ObjectiveService {
         .pivotQuery()
         .where('plan_id', planId)
         .where('objective_id', objective.id)
-        .update({ completion_percentage: percentage })
+        .update({
+          completion_percentage: percentage,
+          current_value: currentValue,
+        })
     }
   }
 
@@ -100,7 +103,10 @@ export default class ObjectiveService {
         .pivotQuery()
         .where('plan_id', planId)
         .where('objective_id', areaObjective.id)
-        .update({ completion_percentage: percentage })
+        .update({
+          completion_percentage: percentage,
+          current_value: area,
+        })
     }
 
     return plan
