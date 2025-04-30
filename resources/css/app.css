@@ -4,6 +4,7 @@
 @theme {
   /* breakpoints override */
   --breakpoint-xs: 30rem;
+  --breakpoint-xxs: 5rem;
 
   /* Colors */
   --color-green-main: #05804d;

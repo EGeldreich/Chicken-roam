@@ -30,66 +30,68 @@
   {{-- Interface --}}
 
   {{-- Top left menu --}}
-  <div class="absolute top-4 left-4 z-10 flex lg:w-auto w-70 gap-2">
+  <div class="absolute top-4 left-4 z-10 flex flex-col lg:w-auto w-70 gap-2 items-start">
 
-    <div class="bg-white rounded-md flex gap-4 px-2 py-1 items-center lg:w-auto lg:min-w-80 min-w-40">
-      <a href="{{ route('user-page') }}" type="button" aria-label="user page" class=" arrow-btn">
-        <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div class="flex gap-2">
+      <div class="bg-white rounded-md flex gap-4 px-2 py-1 items-center lg:w-auto lg:min-w-80 min-w-40 ">
+        <a href="{{ route('user-page') }}" type="button" aria-label="user page" class=" arrow-btn">
+          <svg width="14" height="18" viewBox="0 0 14 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M12.3581 17.3326C12.0664 17.3326 11.7747 17.2076 11.5664 16.9659C9.03306 13.9992 5.86639 12.6659 3.31639 11.5909C2.53306 11.2576 1.79139 10.9492 1.15806 10.6242C0.824724 10.4576 0.616391 10.1242 0.599725 9.74923C0.583058 9.38256 0.758058 9.02423 1.06639 8.82423L2.40806 7.94923C6.08306 5.5659 9.88306 3.10756 11.1997 1.12423C11.5164 0.640898 12.1664 0.515898 12.6414 0.832565C13.1164 1.14923 13.2497 1.79923 12.9331 2.27423C11.4081 4.55756 7.56639 7.08256 3.79972 9.52423C3.90806 9.5659 4.01639 9.6159 4.12472 9.65756C6.73306 10.7576 10.2997 12.2576 13.1497 15.5992C13.5247 16.0409 13.4664 16.6909 13.0331 17.0659C12.8331 17.2326 12.5997 17.3159 12.3581 17.3159V17.3326Z"
+              fill="#471A03"
+            />
+          </svg>
+        </a>
+        @if(auth.user)
+          <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST" class="w-full">
+            {{ csrfField() }}
+                <input id="plan-name" type="text" name="newName" value="{{ plan.name }}" class="w-full" />
+          </form>
+        @else
+          <h1>
+            {{ plan.name }}
+          </h1>
+        @end
+        {{-- <button id="exportPDF" class="btn btn-primary">Export PDF</button> --}}
+      </div>
+
+      {{-- ... button --}}
+      <button
+        class="bg-white min-w-10 h-10 rounded-full flex justify-center items-center"
+        type="button"
+        arial-label="plan options"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path
-            d="M12.3581 17.3326C12.0664 17.3326 11.7747 17.2076 11.5664 16.9659C9.03306 13.9992 5.86639 12.6659 3.31639 11.5909C2.53306 11.2576 1.79139 10.9492 1.15806 10.6242C0.824724 10.4576 0.616391 10.1242 0.599725 9.74923C0.583058 9.38256 0.758058 9.02423 1.06639 8.82423L2.40806 7.94923C6.08306 5.5659 9.88306 3.10756 11.1997 1.12423C11.5164 0.640898 12.1664 0.515898 12.6414 0.832565C13.1164 1.14923 13.2497 1.79923 12.9331 2.27423C11.4081 4.55756 7.56639 7.08256 3.79972 9.52423C3.90806 9.5659 4.01639 9.6159 4.12472 9.65756C6.73306 10.7576 10.2997 12.2576 13.1497 15.5992C13.5247 16.0409 13.4664 16.6909 13.0331 17.0659C12.8331 17.2326 12.5997 17.3159 12.3581 17.3159V17.3326Z"
+            d="M12.015 7.72131C11.6714 7.73914 11.3282 7.68009 11.0104 7.54845C10.4436 7.27884 10.3468 6.21328 10.3232 5.69998C10.2874 4.9157 10.5763 4.07381 11.5653 4.00556C12.3206 3.95336 13.3432 4.26604 13.3865 5.06539C13.4417 6.08548 13.3882 7.07574 12.9963 7.44539C12.6938 7.60921 12.3585 7.70348 12.015 7.72131Z"
+            fill="#471A03"
+          />
+          <path
+            d="M10.0033 11.8938C9.98547 11.5503 10.0445 11.2071 10.1762 10.8892C10.4458 10.3224 11.5113 10.2256 12.0246 10.202C12.8089 10.1662 13.6508 10.4551 13.7191 11.4441C13.7712 12.1994 13.4586 13.222 12.6592 13.2653C11.6391 13.3205 10.6489 13.267 10.2792 12.8751C10.1154 12.5726 10.0211 12.2373 10.0033 11.8938Z"
+            fill="#471A03"
+          />
+          <path
+            d="M12.015 16.2789C11.6714 16.261 11.3282 16.3201 11.0104 16.4517C10.4436 16.7213 10.3468 17.7869 10.3232 18.3002C10.2874 19.0845 10.5763 19.9264 11.5653 19.9946C12.3206 20.0468 13.3432 19.7341 13.3865 18.9348C13.4417 17.9147 13.3882 16.9244 12.9963 16.5548C12.6938 16.391 12.3585 16.2967 12.015 16.2789Z"
             fill="#471A03"
           />
         </svg>
-      </a>
-      @if(auth.user)
-        <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST" class="w-full">
-          {{ csrfField() }}
-              <input id="plan-name" type="text" name="newName" value="{{ plan.name }}" class="w-full" />
-        </form>
-      @else
-        <h1>
-          {{ plan.name }}
-        </h1>
-      @end
-      {{-- <button id="exportPDF" class="btn btn-primary">Export PDF</button> --}}
+      </button>
     </div>
 
-    {{-- ... button --}}
-    <button
-      class="bg-white min-w-10 h-10 rounded-full flex justify-center items-center"
-      type="button"
-      arial-label="plan options"
+    {{-- Plan state --}}
+    <div
+      id="planStateLabelHolder"
+      class="z-10 xxs:hidden xs:block border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
     >
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M12.015 7.72131C11.6714 7.73914 11.3282 7.68009 11.0104 7.54845C10.4436 7.27884 10.3468 6.21328 10.3232 5.69998C10.2874 4.9157 10.5763 4.07381 11.5653 4.00556C12.3206 3.95336 13.3432 4.26604 13.3865 5.06539C13.4417 6.08548 13.3882 7.07574 12.9963 7.44539C12.6938 7.60921 12.3585 7.70348 12.015 7.72131Z"
-          fill="#471A03"
-        />
-        <path
-          d="M10.0033 11.8938C9.98547 11.5503 10.0445 11.2071 10.1762 10.8892C10.4458 10.3224 11.5113 10.2256 12.0246 10.202C12.8089 10.1662 13.6508 10.4551 13.7191 11.4441C13.7712 12.1994 13.4586 13.222 12.6592 13.2653C11.6391 13.3205 10.6489 13.267 10.2792 12.8751C10.1154 12.5726 10.0211 12.2373 10.0033 11.8938Z"
-          fill="#471A03"
-        />
-        <path
-          d="M12.015 16.2789C11.6714 16.261 11.3282 16.3201 11.0104 16.4517C10.4436 16.7213 10.3468 17.7869 10.3232 18.3002C10.2874 19.0845 10.5763 19.9264 11.5653 19.9946C12.3206 20.0468 13.3432 19.7341 13.3865 18.9348C13.4417 17.9147 13.3882 16.9244 12.9963 16.5548C12.6938 16.391 12.3585 16.2967 12.015 16.2789Z"
-          fill="#471A03"
-        />
-      </svg>
-    </button>
-  </div>
-
-  {{-- Plan state --}}
-  <div
-    id="planStateLabelHolder"
-    class="absolute block lg:top-16 top-20 left-4 z-10 w-auto border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
-  >
-    <p id="planStateLabel">
-      {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
-    </p>
+      <p id="planStateLabel" class="inline">
+        {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+      </p>
+    </div>
   </div>
 
   {{-- Toolbox Panel --}}
   <div
-    class="absolute top-1/2 -translate-y-1/2 left-4 bottom-20 z-10 flex flex-col justify-between bg-white rounded-md border-1 border-bamboo-0 overflow-hidden w-auto h-148"
+    class="xxs:hidden xs:flex absolute top-1/2 -translate-y-1/2 left-4 bottom-20 z-10  flex-col justify-between bg-white rounded-md border-1 border-bamboo-0 overflow-hidden w-auto h-148"
   >
 
     {{-- Move --}}
@@ -547,7 +549,7 @@
   </div>
 
   {{-- Objectives --}}
-  <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 lg:w-85 w-50">
+  <div class="xxs:hidden xs:flex xs:flex-col xs:w-40 md:w-50 lg:w-85 absolute top-4 right-4 z-10 gap-2">
 
     {{-- Global compliance --}}
     <div class="flex items-center justify-between w-full px-2 py-1.5 bg-white rounded-md">
@@ -597,7 +599,7 @@
 
       </div>
       {{-- Text --}}
-      <div class="flex flex-col">
+      <div class="xxs:hidden lg:flex lg:flex-col">
         <p class="text-sm">
           Map chicken compliance
         </p>
@@ -638,7 +640,7 @@
                 <div class="flex justify-between mb-2">
                   <div class="flex gap-2">
                     {{-- Current objective icon --}}
-                    <div class="current-objective-icon">
+                    <div class="xxs:hidden lg:block current-objective-icon">
                     </div>
                     <div class="flex flex-col text-sm leading-none self-center">
                       {{-- Current objective name --}}
@@ -656,7 +658,7 @@
 
                   <div class="flex items-center gap-1">
                     {{-- Info hover (i) --}}
-                    <div class="info-icon h-6 cursor-help p-1">
+                    <div class="xxs:hidden lg:block info-icon h-6 cursor-help p-1">
                       <svg
                         width="16"
                         height="16"
@@ -745,7 +747,7 @@
               <div class="flex gap-2">
 
                 {{-- Current objective icon --}}
-                <div class="current-objective-icon">
+                <div class="xxs:hidden lg:block current-objective-icon">
                 </div>
 
                 <div class="flex flex-col text-sm self-center leading-none">
@@ -768,7 +770,7 @@
 
               <div class="flex items-center gap-1">
                 {{-- Info hover (i) --}}
-                <div class="info-icon h-6 cursor-help p-1">
+                <div class="xxs:hidden lg:block info-icon h-6 cursor-help p-1">
                   <svg
                     width="16"
                     height="16"
@@ -830,7 +832,7 @@
 
   {{-- Guidance messages --}}
   <div
-    class="guidance-message text-sm p-2 absolute bottom-20 lg:bottom-auto lg:top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white"
+    class="xxs:hidden xs:block guidance-message text-sm p-2 absolute bottom-20 lg:bottom-auto lg:top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white"
   >
     @if(plan.isEnclosed)
       Enclosure complete! You can now place elements
@@ -840,10 +842,11 @@
   </div>
 
   {{-- Controls --}}
-  <div class="absolute bottom-4 right-4 z-10 flex justify-center items-center space-x-8">
+  <div class="flex absolute bottom-4 right-4 z-10 justify-center items-center space-x-8">
     {{-- Zoom controls --}}
-    <div class="zoom-controls flex items-center gap-4">
-      <div class="bg-white flex items-center p-1 rounded-md">
+    <div class="flex xxs:flex-col xs:flex-row zoom-controls items-center gap-4">
+
+      <div class="flex xxs:flex-col xs:flex-row bg-white items-center p-1 rounded-md gap-2">
         <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -852,7 +855,10 @@
             />
           </svg>
         </button>
-        <span id="zoomLevel" class="mx-2 text-sm text-center min-w-9">100%</span>
+        <span
+          id="zoomLevel"
+          class="xxs:my-2 xs:my-0 xs:mx-2 text-sm xxs:transform xxs:-rotate-90 xs:rotate-0 text-center min-w-9"
+        >100%</span>
         <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">
           <svg width="16" height="3" viewBox="0 0 16 3" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -862,6 +868,7 @@
           </svg>
         </button>
       </div>
+
       {{-- Reset emplacement --}}
       <div class="bg-white flex justify-center items-center rounded-full">
         <button id="resetView" class="btn btn-sm px-2 py-1 h-8">
@@ -873,6 +880,7 @@
           </svg>
         </button>
       </div>
+
     </div>
   </div>
 
