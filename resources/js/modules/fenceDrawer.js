@@ -599,7 +599,11 @@ export default class FenceDrawer {
         this.canvas.dispatchEvent(event)
 
         // Update objective completion with new value
-        this.planEditor.objectivesManager.updateObjectiveCompletion('area', areaCompletion)
+        this.planEditor.objectivesManager.updateObjectiveCompletion(
+          'area',
+          areaCompletion,
+          enclosedArea
+        )
 
         // Call update total completion
         this.planEditor.objectivesManager.updateTotalCompletion()
