@@ -717,6 +717,8 @@ Ajout d'un validator pour les éléments
 **MUST DO**
 **MUST DO**
 
+DOSSIER :
+
 Renforcer coté outil métier, simulation intelligente dans l'intro
 
 Tableau pour généraliser le cahier des charges
@@ -726,8 +728,11 @@ Technologies peut etre un peu long ?
 
 reviser architecture REST
 
-rate limiter sur le login
-
 RGPD : donnée de conservation des données.
 
 MCD MLD : schéma nécessaire
+
+PROJET :
+rate limiter sur login
+réparer current value area
+message lors du changement de nom du plan
