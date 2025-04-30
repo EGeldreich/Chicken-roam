@@ -391,7 +391,6 @@ export default class Selector {
 
       // If there is no error message, placement is ok
       if (!placementResult.invalid && this.draggedElement) {
-        // -- Reinsert element to placed elements array
         // Update database
         this.updateElementPositionInBack(
           this.selectedElement.dataset.elementId,
@@ -399,7 +398,11 @@ export default class Selector {
           placementPoint.y
         )
 
-        // Reinsert into array
+        // Update coordinates of dragged element
+        this.draggedElement.x = placementPoint.x
+        this.draggedElement.y = placementPoint.y
+
+        // Reinsert into array with
         // (Replace the element currently at index 'this.elementIndex' by 'this.draggedElement')
         this.planEditor.placedElements.splice(this.elementIndex, 0, this.draggedElement)
 
