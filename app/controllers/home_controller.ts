@@ -106,7 +106,6 @@ export default class HomeController {
 
     // Retrieve all objectives
     const objectives = await Objective.all()
-    console.log(objectives)
 
     // Prepare pivot data to attach objectives
     const objectivePivotData: {

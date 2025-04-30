@@ -30,7 +30,7 @@
   {{-- Interface --}}
 
   {{-- Top left menu --}}
-  <div class="absolute top-4 left-4 z-10 flex lg:w-auto w-70 gap-2">
+  <div class="absolute top-4 left-4 z-10 flex w-auto max-w-76 gap-2">
 
     <div class="bg-white rounded-md flex gap-4 px-2 py-1 items-center lg:w-auto lg:min-w-80 min-w-40 ">
       <a href="{{ route('user-page') }}" type="button" aria-label="user page" class=" arrow-btn">
@@ -82,7 +82,7 @@
         x-show="open"
         x-transition
         @click.away="open = false"
-        class="mt-2 absolute bg-white p-2 rounded-md flex flex-col gap-2"
+        class="md:mt-2 top-16 right-4 lg:top-auto lg:right-auto absolute bg-white p-2 rounded-md flex flex-col gap-2"
       >
         <button id="exportPDF" class="btn btn-tertiary" type="button">Export PDF</button>
         @if(auth.user)
@@ -105,16 +105,24 @@
   {{-- Plan state --}}
   <div
     id="planStateLabelHolder"
-    class="z-10 xxs:hidden xs:block absolute top-16 left-4 border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
+    class="z-10 xxs:hidden lg:block absolute top-16 left-4 border-1 border-bamboo-0 rounded-md px-3 py-1.5 text-sm label-{{ plan.state || 'construction' }}"
   >
-    <p id="planStateLabel" class="inline">
+    <p id="planStateLabel">
       {{ plan.state === 'enclosed' ? 'Enclosure Complete' : (plan.state === 'broken' ? 'Enclosure Broken' : 'Under Construction') }}
+    </p>
+  </div>
+  {{-- Small screen warning --}}
+  <div
+    class="z-10 xxs:block lg:hidden absolute top-16 left-4 border-1 border-bamboo-0 rounded-md max-w-76 px-3 py-1.5 text-sm bg-bamboo-300"
+  >
+    <p>
+      Come here on a larger screen <br />to enjoy plan building
     </p>
   </div>
 
   {{-- Toolbox Panel --}}
   <div
-    class="xxs:hidden xs:flex absolute top-1/2 -translate-y-1/2 left-4 bottom-20 z-10  flex-col justify-between bg-white rounded-md border-1 border-bamboo-0 overflow-hidden w-auto h-148"
+    class="xxs:hidden lg:flex absolute top-1/2 -translate-y-1/2 left-4 bottom-20 z-10  flex-col justify-between bg-white rounded-md border-1 border-bamboo-0 overflow-hidden w-auto h-148"
   >
 
     {{-- Move --}}
@@ -572,7 +580,7 @@
   </div>
 
   {{-- Objectives --}}
-  <div class="xxs:hidden xs:flex xs:flex-col xs:w-40 md:w-50 lg:w-85 absolute top-4 right-4 z-10 gap-2">
+  <div class="xxs:hidden lg:flex lg:flex-col lg:w-85 absolute top-4 right-4 z-10 gap-2">
 
     {{-- Global compliance --}}
     <div class="flex items-center justify-between w-full px-2 py-1.5 bg-white rounded-md">
@@ -855,7 +863,7 @@
 
   {{-- Guidance messages --}}
   <div
-    class="xxs:hidden xs:block guidance-message text-sm p-2 absolute bottom-20 lg:bottom-auto lg:top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white"
+    class="xxs:hidden lg:block guidance-message text-sm p-2 absolute bottom-20 xl:bottom-auto xl:top-4 left-1/2 -translate-x-1/2 border-1 rounded-md z-10 bg-white max-w-100"
   >
     @if(plan.isEnclosed)
       Enclosure complete! You can now place elements
@@ -867,9 +875,9 @@
   {{-- Controls --}}
   <div class="flex absolute bottom-4 right-4 z-10 justify-center items-center space-x-8">
     {{-- Zoom controls --}}
-    <div class="flex xxs:flex-col xs:flex-row zoom-controls items-center gap-4">
+    <div class="flex xxs:flex-col lg:flex-row zoom-controls items-center gap-4">
 
-      <div class="flex xxs:flex-col xs:flex-row bg-white items-center p-1 rounded-md gap-2">
+      <div class="flex xxs:flex-col lg:flex-row bg-white items-center p-1 rounded-md gap-2">
         <button id="zoomIn" class="btn btn-sm px-2 py-1 h-8">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -880,7 +888,7 @@
         </button>
         <span
           id="zoomLevel"
-          class="xxs:my-2 xs:my-0 xs:mx-2 text-sm xxs:transform xxs:-rotate-90 xs:rotate-0 text-center min-w-9"
+          class="xxs:my-2 lg:my-0 lg:mx-2 text-sm xxs:transform xxs:-rotate-90 lg:rotate-0 text-center min-w-9"
         >100%</span>
         <button id="zoomOut" class="btn btn-sm px-2 py-1 h-8">
           <svg width="16" height="3" viewBox="0 0 16 3" fill="none" xmlns="http://www.w3.org/2000/svg">

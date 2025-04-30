@@ -121,6 +121,39 @@ export default class PlanEditor {
         this.handleMouseUp(e)
       }
     })
+
+    // -- HANDLE TOUCH PANNING
+
+    // Initialize variables
+    let touchStartX, touchStartY
+    let initialPanX, initialPanY
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      // Prevent default action
+      e.preventDefault()
+
+      // Fill variables with relevant information
+      touchStartX = e.touches[0].clientX
+      touchStartY = e.touches[0].clientY
+      initialPanX = this.panX
+      initialPanY = this.panY
+    })
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      // Prevent default action
+      e.preventDefault()
+
+      // Calculate movement (current position - initial)
+      const dx = e.touches[0].clientX - touchStartX
+      const dy = e.touches[0].clientY - touchStartY
+
+      // Update this.pan with movement value
+      this.panX = initialPanX + dx
+      this.panY = initialPanY + dy
+
+      // Continually call applyTransform
+      this.applyTransform()
+    })
   }
 
   /**
@@ -214,27 +247,7 @@ export default class PlanEditor {
       }
     })
 
-    // // Deactivate panning mode
-    // document.addEventListener('mouseup', (e) => {
-    //   // If wheel or right click
-    //   if (e.button === 1 || e.button === 2) {
-    //     // Change panning state
-    //     this.isPanning = false
-    //     // Remove class
-    //     const container = document.querySelector('.viewport-container')
-    //     if (container) container.classList.remove('panning')
-    //   }
-    // })
-
-    //___
-    // Deactivate right click menu
-    // this.canvas.addEventListener('contextmenu', (e) => {
-    //   e.preventDefault() // Added security to avoid right click menu appearing
-    // })
-
-    //___
     // Zoom control buttons
-
     // Get elements
     const zoomIn = document.getElementById('zoomIn')
     const zoomOut = document.getElementById('zoomOut')
@@ -270,32 +283,6 @@ export default class PlanEditor {
         this.applyTransform()
       })
     }
-
-    // Event listener on movements
-    // if (moveUp) {
-    //   moveUp.addEventListener('click', () => {
-    //     this.panY -= 50
-    //     this.applyTransform()
-    //   })
-    // }
-    // if (moveDown) {
-    //   moveDown.addEventListener('click', () => {
-    //     this.panY += 50
-    //     this.applyTransform()
-    //   })
-    // }
-    // if (moveRight) {
-    //   moveRight.addEventListener('click', () => {
-    //     this.panX -= 50
-    //     this.applyTransform()
-    //   })
-    // }
-    // if (moveLeft) {
-    //   moveLeft.addEventListener('click', () => {
-    //     this.panX += 50
-    //     this.applyTransform()
-    //   })
-    // }
   }
 
   /**
