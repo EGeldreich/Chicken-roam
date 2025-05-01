@@ -734,5 +734,3 @@ MCD MLD : schéma nécessaire
 
 PROJET :
 rate limiter sur login
-réparer current value area
-message lors du changement de nom du plan

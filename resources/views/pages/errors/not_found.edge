@@ -1,8 +1,27 @@
-<h1>
-  404 - Page not found
-</h1>
-<p>
-  This template is rendered by the
-  <a href="http://docs.adonisjs.com/guides/exception-handling#status-pages">status pages feature</a>
-  of the global exception handler.
-</p>
+@let(description = "Page not found")
+@let(title = "404 - Page not found")
+@include('partials/header')
+@include('partials/nav')
+
+<main class="flex-grow flex items-center justify-center px-4 py-8">
+  <div class="text-center">
+    <h1 class="title mb-6">
+      404 - Page not found
+    </h1>
+
+    <p class="body mb-8">
+      Sorry, we couldn't find the page you're looking for.
+    </p>
+
+    <div class="flex flex-col md:flex-row gap-4 justify-center">
+      <a href="{{ route('user-page') }}" class="btn btn-primary">
+        Return Home
+          </a>
+      <a href="{{ route('onboarding') }}" class="btn btn-secondary">
+        Create a plan
+          </a>
+    </div>
+  </div>
+</main>
+
+@include('partials/footer')

@@ -45,8 +45,9 @@
       @end
     </div>
   </div>
+
   {{-- Full width nav --}}
-  <div class="md:flex justify-between h-full px-10 items-end hidden">
+  <div class="hidden md:flex justify-between h-full px-10 items-end">
 
     <div class="flex gap-5">
       @if(!auth.use('web').isAuthenticated)
@@ -66,7 +67,7 @@
       >About</a>
     </div>
 
-    @if(!onboarding)
+    @if(navPage !== "onboarding")
       <div class="flex">
         <a class="btn btn-primary" href="{{ route('onboarding') }}">
           Create a plan

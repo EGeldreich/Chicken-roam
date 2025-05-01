@@ -4,6 +4,7 @@ import ObjectiveService from '#services/objective_service'
 import type { HttpContext } from '@adonisjs/core/http'
 import { PlanState } from '#models/plan'
 import { planNameValidator } from '#validators/plan'
+import vine, { errors } from '@vinejs/vine'
 
 export default class PlansController {
   async guestPlan({ response, session, view }: HttpContext) {
@@ -145,9 +146,10 @@ export default class PlansController {
   //
   //
   async rename({ params, response, auth, request, session }: HttpContext) {
-    const { newName } = await request.validateUsing(planNameValidator)
-
     try {
+      // Use validator
+      const { newName } = await request.validateUsing(planNameValidator)
+
       // Find user
       const user = auth.user!
       // Find plan
@@ -164,8 +166,12 @@ export default class PlansController {
       }
       return response.redirect().toRoute('plan', { id: params.id })
     } catch (error) {
-      console.error('Error updating plan name: ', error)
-      session.flash('error', 'An error occurred while updating the plan name')
+      if (error instanceof errors.E_VALIDATION_ERROR) {
+        session.flash('error', 'This plan name is invalid, 50 characters max')
+      } else {
+        console.error('Error updating plan name: ', error)
+        session.flash('error', 'An error occurred while updating the plan name')
+      }
       return response.redirect().toRoute('plan', { id: params.id })
     }
   }

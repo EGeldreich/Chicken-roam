@@ -26,6 +26,8 @@ router.get('/about', [HomeController, 'about']).as('about')
 router.get('/terms-of-use', [HomeController, 'terms']).as('terms')
 router.get('/data-protection', [HomeController, 'data']).as('data')
 router.get('/gdpr', [HomeController, 'gdpr']).as('gdpr')
+router.get('/errors/404', [HomeController, 'notFound']).as('not-found')
+router.get('/errors/500', [HomeController, 'serverError']).as('server-error')
 
 // ELEMENTS
 router.post('/api/elements', [ElementsController, 'create'])

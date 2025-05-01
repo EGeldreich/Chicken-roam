@@ -44,7 +44,7 @@
       @if(auth.user)
         <form action="{{ route('rename-plan', { id: plan.id}) }}" method="POST" class="w-full">
           {{ csrfField() }}
-                <input id="plan-name" type="text" name="newName" value="{{ plan.name }}" class="w-full" />
+          <input id="plan-name" type="text" name="newName" value="{{ plan.name }}" class="w-full" />
         </form>
       @else
         <h1>

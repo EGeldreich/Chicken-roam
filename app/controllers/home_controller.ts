@@ -41,6 +41,18 @@ export default class HomeController {
   //
   //
   //
+  notFound({ view }: HttpContext) {
+    return view.render('pages/errors/not_found')
+  }
+  //
+  //
+  //
+  serverError({ view }: HttpContext) {
+    return view.render('pages/errors/server_error')
+  }
+  //
+  //
+  //
   async guestLanding({ request, response, session }: HttpContext) {
     // Validate input
     const { nbChickens } = await request.validateUsing(onboardingValidator)
