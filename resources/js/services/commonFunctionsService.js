@@ -207,21 +207,21 @@ export default class CommonFunctionsService {
    * Called in placeElement()
    * @param {Object} objectives Object containing all relevant objective information {id, name, description, target_value, completion_percentage, unit}
    */
-  updateObjectivesDisplay(objectives) {
-    // Use objectivesManager if available
-    if (this.planEditor.objectivesManager) {
-      this.planEditor.objectivesManager.updateAllObjectives(objectives)
-    } else {
-      objectives.forEach((objective) => {
-        // Find the correct HTML element
-        const objectiveEl = document.querySelector(`#${objective.name}`)
-        if (objectiveEl) {
-          // update percentage
-          objectiveEl.textContent = objective.completion_percentage
-        }
-      })
-    }
-  }
+  // updateObjectivesDisplay(objectives) {
+  //   // Use objectivesManager if available
+  //   if (this.planEditor.objectivesManager) {
+  //     this.planEditor.objectivesManager.updateAllObjectives(objectives)
+  //   } else {
+  //     objectives.forEach((objective) => {
+  //       // Find the correct HTML element
+  //       const objectiveEl = document.querySelector(`#${objective.name}`)
+  //       if (objectiveEl) {
+  //         // update percentage
+  //         objectiveEl.textContent = objective.completion_percentage
+  //       }
+  //     })
+  //   }
+  // }
 
   /**
    * Method to avoid overlapping

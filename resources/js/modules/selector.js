@@ -739,7 +739,7 @@ export default class Selector {
 
       // Update objectives display
       if (data.objectives) {
-        this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+        this.planEditor.objectivesManager.updateAllObjectives(data.objectives)
       }
 
       // Handle plan state change if fence was deleted

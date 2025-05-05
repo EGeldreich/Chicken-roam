@@ -4,22 +4,22 @@ import Vertex from '#models/vertex'
 import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import { PlanState } from '#models/plan'
+import { fenceValidator, fenceLinkValidator, fenceUpdateValidator } from '#validators/fence'
 
 @inject()
 export default class FencesController {
   async create({ request, response }: HttpContext) {
-    // We'll use a transaction to ensure both vertices and fence are created successfully
+    // Validate data from the request
+    const validatedData = await request.validateUsing(fenceValidator)
+    // Transaction to ensure both vertices and fence are created successfully
     const trx = await db.transaction()
 
     try {
-      // Get the data from the request
-      const { planId, startX, startY, endX, endY } = request.body()
-
       // Function to find or create vertex
       const getVertex = async (x: number, y: number) => {
         // Look for an existing vertex at these coordinates
         const existingVertex = await Vertex.query()
-          .where('planId', planId)
+          .where('planId', validatedData.planId)
           .where('positionX', x)
           .where('positionY', y)
           .first()
@@ -33,20 +33,20 @@ export default class FencesController {
           {
             positionX: x,
             positionY: y,
-            planId: planId,
+            planId: validatedData.planId,
           },
           { client: trx }
         )
       }
       // Get or create vertices
-      const startVertex = await getVertex(startX, startY)
-      const endVertex = await getVertex(endX, endY)
+      const startVertex = await getVertex(validatedData.startX, validatedData.startY)
+      const endVertex = await getVertex(validatedData.endX, validatedData.endY)
 
       // Create the fence connecting these vertices
       const fence = await Fence.create(
         {
           type: 'standard', // You might want to make this configurable later
-          planId: planId,
+          planId: validatedData.planId,
           vertexStartId: startVertex.id,
           vertexEndId: endVertex.id,
         },
@@ -174,7 +174,8 @@ export default class FencesController {
   //
   //
   async link({ params, request, response }: HttpContext) {
-    const { oldVertex, newVertex } = request.body()
+    // Validate data from the request
+    const validatedData = await request.validateUsing(fenceLinkValidator)
 
     try {
       // Find the fence to update
@@ -186,9 +187,9 @@ export default class FencesController {
 
       // Find the oldVertex in relation to the fence
       let isStartVertex = false
-      if (fence.vertexStartId === parseInt(oldVertex)) {
+      if (fence.vertexStartId === validatedData.oldVertex) {
         isStartVertex = true
-      } else if (fence.vertexEndId === parseInt(oldVertex)) {
+      } else if (fence.vertexEndId === validatedData.oldVertex) {
         isStartVertex = false
       } else {
         return response.badRequest({
@@ -198,16 +199,16 @@ export default class FencesController {
 
       // Replace the old vertex by the new one
       if (isStartVertex) {
-        fence.vertexStartId = parseInt(newVertex)
+        fence.vertexStartId = validatedData.newVertex
       } else {
-        fence.vertexEndId = parseInt(newVertex)
+        fence.vertexEndId = validatedData.newVertex
       }
 
       // Save Fence change
       await fence.save()
 
       // Find old vertex in DB
-      const vertexToDelete = await Vertex.find(oldVertex)
+      const vertexToDelete = await Vertex.find(validatedData.oldVertex)
 
       if (vertexToDelete) {
         // Check if vertex is still in use
@@ -294,14 +295,15 @@ export default class FencesController {
   //
   //
   async update({ params, request, response }: HttpContext) {
-    const { vertexStartId, vertexEndId } = request.body()
+    // Validate data from the request
+    const validatedData = await request.validateUsing(fenceUpdateValidator)
 
     const fence = await Fence.findOrFail(params.id)
 
     await fence
       .merge({
-        vertexStartId,
-        vertexEndId,
+        vertexStartId: validatedData.vertexStartId,
+        vertexEndId: validatedData.vertexEndId,
       })
       .save()
 

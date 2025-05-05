@@ -1,21 +1,35 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import Vertex from '#models/vertex'
+import { vertexValidator, vertexUpdateValidator } from '#validators/vertex'
 
 @inject()
 export default class VerticesController {
   //
   //
+  async create({ request, response }: HttpContext) {
+    const validatedData = await request.validateUsing(vertexValidator)
+
+    const vertex = await Vertex.create({
+      planId: validatedData.planId,
+      positionX: validatedData.positionX,
+      positionY: validatedData.positionY,
+    })
+
+    return response.created(vertex)
+  }
+  //
+  //
   async updatePosition({ params, response, request }: HttpContext) {
-    const { positionX, positionY } = request.body()
+    const validatedData = await request.validateUsing(vertexUpdateValidator)
 
     try {
       // Find vertex
       const vertex = await Vertex.findOrFail(params.id)
 
       // Update it
-      vertex.positionX = positionX
-      vertex.positionY = positionY
+      vertex.positionX = validatedData.positionX
+      vertex.positionY = validatedData.positionY
 
       // Save update
       await vertex.save()
@@ -30,18 +44,5 @@ export default class VerticesController {
         error: error.message,
       })
     }
-  }
-  //
-  //
-  async create({ request, response }: HttpContext) {
-    const { planId, positionX, positionY } = request.body()
-
-    const vertex = await Vertex.create({
-      planId,
-      positionX,
-      positionY,
-    })
-
-    return response.created(vertex)
   }
 }

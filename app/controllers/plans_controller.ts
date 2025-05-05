@@ -3,7 +3,7 @@ import Plan from '#models/plan'
 import ObjectiveService from '#services/objective_service'
 import type { HttpContext } from '@adonisjs/core/http'
 import { PlanState } from '#models/plan'
-import { planNameValidator } from '#validators/plan'
+import { planNameValidator, enclosureCompletionValidator } from '#validators/plan'
 import vine, { errors } from '@vinejs/vine'
 
 export default class PlansController {
@@ -53,7 +53,8 @@ export default class PlansController {
   //
   //
   async completeEnclosure({ params, response, request }: HttpContext) {
-    const { area, elementsToUpdate = [], elementsToRemove = [] } = request.body()
+    const validatedData = await request.validateUsing(enclosureCompletionValidator)
+
     try {
       // Find plan
       const plan = await Plan.findOrFail(params.planId)
@@ -64,12 +65,12 @@ export default class PlansController {
       await plan.save()
 
       // Calculate area completion
-      await ObjectiveService.calculateEnclosedCompletion(params.planId, area)
+      await ObjectiveService.calculateEnclosedCompletion(params.planId, validatedData.area)
 
       // Handle elements if needed
-      if (elementsToRemove.length > 0) {
+      if (validatedData.elementsToRemove && validatedData.elementsToRemove.length > 0) {
         // Delete elements that are now outside the enclosure
-        await Element.query().whereIn('id', elementsToRemove).delete()
+        await Element.query().whereIn('id', validatedData.elementsToRemove).delete()
       }
 
       await plan.load('objectives')
@@ -85,16 +86,16 @@ export default class PlansController {
       return response.ok({
         message: 'Enclosure completed successfully',
         areaCompletion: areaObjective.$extras.pivot_completion_percentage,
-        elementsUpdated: elementsToUpdate.length,
-        elementsRemoved: elementsToRemove.length,
+        elementsUpdated: validatedData.elementsToUpdate ? validatedData.elementsToUpdate.length : 0,
+        elementsRemoved: validatedData.elementsToRemove ? validatedData.elementsToRemove.length : 0,
         newState: plan.state,
       })
     } catch (error) {
-      console.error('Error in completeEnclosure:', error) // Add detailed error logging
+      console.error('Error in completeEnclosure:', error)
       return response.internalServerError({
         message: 'Failed to complete enclosure',
         error: error.message,
-        stack: error.stack, // This will help debug the issue
+        stack: error.stack,
       })
     }
   }

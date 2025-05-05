@@ -5,35 +5,34 @@ import { inject } from '@adonisjs/core'
 import db from '@adonisjs/lucid/services/db'
 import ObjectiveService from '#services/objective_service'
 import Plan from '#models/plan'
+import { elementValidator, elementPositionValidator } from '#validators/elements'
 
 @inject()
 export default class ElementsController {
   async create({ request, response }: HttpContext) {
+    const validatedData = await request.validateUsing(elementValidator)
     const trx = await db.transaction()
 
     try {
-      // Get the data from the request
-      const { planId, type, positionX, positionY, width, height, objectiveValue } = request.body()
-
-      // Create vertex within transaction
+      // Create vertex within transaction using validated data
       const vertex = await Vertex.create(
         {
-          positionX,
-          positionY,
-          planId,
+          positionX: validatedData.positionX,
+          positionY: validatedData.positionY,
+          planId: validatedData.planId,
         },
         { client: trx }
       )
 
-      // Create element within same transaction
+      // Create element within same transaction using validated data
       const element = await Element.create(
         {
-          planId,
-          type,
+          planId: validatedData.planId,
+          type: validatedData.type,
           vertexId: vertex.id,
-          objectiveValue,
-          width,
-          height,
+          objectiveValue: validatedData.objectiveValue,
+          width: validatedData.width,
+          height: validatedData.height,
           description: '',
         },
         { client: trx }
@@ -46,10 +45,13 @@ export default class ElementsController {
       await element.load('vertex')
 
       // Recalculate objectives for this plan
-      await ObjectiveService.recalculateForPlan(planId)
+      await ObjectiveService.recalculateForPlan(validatedData.planId)
 
       // Fetch the updated objectives
-      const plan = await Plan.query().where('id', planId).preload('objectives').firstOrFail()
+      const plan = await Plan.query()
+        .where('id', validatedData.planId)
+        .preload('objectives')
+        .firstOrFail()
 
       // Return both the element and the updated objectives
       return response.created({
@@ -117,7 +119,7 @@ export default class ElementsController {
   //
   //
   async updatePosition({ params, response, request }: HttpContext) {
-    const { positionX, positionY } = request.body()
+    const validatedData = await request.validateUsing(elementPositionValidator)
 
     try {
       // Use transaction for whole DB interaction
@@ -130,8 +132,8 @@ export default class ElementsController {
         await element.load('vertex')
         // Update it
         const vertex = element.vertex
-        vertex.positionX = positionX
-        vertex.positionY = positionY
+        vertex.positionX = validatedData.positionX
+        vertex.positionY = validatedData.positionY
 
         // Save update
         vertex.useTransaction(trx)

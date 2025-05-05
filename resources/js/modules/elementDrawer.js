@@ -190,7 +190,8 @@ export default class ElementDrawer {
 
         // If objectives were returned, update their display
         if (data.objectives) {
-          this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+          // this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
+          this.planEditor.objectivesManager.updateAllObjectives(data.objectives)
         }
 
         // Continue placing elements until tool is deselected
