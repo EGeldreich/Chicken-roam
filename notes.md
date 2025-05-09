@@ -709,28 +709,10 @@ this.selectedElement.classList.remove('valid-placement')
 this.showMenu()
 ```
 
-## TO DO
-
-**MUST DO**
-**MUST DO**
-Ajout d'un validator pour les éléments
-**MUST DO**
-**MUST DO**
-
 DOSSIER :
 
-Renforcer coté outil métier, simulation intelligente dans l'intro
+Ajouter schéma MVC
+Ajouter LightHouse
 
-Tableau pour généraliser le cahier des charges
-ajouter user flow
-
-Technologies peut etre un peu long ?
-
-reviser architecture REST
-
-RGPD : donnée de conservation des données.
-
-MCD MLD : schéma nécessaire
-
-PROJET :
-rate limiter sur login
+Ajouter en annexe et en note de bas de page :
+Base de donnée
