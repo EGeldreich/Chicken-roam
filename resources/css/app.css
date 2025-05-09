@@ -19,10 +19,10 @@
   --color-bamboo-500: #ff8d07;
   --color-bamboo-600: #f1781e;
   --color-bamboo-700: #de6408;
-  --color-bamboo-800: #ac470c;
+  --color-bamboo-800: #a34209;
   --color-bamboo-900: #83380b;
-  --color-bamboo-950: #3b1502;
-  --color-bamboo-0: rgba(71, 26, 3, 0.25);
+  --color-bamboo-950: #471a03;
+  --color-bamboo-0: rgba(59, 21, 2, 0.25);
 
   --color-lightning-50: #ffffea;
   --color-lightning-100: #fffcc5;
@@ -85,10 +85,10 @@
     @apply rounded-md h-12 px-5 self-center duration-300 cursor-pointer w-auto font-sora flex justify-center items-center text-base whitespace-nowrap;
   }
   .btn-primary {
-    @apply bg-bamboo-600 text-bamboo-950 hover:bg-bamboo-500;
+    @apply bg-bamboo-500 text-bamboo-950 hover:bg-bamboo-400;
   }
   .btn-secondary {
-    @apply bg-transparent text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-600 hover:border-bamboo-600;
+    @apply bg-transparent text-bamboo-950 border border-bamboo-0 hover:bg-bamboo-500 hover:border-bamboo-500;
   }
   .btn-tertiary {
     @apply bg-transparent text-bamboo-950 border border-solid border-transparent hover:border-bamboo-0;

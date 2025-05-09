@@ -1,6 +1,7 @@
 @let(title = 'Chicken Realm')
 @let(navPage ='onboarding')
 @let(pageStyle = 'resources/css/pages-css/onboarding.css')
+@let(description = "Design the Ultimate Chicken Kingdom for Happy, Healthy Hens")
 @include('partials/header')
 @include('partials/nav')
 
@@ -48,20 +49,29 @@
           </p>
           {{-- number input with personnalized arrow --}}
           <div
-            class="flex items-center justify-between relative body font-bold text-bamboo-600 h-full xs:flex-3"
+            class="flex items-center justify-between relative body font-bold text-bamboo-800 h-full xs:flex-3"
           >
 
             <div class="xs:h-auto h-12 flex items-center">
-              <input type="number" name="nbChickens" min="1" max="50" class="underline pl-5" value="10" />
-              <span>chickens</span>
+              <input
+                type="number"
+                name="nbChickens"
+                min="1"
+                max="50"
+                class="underline pl-5"
+                value="10"
+                id="nbChickens"
+              />
+              <label for="nbChickens">chickens</label>
             </div>
 
             {{-- Personnalized arrows --}}
             <div class="flex flex-col xs:h-full h-12 border-l border-bamboo-0">
 
               <button
-                class="flex-1 border-b border-bamboo-0 px-2 cursor-pointer"
+                class="flex-1 border-b border-bamboo-0 px-4 cursor-pointer"
                 type="button"
+                aria-label="Add one to the number of chicken"
                 onclick="this.parentNode.parentNode.querySelector('input[type=number]').stepUp()"
               >
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -72,8 +82,9 @@
                 </svg>
               </button>
               <button
-                class="flex-1 px-2 cursor-pointer"
+                class="flex-1 px-4 cursor-pointer"
                 type="button"
+                aria-label="Remove one to the number of chicken"
                 onclick="this.parentNode.parentNode.querySelector('input[type=number]').stepDown()"
               >
                 <svg width="10" height="8" viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg">
