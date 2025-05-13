@@ -162,9 +162,6 @@
   .selected.fence {
     @apply bg-bamboo-500;
   }
-  .door {
-    @apply outline-2 outline-dashed outline-gray-500;
-  }
   .selected::before {
     @apply border-2 rounded-md border-bamboo-500;
   }
