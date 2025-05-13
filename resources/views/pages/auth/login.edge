@@ -14,7 +14,7 @@
     @!component('components/input', { name : 'password', label : 'Password', type : 'password', isLogin: true })
 
     {{-- Remember me --}}
-    <div class="mb-4">
+    <div class="mb-2">
       <label class="block">
         <input
           type="checkbox"
@@ -45,8 +45,12 @@
         Remember Me functionality is disabled. You can enable it in <a href="{{ route('cookies-policy') }}" class="link">Cookie settings</a>.
       </p>
     </div>
+    <div class="mb-4">
+      <a href="{{ route('auth.forgot-password') }}" class="link">I forgot my password</a>
+    </div>
 
     <button class="btn btn-primary w-full" type="submit">{{ title }}</button>
+
   </form>
 </main>
 
