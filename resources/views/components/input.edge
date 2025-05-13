@@ -1,17 +1,83 @@
 <div class="mb-4">
   <label for="{{ name }}" class="label">{{ label }}</label>
-  <input
-    autocomplete="{{ type === 'email' ? 'email' : 
+  <div class="input-container">
+    <input
+      autocomplete="{{ type === 'email' ? 'email' : 
     type === 'password' && isLogin ? 'current-password' : 
     type === 'password' ? 'new-password' : 
     name === 'username' ? 'username' : 'on' }}"
-    type="{{ type || 'text' }}"
-    name="{{ name }}"
-    id="{{ name }}"
-    placeholder="{{ label }}"
-    value="{{ value || '' }}"
-    class="text-input"
-  />
+      type="{{ type || 'text' }}"
+      name="{{ name }}"
+      id="{{ name }}"
+      placeholder="{{ label }}"
+      value="{{ value || '' }}"
+      class="text-input {{ type === 'password' ? 'password-input' : '' }}"
+    />
+    @if(type === 'password')
+      <button
+        type="button"
+        class="password-toggle"
+        onclick="togglePassword('{{ name }}')"
+        aria-label="Toggle password visibility"
+      >
+        <svg
+          class="eye-open"
+          style="display: none;"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clip-path="url(#clip0_1028_4906)">
+            <path
+              d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"
+              stroke="#3B1502"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M2 12C3.60014 7.90264 7.33603 5 12 5C16.664 5 20.3999 7.90264 22 12C20.3999 16.0974 16.664 19 12 19C7.33603 19 3.60014 16.0974 2 12Z"
+              stroke="#3B1502"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_1028_4906">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        <svg
+          class="eye-closed"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clip-path="url(#clip0_1028_4907)">
+            <path
+              d="M10.7302 5.07319C11.1449 5.02485 11.5685 5 12 5C16.664 5 20.3999 7.90264 22 12C21.6054 13.0104 21.0809 13.9482 20.4447 14.7877M6.51962 6.51944C4.47955 7.76406 2.90111 9.69259 2 12C3.60014 16.0974 7.33603 19 12 19C14.0376 19 15.898 18.446 17.4806 17.4804M9.87877 9.87859C9.33582 10.4215 9 11.1715 9 12C9 13.6569 10.3431 15 12 15C12.8285 15 13.5785 14.6642 14.1214 14.1212"
+              stroke="#3B1502"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path d="M4 4L20 20" stroke="#3B1502" stroke-width="2" stroke-linecap="round" />
+          </g>
+          <defs>
+            <clipPath id="clip0_1028_4907">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+      </button>
+    @end
+  </div>
   @inputError(name)
     @each(message in $messages)
       <p class="text-bamboo-700">
@@ -21,3 +87,20 @@
   @end
 </div>
 
+<script>
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const eyeOpen = button.querySelector(".eye-open");
+    const eyeClosed = button.querySelector(".eye-closed");
+    if (input.type === "password") {
+      input.type = "text";
+      eyeOpen.style.display = "block";
+      eyeClosed.style.display = "none";
+    } else {
+      input.type = "password";
+      eyeOpen.style.display = "none";
+      eyeClosed.style.display = "block";
+    }
+  }
+</script>
