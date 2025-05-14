@@ -260,14 +260,6 @@
   border-top: none;
   padding-top: 2px;
 }
-.point {
-  height: 1rem;
-  width: 1rem;
-  border-radius: 99px;
-  border: 2px solid var(--bamboo-950);
-  position: absolute;
-  transform: translate(-50%, -50%);
-}
 .shelter,
 .waterer,
 .perch,
@@ -340,4 +332,60 @@
   left: -75px;
   background-image: url('../../assets/images/elements/tree.svg');
 }
+/* Points */
+.point {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 99px;
+  border: 2px solid var(--bamboo-950);
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.snapping-to-connection {
+  background-color: var(--shrub) !important;
+  height: 0.2rem !important; /* Slightly thicker when snapping */
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+}
+/* Guidance display */
+.invalid-placement {
+  background-color: var(--bamboo-600) !important;
+}
+.valid-placement {
+  background-color: var(--perch);
+}
+.moving {
+  opacity: 0.4;
+}
+
+/* Placement restrictions */
+.temporary-element.invalid-placement {
+  border: 2px dashed var(--bamboo-950);
+}
+
+.temporary-element.valid-placement {
+  border: 2px dashed var(--shrub);
+}
+.placement-error {
+  animation: shine 0.5s;
+}
 /* ____________________ END ELEMENTS */
+
+/* ____________________ ANIMATIONS */
+@keyframes shine {
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
+    background-color: var(--bamboo-600);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    background-color: var(--bamboo-950);
+  }
+}
+/* ____________________ END ANIMATIONS */

@@ -1,6 +1,6 @@
 <div class="mb-4">
   <label for="{{ name }}" class="label">{{ label }}</label>
-  <div class="input-container">
+  <div class="relative inline-block w-full">
     <input
       autocomplete="{{ type === 'email' ? 'email' : 
     type === 'password' && isLogin ? 'current-password' : 
@@ -11,17 +11,17 @@
       id="{{ name }}"
       placeholder="{{ label }}"
       value="{{ value || '' }}"
-      class="text-input {{ type === 'password' ? 'password-input' : '' }}"
+      class="text-input"
     />
     @if(type === 'password')
       <button
         type="button"
-        class="password-toggle"
+        class="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer flex items-center justify-center p-2"
         onclick="togglePassword('{{ name }}')"
         aria-label="Toggle password visibility"
       >
         <svg
-          class="eye-open"
+          class="eye-open w-5 h-5"
           style="display: none;"
           width="24"
           height="24"
@@ -52,7 +52,7 @@
           </defs>
         </svg>
         <svg
-          class="eye-closed"
+          class="eye-closed w-5 h-5"
           width="24"
           height="24"
           viewBox="0 0 24 24"

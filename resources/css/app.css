@@ -7,10 +7,6 @@
   --breakpoint-xxs: 20rem;
 
   /* Colors */
-  --color-green-main: #05804d;
-  --color-green-secondary: #05804d33;
-  --color-green-hover: #04663e;
-
   --color-bamboo-50: #f7f3e9;
   --color-bamboo-100: #f6edd9;
   --color-bamboo-200: #f2e9d5;
@@ -106,9 +102,6 @@
   .tool-btn {
     @apply cursor-pointer duration-300;
   }
-  /* .active-tool {
-    @apply bg-black hover:bg-black;
-  } */
 
   /* 
   */
@@ -200,27 +193,14 @@
   --radius: 0.375rem;
 }
 
+/* General */
 html {
   font-family: 'Roundo', 'Sora', sans-serif;
   scroll-behavior: smooth;
 }
 
-.snapping-to-connection {
-  background-color: var(--shrub) !important;
-  height: 0.2rem !important; /* Slightly thicker when snapping */
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
-}
-.placement-error {
+/* .placement-error {
   animation: shake 0.5s;
-}
-.invalid-placement {
-  background-color: var(--bamboo-600) !important;
-}
-.valid-placement {
-  background-color: var(--perch);
-}
-.moving {
-  opacity: 0.4;
 }
 
 @keyframes shake {
@@ -241,25 +221,7 @@ html {
   80% {
     transform: translate(-45%, -50%);
   }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
+} */
 /* ---- State indicators */
 
 /* Element states */
@@ -272,17 +234,6 @@ html {
 .element.outside-enclosure {
   border: 2px dashed #cc0000;
   animation: pulse-red 1s infinite;
-}
-
-/* Placement restrictions */
-.temporary-element.invalid-placement {
-  background-color: rgba(255, 0, 0, 0.3);
-  border: 2px dashed #cc0000;
-}
-
-.temporary-element.valid-placement {
-  background-color: rgba(0, 255, 0, 0.2);
-  border: 2px dashed #00aa00;
 }
 
 /* Guidance message */
@@ -300,39 +251,4 @@ html {
   100% {
     transform: scale(1);
   }
-}
-
-/* Password Input */
-.input-container {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.password-input {
-  padding-right: 2.75rem !important;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  padding: 0.5rem;
-  cursor: pointer;
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.password-toggle:hover {
-  color: #374151;
-}
-
-.password-toggle svg {
-  width: 1.25rem;
-  height: 1.25rem;
 }
