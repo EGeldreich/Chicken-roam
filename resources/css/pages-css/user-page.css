@@ -17,6 +17,7 @@ img {
   font-family: 'Sora', sans-serif;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
   gap: 40px;
   width: 80%;
   max-width: 75rem;
