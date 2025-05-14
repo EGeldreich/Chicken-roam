@@ -9,7 +9,6 @@
   touch-action: none;
   -webkit-overflow-scrolling: auto;
 }
-
 .canvas-content {
   transform-origin: 0 0;
   width: 10000px;
@@ -27,6 +26,11 @@
   background-color: var(--bamboo-300);
 }
 
+/* __________ GUIDANCE MESSAGE */
+/* Guidance message */
+.guidance-message.pulse {
+  animation: pulse 0.5s;
+}
 /* __________ TOOLBOX */
 /* Tool btns */
 .tool-btn svg rect,
@@ -348,7 +352,7 @@
 }
 /* Guidance display */
 .invalid-placement {
-  background-color: var(--bamboo-600) !important;
+  background-color: var(--bamboo-600);
 }
 .valid-placement {
   background-color: var(--perch);
@@ -356,36 +360,46 @@
 .moving {
   opacity: 0.4;
 }
-
-/* Placement restrictions */
+.invalid-placement.placement-error {
+  transition: background-color 0.1s ease-in-out;
+  animation: error-blink 0.5s;
+}
 .temporary-element.invalid-placement {
   border: 2px dashed var(--bamboo-950);
 }
-
 .temporary-element.valid-placement {
   border: 2px dashed var(--shrub);
 }
-.placement-error {
-  animation: shine 0.5s;
+
+/* Element states */
+.element.inactive-element {
+  opacity: 0.5;
+  pointer-events: none;
 }
 /* ____________________ END ELEMENTS */
 
 /* ____________________ ANIMATIONS */
-@keyframes shine {
+@keyframes error-blink {
   0%,
-  20%,
-  40%,
-  60%,
-  80%,
+  50%,
   100% {
     background-color: var(--bamboo-600);
   }
-  10%,
-  30%,
+  25%,
+  75% {
+    background-color: var(--bamboo-300);
+  }
+}
+
+@keyframes pulse {
+  0%,
   50%,
-  70%,
-  90% {
-    background-color: var(--bamboo-950);
+  100% {
+    transform: scale(1);
+  }
+  25%,
+  75% {
+    transform: scale(1.05);
   }
 }
 /* ____________________ END ANIMATIONS */

@@ -843,6 +843,7 @@ export default class CommonFunctionsService {
   }
 
   /**
+   * Add placement-error class to element
    * Display an error feedback as an error toast
    * @param {String} reason String containing reason
    * @param {Object} element HTML element being placed or moved

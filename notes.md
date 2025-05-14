@@ -709,10 +709,7 @@ this.selectedElement.classList.remove('valid-placement')
 this.showMenu()
 ```
 
-DOSSIER :
+SPAM Message en déplaçant point, à modifier.
 
-Ajouter schéma MVC
-Ajouter LightHouse
-
-Ajouter en annexe et en note de bas de page :
-Base de donnée
+PRESENTATION :
+Liste des fonctionnalités EXHAUSTIVE
