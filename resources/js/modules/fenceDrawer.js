@@ -507,6 +507,8 @@ export default class FenceDrawer {
 
     // Before sending to the backend, check existing elements if plan was previously broken
     const wasInBrokenState = this.planEditor.planState === 'broken'
+    // Or already enclosed
+    const wasAlreadyEnclosed = this.planEditor.planState === 'enclosed'
 
     // If the plan was previously broken, categorize existing elements
     let elementsToUpdate = []
@@ -567,12 +569,6 @@ export default class FenceDrawer {
         const areaCompletion = responseData.areaCompletion
         const newState = responseData.newState || 'enclosed'
 
-        // Add visual feedback
-        this.canvas.classList.add('enclosure-complete')
-
-        // Update the plan state in the editor
-        this.planEditor.updatePlanState(newState)
-
         // If elements were removed, remove them from the DOM and tracking array
         if (elementsToRemove.length > 0) {
           elementsToRemove.forEach((id) => {
@@ -586,17 +582,26 @@ export default class FenceDrawer {
           )
         }
 
-        // Personnalized event
-        // Create ability to listen for an 'enclosureComplete' event on other files
-        const event = new CustomEvent('enclosureComplete', {
-          detail: {
-            planId: this.planId,
-            area: enclosedArea,
-            elementsRemoved: elementsToRemove.length,
-          },
-        })
-        // Dispatch the event from the canvas element
-        this.canvas.dispatchEvent(event)
+        // If it was not already enclosed
+        if (!wasAlreadyEnclosed) {
+          // Add visual feedback
+          this.canvas.classList.add('enclosure-complete')
+
+          // Update the plan state in the editor
+          this.planEditor.updatePlanState(newState)
+
+          // Personnalized event
+          // Create ability to listen for an 'enclosureComplete' event on other files
+          const event = new CustomEvent('enclosureComplete', {
+            detail: {
+              planId: this.planId,
+              area: enclosedArea,
+              elementsRemoved: elementsToRemove.length,
+            },
+          })
+          // Dispatch the event from the canvas element
+          this.canvas.dispatchEvent(event)
+        }
 
         // Update objective completion with new value
         this.planEditor.objectivesManager.updateObjectiveCompletion(

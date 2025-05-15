@@ -86,6 +86,7 @@ export default class PlanEditor {
     this.initializeTools() // Tool selection
     this.initializeCanvasEvents() // Mouse events on canvas
     this.initializeZoomPanControls() // Zoom and pan controls
+    this.initializeKeyboardShortcuts() // Keyboards shortcuts
 
     // Apply first transform to get in the middle of canvas
     this.applyTransform()
@@ -320,6 +321,32 @@ export default class PlanEditor {
       // Apply transformations
       this.applyTransform()
     }
+  }
+
+  /**
+   * Initialize keyboard shortcuts for tool selection
+   */
+  initializeKeyboardShortcuts() {
+    document.addEventListener('keydown', (event) => {
+      // Ignore shortcuts if user is typing in an input field
+      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+        return
+      }
+
+      // Check which key was pressed
+      switch (event.key.toLowerCase()) {
+        case ' ': // Space key for move tool
+          event.preventDefault() // Prevent default space behavior (page scroll)
+          this.setCurrentTool('move')
+          break
+        case 'v': // V key for select tool
+          this.setCurrentTool('select')
+          break
+        case 'a': // A key for point adder
+          this.setCurrentTool('point')
+          break
+      }
+    })
   }
   ///////////////////////
 
