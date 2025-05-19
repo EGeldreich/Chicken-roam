@@ -121,13 +121,14 @@
       </div>
       {{-- Forms container end --}}
 
-      <div class="flex flex-col gap-1">
-        <p class="body text-center">
-          Already clucking with us?
-        </p>
-        <a href="{{ route('auth.login') }}" class="link text-center">Log in to access your saved plans</a>
-      </div>
-
+      @if(!auth.use('web').isAuthenticated)
+        <div class="flex flex-col gap-1">
+          <p class="body text-center">
+            Already clucking with us?
+          </p>
+          <a href="{{ route('auth.login') }}" class="link text-center">Log in to access your saved plans</a>
+        </div>
+      @end
     </main>
 
   </body>
