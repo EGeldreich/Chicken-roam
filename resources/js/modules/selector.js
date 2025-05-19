@@ -666,9 +666,7 @@ export default class Selector {
     this.menu.querySelector('.downgrade-btn').classList.add('hidden')
     // Display upgrade btn only for fence or perch
     if (
-      (this.selectedElement.classList.contains('fence') ||
-        this.selectedElement.classList.contains('perch') ||
-        this.selectedElement.classList.contains('shrub')) &&
+      this.selectedElement.classList.contains('fence') &&
       !this.selectedElement.classList.contains('door')
     ) {
       this.menu.querySelector('.upgrade-btn').classList.remove('hidden')
@@ -834,90 +832,105 @@ export default class Selector {
       }
     }
 
-    // Perch or shrub __________________
-    if (
-      this.selectedElement.classList.contains('perch') ||
-      this.selectedElement.classList.contains('shrub')
-    ) {
-      // Check for space availability
-      // Get position
-      let elementPosition = {
-        x: parseFloat(this.selectedElement.style.left),
-        y: parseFloat(this.selectedElement.style.top),
-      }
-      // Check placement
-      const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
-        elementPosition,
-        this.selectedElement,
-        200,
-        200
-      )
+    // // Perch or shrub __________________
+    // if (
+    //   this.selectedElement.classList.contains('perch') ||
+    //   this.selectedElement.classList.contains('shrub')
+    // ) {
+    //   // Get element id
+    //   const elementId = parseInt(this.selectedElement.dataset.elementId)
 
-      // handle unavailability
-      if (placementResult.invalid) {
-        this.planEditor.commonFunctionsService.showPlacementError(
-          placementResult.reason,
-          this.selectedElement
-        )
-        this.selectedElement.classList.remove('invalid-placement')
+    //   // Remove from placedElement array
+    //   // Find element index
+    //   const elementIndex = this.planEditor.placedElements.findIndex((el) => el.id === elementId)
+    //   // Initialize current Element as null
+    //   let currentElement = null
+    //   if (elementIndex !== -1) {
+    //     // Remove element from placedElements and set it as currentElement
+    //     currentElement = this.planEditor.placedElements.splice(elementIndex, 1)[0]
+    //   }
 
-        // Place available :
-      } else {
-        try {
-          // Get element id
-          const elementId = parseInt(this.selectedElement.dataset.elementId)
+    //   // Check for space availability
+    //   // Get position
+    //   let elementPosition = {
+    //     x: parseFloat(this.selectedElement.style.left),
+    //     y: parseFloat(this.selectedElement.style.top),
+    //   }
+    //   // Check placement
+    //   const placementResult = this.planEditor.commonFunctionsService.checkElementPlacement(
+    //     elementPosition,
+    //     this.selectedElement,
+    //     50,
+    //     50
+    //   )
 
-          // Call back for upgrade
-          response = await fetch(`/api/elements/${elementId}/upgrade`, {
-            method: 'PATCH',
-            headers: {
-              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            },
-          })
-          if (!response.ok) {
-            console.error('Failed to upgrade perch: ', await response.json())
-          } else {
-            // Get response data
-            const data = await response.json()
+    //   // handle unavailability
+    //   if (placementResult.invalid) {
+    //     // Put back element into placedElements array
+    //     if (currentElement) {
+    //       this.planEditor.placedElements.splice(elementIndex, 0, currentElement)
+    //     }
+    //     // Show error
+    //     this.planEditor.commonFunctionsService.showPlacementError(
+    //       placementResult.reason,
+    //       this.selectedElement
+    //     )
+    //     this.selectedElement.classList.remove('invalid-placement')
 
-            // Update placedElements for new size
-            // Find the index
-            this.elementIndex = this.planEditor.placedElements.findIndex(
-              (el) => el.id === elementId
-            )
-            // Update it
-            if (this.elementIndex !== -1) {
-              this.planEditor.placedElements[this.elementIndex] = {
-                id: data.element.id,
-                type: data.element.type,
-                x: parseFloat(data.element.vertexPositionX),
-                y: parseFloat(data.element.vertexPositionY),
-                width: parseFloat(data.element.width),
-                height: parseFloat(data.element.height),
-              }
-            }
+    //     // Place available :
+    //   } else {
+    //     try {
+    //       // Call back for upgrade
+    //       response = await fetch(`/api/elements/${elementId}/upgrade`, {
+    //         method: 'PATCH',
+    //         headers: {
+    //           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+    //         },
+    //       })
+    //       if (!response.ok) {
+    //         console.error('Failed to upgrade perch: ', await response.json())
+    //       } else {
+    //         // Get response data
+    //         const data = await response.json()
 
-            // Update objectives display
-            if (data.objectives) {
-              this.planEditor.commonFunctionsService.updateObjectivesDisplay(data.objectives)
-            }
+    //         // Update placedElements for new size
+    //         // Find the index
+    //         this.elementIndex = this.planEditor.placedElements.findIndex(
+    //           (el) => el.id === elementId
+    //         )
+    //         // Update it
+    //         if (this.elementIndex !== -1) {
+    //           this.planEditor.placedElements[this.elementIndex] = {
+    //             id: data.element.id,
+    //             type: data.element.type,
+    //             x: parseFloat(data.element.vertexPositionX),
+    //             y: parseFloat(data.element.vertexPositionY),
+    //             width: parseFloat(data.element.width),
+    //             height: parseFloat(data.element.height),
+    //           }
+    //         }
 
-            // Update element display
-            this.selectedElement.classList.remove('perch')
-            this.selectedElement.classList.remove('shrub')
-            this.selectedElement.classList.add('tree')
-            this.selectedElement.style.width = `${data.element.width}px`
-            this.selectedElement.style.height = `${data.element.width}px`
-            // Remove helper class
-            this.selectedElement.classList.remove('valid-placement')
-            // Update menu to remove upgrade btn
-            this.showMenu()
-          }
-        } catch (error) {
-          console.error('Error: ', error)
-        }
-      }
-    }
+    //         // Update objectives display
+    //         if (data.objectives) {
+    //           this.planEditor.objectivesManager.updateAllObjectives(data.objectives)
+    //         }
+
+    //         // Update element display
+    //         this.selectedElement.classList.remove('perch')
+    //         this.selectedElement.classList.remove('shrub')
+    //         this.selectedElement.classList.add('tree')
+    //         this.selectedElement.style.width = `${data.element.width}px`
+    //         this.selectedElement.style.height = `${data.element.width}px`
+    //         // Remove helper class
+    //         this.selectedElement.classList.remove('valid-placement')
+    //         // Update menu to remove upgrade btn
+    //         this.showMenu()
+    //       }
+    //     } catch (error) {
+    //       console.error('Error: ', error)
+    //     }
+    //   }
+    // }
   }
   async handleDowngrade() {
     // Get out if selected element isn't a door
