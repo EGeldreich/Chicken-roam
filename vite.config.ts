@@ -19,4 +19,9 @@ export default defineConfig({
     }),
   ],
   assetsInclude: ['**/*.woff', '**/*.woff2', '**/*.ttf', '**/*.eot'],
+  server: {
+    hmr: {
+      port: 24679,
+    },
+  },
 })

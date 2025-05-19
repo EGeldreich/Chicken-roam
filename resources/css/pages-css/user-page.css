@@ -136,7 +136,8 @@ section {
 #new-plan {
   display: flex;
   flex-direction: column;
-  flex: 1 24rem;
+  flex: 0 0 auto;
+  width: calc((100% - (2 * 1rem)) / 3);
   gap: 1rem;
   margin-bottom: 1rem;
 
@@ -159,8 +160,8 @@ section {
 .plan {
   margin-bottom: 1rem;
   display: flex;
-  flex: 1 24rem;
-  width: 100%;
+  flex: 0 0 auto;
+  width: calc((100% - (2 * 1rem)) / 3);
   flex-direction: column;
   gap: 1rem;
   position: relative;
@@ -293,10 +294,10 @@ section {
     width: 100%;
   }
   #new-plan {
-    flex: 1 16rem;
+    width: 100%;
   }
   .plan {
-    flex: 1 12rem;
+    width: 100%;
   }
 }
 @media (width <= 48rem) {
