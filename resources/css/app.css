@@ -126,7 +126,7 @@
    */
   /* FLASH */
   .flash {
-    @apply font-sora text-sm border border-bamboo-0 rounded-md text-bamboo-950 px-4 py-3 absolute top-18 left-18 z-99;
+    @apply font-sora text-sm border border-bamboo-0 rounded-md text-bamboo-950 px-4 py-3 absolute top-18 left-1/2 -translate-x-1/2 z-99;
   }
   .flash-success {
     @apply bg-shrub;
